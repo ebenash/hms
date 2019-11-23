@@ -10,15 +10,11 @@
 | contains the "web" middleware group. Now create something great!
 |
 */
-
-Route::get('/', function () {
-    return redirect('dashboard');
-});
+Route::get('/', 'DashboardController@index');
 
 Auth::routes();
 
 Route::get('/dashboard', 'DashboardController@index')->name('dashboard');
-
 
 Route::post('/guests/store', 'GuestsController@store');
 Route::post('/roomtypes/store', 'RoomTypesController@store');

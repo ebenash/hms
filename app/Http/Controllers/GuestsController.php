@@ -15,8 +15,7 @@ class GuestsController extends Controller
     public function index()
     {
         //
-        $guests = Guests::all();
-        return view('guests.list')->with('guests',$guests);
+        return view('guests.list');
     }
 
     /**

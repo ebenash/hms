@@ -15,8 +15,7 @@ class RoomTypesController extends Controller
     public function index()
     {
         //
-        $roomtypes = RoomTypes::all();
-        return view('roomtypes.list')->with('roomtypes',$roomtypes);
+        return view('roomtypes.list');
     }
 
     /**
@@ -47,7 +46,7 @@ class RoomTypesController extends Controller
 
         $roomtype->save();
 
-        return redirect('/roomtypes')->with('success', 'Room Type Successfully Saved!');
+        return redirect('/rooms')->with('success', 'Room Type Successfully Saved!');
     }
 
     /**
@@ -94,7 +93,7 @@ class RoomTypesController extends Controller
 
         $roomtype->update();
 
-        return redirect('/roomtypes')->with('success','Successfully Updated!');
+        return redirect('/rooms')->with('success','Successfully Updated!');
 
     }
 

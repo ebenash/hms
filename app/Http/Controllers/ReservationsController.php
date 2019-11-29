@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Calendar;
 use App\Reservations;
 use Illuminate\Http\Request;
 
@@ -15,6 +16,7 @@ class ReservationsController extends Controller
     public function index()
     {
         //
+        return view('reservations.list');
     }
 
     /**
@@ -25,6 +27,7 @@ class ReservationsController extends Controller
     public function create()
     {
         //
+        return view('reservations.form')->with('create','create');
     }
 
     /**
@@ -36,6 +39,27 @@ class ReservationsController extends Controller
     public function store(Request $request)
     {
         //
+        $request->validate([
+            'room' => 'required',
+            'guest' => 'required',
+            'check_in' => 'required',
+            'check_out' => 'required',
+            'adults' => 'required',
+            'children' => 'required'
+        ]);
+
+        $reservation = new Reservations;
+
+        $reservation->room_id = $request->input('room');
+        $reservation->guest_id = $request->input('guest');
+        $reservation->check_in = $request->input('check_in');
+        $reservation->check_out = $request->input('check_out');
+        $reservation->adults = $request->input('adults');
+        $reservation->children = $request->input('children');
+        $reservation->reservation_status = $request->input('status');
+
+        $reservation->save();
+        return redirect('/reservations')->with('success','Reservation Record Saved Successfully');
     }
 
     /**
@@ -44,9 +68,17 @@ class ReservationsController extends Controller
      * @param  \App\Reservations  $reservations
      * @return \Illuminate\Http\Response
      */
-    public function show(Reservations $reservations)
+    public function show($id)
     {
         //
+        $reservation = Reservations::find($id);
+        return view('reservations.show')->with('reservation',$reservation);
+    }
+
+    public function calendar()
+    {
+        //
+        return view('reservations.calendar');
     }
 
     /**
@@ -58,6 +90,8 @@ class ReservationsController extends Controller
     public function edit(Reservations $reservations)
     {
         //
+        $reservation = Reservations::find($id);
+        return view('reservations.form');
     }
 
     /**
@@ -67,9 +101,30 @@ class ReservationsController extends Controller
      * @param  \App\Reservations  $reservations
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Reservations $reservations)
+    public function update(Request $request, $id)
     {
         //
+        $request->validate([
+            'room' => 'required',
+            'guest' => 'required',
+            'check_in' => 'required',
+            'check_out' => 'required',
+            'adults' => 'required',
+            'children' => 'required'
+        ]);
+
+        $reservation = Reservations::find($id);
+
+        $reservation->room_id = $request->input('room');
+        $reservation->guest_id = $request->input('guest');
+        $reservation->check_in = $request->input('check_in');
+        $reservation->check_out = $request->input('check_out');
+        $reservation->adults = $request->input('adults');
+        $reservation->children = $request->input('children');
+        $reservation->reservation_status = $request->input('status');
+
+        $reservation->save();
+        return redirect('/reservations')->with('success','Reservation Record Updated Successfully');
     }
 
     /**
@@ -78,8 +133,11 @@ class ReservationsController extends Controller
      * @param  \App\Reservations  $reservations
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Reservations $reservations)
+    public function destroy($id)
     {
         //
+        $reservation = Reservations::find($id);
+        $reservation->delete();
+        return redirect('/reservations')->with('success','Reservation Record Deleted Successfully');
     }
 }

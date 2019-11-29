@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Rooms;
+use App\RoomTypes;
 use Illuminate\Http\Request;
 
 class RoomsController extends Controller
@@ -15,8 +16,7 @@ class RoomsController extends Controller
     public function index()
     {
         //
-        $rooms = Rooms::all();
-        return view('rooms.list')->with('rooms',$rooms);
+        return view('rooms.list');
     }
 
     /**
@@ -50,8 +50,9 @@ class RoomsController extends Controller
 
         $room->name = $request->input('name');
         $room->price = $request->input('price');
-        $room->type = $request->input('type');
+        $room->room_type_id = $request->input('type');
         $room->max_persons = $request->input('max_persons');
+        $room->status = $request->input('status');
 
         $room->save();
         return redirect('/rooms')->with('success','Successfully Created!');
@@ -82,7 +83,7 @@ class RoomsController extends Controller
     {
         //
         $room = Rooms::find($id);
-        die(print_r($room->roomtypes()));
+        
         return view('rooms.form')->with('room',$room);
 
     }
@@ -108,8 +109,9 @@ class RoomsController extends Controller
 
         $room->name = $request->input('name');
         $room->price = $request->input('price');
-        $room->type = $request->input('type');
+        $room->room_type_id = $request->input('type');
         $room->max_persons = $request->input('max_persons');
+        $room->status = $request->input('status');
 
         $room->update();
         return redirect('/rooms')->with('success','Successfully Updated!');

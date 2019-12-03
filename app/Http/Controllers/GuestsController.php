@@ -8,6 +8,16 @@ use Illuminate\Http\Request;
 class GuestsController extends Controller
 {
     /**
+     * Create a new controller instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+    
+    /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
@@ -52,6 +62,8 @@ class GuestsController extends Controller
         $guest->phone = $request->input('phone');
         $guest->city = $request->input('city');
         $guest->country = $request->input('country');
+        $guest->company_id = auth()->user()->company->id;
+        $guest->created_by = auth()->user()->id;
 
         $guest->save();
 

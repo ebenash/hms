@@ -12,7 +12,7 @@
                     <i class="fa fa-times"></i>
                 </button>
                 <!-- Themes functionality initialized in App() -> uiHandleTheme() -->
-                <div class="btn-group pull-right">
+                <!--<div class="btn-group pull-right">
                     <button class="btn btn-link text-gray dropdown-toggle" data-toggle="dropdown" type="button">
                         <i class="si si-drop"></i>
                     </button>
@@ -48,9 +48,13 @@
                             </a>
                         </li>
                     </ul>
-                </div>
-                <a class="h5 text-white" href="#">
-                    <img src="https://royalelmounthotel.com/wp-content/uploads/2019/01/ROYAL_ELMONT_sm.png" height="50px" style="padding-bottom: 5px;"/>
+                </div>-->
+                <a class="h5 text-white" href="{{url('/')}}">
+                    @if((isset($current_user->company->logo) && $current_user->company->logo!= ''))
+                    <img src="{{url('/storage/uploads').'/'.$current_user->company->logo}}" height="50px" style="padding-bottom: 5px;"/>
+                    @else
+                    <img src="{{url('/storage/uploads/mist_logo.jpeg')}}" height="50px" style="padding-bottom: 5px;"/>
+                    @endif
                 </a>
             </div>
             <!-- END Side Header -->
@@ -59,50 +63,67 @@
             <div class="side-content">
                 <ul class="nav-main">
                     <li>
-                        <a class="active" href="/dashboard"><i class="si si-speedometer"></i><span class="sidebar-mini-hide">Dashboard</span></a>
+                        <a class="active" href="{{url('/dashboard')}}"><i class="si si-speedometer"></i><span class="sidebar-mini-hide">Dashboard</span></a>
                     </li>
                     <li class="nav-main-heading"><span class="sidebar-mini-hide">Menu</span></li>
-                    <li>
+                    <li class="open">
                         <a class="nav-submenu" href="#" data-toggle="nav-submenu"><i class="si si-users"></i><span class="sidebar-mini-hide">Guests</span></a>
                         <ul>
                             <li>
                                 <a href="#" data-toggle="modal" data-target="#modal-view-add-guest"><i class="fa fa-plus"></i>Add New Guest</a>
                             </li>
                             <li>
-                                <a href="/guests"><i class="fa fa-list"></i>Guest List</a>
+                                <a href="{{url('/guests')}}"><i class="fa fa-list"></i>Guest List</a>
                             </li>
                         </ul>
                     </li>
-                    <li>
+                    <li class="open">
                         <a class="nav-submenu" href="#" data-toggle="nav-submenu"><i class="si si-home"></i><span class="sidebar-mini-hide">Rooms</span></a>
                         <ul>
                             <li>
                                 <a href="#" data-toggle="modal" data-target="#modal-view-add-room"><i class="fa fa-plus"></i>Add New Room</a>
                             </li>
                             <li>
-                                <a href="/rooms"><i class="fa fa-list"></i>Room List</a>
+                                <a href="{{url('/rooms')}}"><i class="fa fa-list"></i>Room List</a>
                             </li>
                             <li>
                                 <a href="#" data-toggle="modal" data-target="#modal-view-roomtypes"><i class="fa fa-bookmark"></i>Room Types</a>
                             </li>
                         </ul>
                     </li>
-                    <li>
+                    <li class="open">
                         <a class="nav-submenu" href="#" data-toggle="nav-submenu"><i class="si si-notebook"></i><span class="sidebar-mini-hide">Reservations</span></a>
                         <ul>
                             <li>
                                 <a href="#" data-toggle="modal" data-target="#modal-view-add-reservation"><i class="fa fa-plus"></i>Add New Reservation</a>
                             </li>
                             <li>
-                                <a href="/reservations"><i class="fa fa-list"></i>Reservation List</a>
+                                <a href="{{url('/reservations/today')}}"><i class="fa fa-calendar-check-o"></i>Today's Check-Ins</a>
                             </li>
                             <li>
-                                <a href="/reservations/calendar"><i class="fa fa-calendar"></i>Reservations Calendar</a>
+                                <a href="{{url('/reservations')}}"><i class="fa fa-list"></i>Reservation List</a>
+                            </li>
+                            <li>
+                                <a href="{{url('/reservations/calendar')}}"><i class="fa fa-calendar"></i>Reservations Calendar</a>
                             </li>
                         </ul>
                     </li>
-                    <li>
-                        <a class="nav-submenu" href="/payments"><i class="si si-grid"></i><span class="sidebar-mini-hide">Accounting</span></a>
+                    <li class="open">
+                        <a class="nav-submenu" href="#" data-toggle="nav-submenu"><i class="si si-calculator"></i><span class="sidebar-mini-hide">Accounting</span></a>
+                        <ul>
+                            <li>
+                                <a href="#" data-toggle="modal" data-target="#modal-view-add-reservation"><i class="fa fa-calendar"></i>Reservation Accounting</a>
+                            </li>
+                            <li>
+                                <a href="{{url('/reservations/today')}}"><i class="fa fa-calendar-check-o"></i>Invoicing & Reciept Tool</a>
+                            </li>
+                            <li>
+                                <a href="{{url('/reservations')}}"><i class="fa fa-list"></i>Payments</a>
+                            </li>
+                            <li>
+                                <a href="{{url('/reservations/calendar')}}"><i class="fa fa-calendar"></i>Reports</a>
+                            </li>
+                        </ul>
                     </li>
                     
                 </ul>

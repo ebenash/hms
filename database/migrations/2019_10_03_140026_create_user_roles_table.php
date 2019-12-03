@@ -19,6 +19,12 @@ class CreateUserRolesTable extends Migration
             $table->timestamps();
             $table->softDeletes();
         });
+
+        // Insert default roles
+        DB::table('user_roles')->insert([
+            ['role_name' => 'Administrator','created_at' => date("Y-m-d H:i:s")],
+            ['role_name' => 'Editor','created_at' => date("Y-m-d H:i:s")],
+        ]);
     }
 
     /**

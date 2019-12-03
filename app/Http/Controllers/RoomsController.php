@@ -9,6 +9,16 @@ use Illuminate\Http\Request;
 class RoomsController extends Controller
 {
     /**
+     * Create a new controller instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+    
+    /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
@@ -38,6 +48,7 @@ class RoomsController extends Controller
      */
     public function store(Request $request)
     {
+        
         //
         $this->validate($request,[
             'name'=>'required',
@@ -53,6 +64,8 @@ class RoomsController extends Controller
         $room->room_type_id = $request->input('type');
         $room->max_persons = $request->input('max_persons');
         $room->status = $request->input('status');
+        $room->company_id = auth()->user()->company->id;
+        $room->created_by = auth()->user()->id;
 
         $room->save();
         return redirect('/rooms')->with('success','Successfully Created!');

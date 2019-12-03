@@ -2,7 +2,7 @@
 
 @section('content')
 <!-- Register Content -->
-<div class="bg-white pulldown">
+<div class="bg-white">
         <div class="content content-boxed overflow-hidden">
             <div class="row">
                 <div class="col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3 col-lg-4 col-lg-offset-4">
@@ -36,6 +36,53 @@
                             <div class="form-group">
                                 <div class="col-xs-12">
                                     <div class="form-material form-material-success">
+                                        <select id="company" type="company" class="form-control @error('company') is-invalid @enderror" name="company" required >
+                                            <option value="">Select Company</option>
+                                            @foreach($all_companies as $company)
+                                            <option value="{{$company->id}}">{{$company->name}}</option>
+                                            @endforeach
+                                        </select>
+
+                                        @error('company')
+                                            <span class="invalid-feedback" role="alert">
+                                                <strong>{{ $message }}</strong>
+                                            </span>
+                                        @enderror
+                                        <label for="register-company">{{ __('Company') }}</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-xs-12">
+                                    <div class="form-material form-material-success">
+                                        <input id="title" type="text" class="form-control @error('title') is-invalid @enderror" name="title" value="{{ old('title') }}" required autocomplete="title" autofocus placeholder="Please enter a Title">
+
+                                        @error('title')
+                                            <span class="invalid-feedback" role="alert">
+                                                <strong>{{ $message }}</strong>
+                                            </span>
+                                        @enderror
+                                        <label for="register-title">{{ __('Title') }}</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-xs-12">
+                                    <div class="form-material form-material-success">
+                                        <input id="phone" type="tel" class="form-control @error('phone') is-invalid @enderror" name="phone" value="{{ old('phone') }}" required autocomplete="phone" placeholder="Please provide your phone number">
+
+                                        @error('phone')
+                                            <span class="invalid-feedback" role="alert">
+                                                <strong>{{ $message }}</strong>
+                                            </span>
+                                        @enderror
+                                        <label for="register-phone">{{ __('Phone Number') }}</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-xs-12">
+                                    <div class="form-material form-material-success">
                                         <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" required autocomplete="email" placeholder="Please provide your email">
 
                                         @error('email')
@@ -44,6 +91,25 @@
                                             </span>
                                         @enderror
                                         <label for="register-email">{{ __('E-Mail Address') }}</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-xs-12">
+                                    <div class="form-material form-material-success">
+                                        <select id="role_id" type="role_id" class="form-control @error('role_id') is-invalid @enderror" name="role_id" required >
+                                            <option value="">Select Role</option>
+                                            @foreach($all_roles as $role)
+                                            <option value="{{$role->id}}">{{$role->role_name}}</option>
+                                            @endforeach
+                                        </select>
+
+                                        @error('role_id')
+                                            <span class="invalid-feedback" role="alert">
+                                                <strong>{{ $message }}</strong>
+                                            </span>
+                                        @enderror
+                                        <label for="register-role_id">{{ __('User Role') }}</label>
                                     </div>
                                 </div>
                             </div>

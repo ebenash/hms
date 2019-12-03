@@ -2,21 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Payments;
+use App\Settings;
 use Illuminate\Http\Request;
 
-class PaymentsController extends Controller
+class SettingsController extends Controller
 {
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        $this->middleware('auth');
-    }
-    
     /**
      * Display a listing of the resource.
      *
@@ -51,10 +41,10 @@ class PaymentsController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Payments  $payments
+     * @param  \App\Settings  $settings
      * @return \Illuminate\Http\Response
      */
-    public function show(Payments $payments)
+    public function show(Settings $settings)
     {
         //
     }
@@ -62,10 +52,10 @@ class PaymentsController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Payments  $payments
+     * @param  \App\Settings  $settings
      * @return \Illuminate\Http\Response
      */
-    public function edit(Payments $payments)
+    public function edit(Settings $settings)
     {
         //
     }
@@ -74,10 +64,10 @@ class PaymentsController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Payments  $payments
+     * @param  \App\Settings  $settings
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Payments $payments)
+    public function update(Request $request, Settings $settings)
     {
         //
     }
@@ -85,10 +75,10 @@ class PaymentsController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Payments  $payments
+     * @param  \App\Settings  $settings
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Payments $payments)
+    public function destroy(Settings $settings)
     {
         //
     }

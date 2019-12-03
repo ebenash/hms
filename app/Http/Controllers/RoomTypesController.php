@@ -8,6 +8,16 @@ use Illuminate\Http\Request;
 class RoomTypesController extends Controller
 {
     /**
+     * Create a new controller instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+    
+    /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
@@ -43,6 +53,8 @@ class RoomTypesController extends Controller
         $roomtype = new RoomTypes;
 
         $roomtype->name = $request->input('name');
+        $roomtype->company_id = auth()->user()->company->id;
+        $roomtype->created_by = auth()->user()->id;
 
         $roomtype->save();
 

@@ -13,4 +13,8 @@ class UserRoles extends Model
     public function users(){
     	return $this->hasMany('App\User');
     }
+
+    public function access(){
+        return $this->belongsToMany('App\AccessLevels');
+    }
 }

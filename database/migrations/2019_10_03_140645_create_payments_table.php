@@ -19,6 +19,8 @@ class CreatePaymentsTable extends Migration
             $table->decimal('amount',8,2);
             $table->tinyInteger('status')->default('0');
             $table->integer('reservation_id');
+            $table->integer('company_id');
+            $table->integer('created_by');
             $table->timestamps();
             $table->softDeletes();
         });

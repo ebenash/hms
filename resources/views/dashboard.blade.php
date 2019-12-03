@@ -12,7 +12,7 @@
         <div class="content bg-image overflow-hidden" style="background-image: url('assets/img/photos/photo3@2x.jpg');">
             <div class="push-50-t push-15">
                 <h1 class="h2 text-white animated zoomIn">Dashboard</h1>
-                <h2 class="h5 text-white-op animated zoomIn">Welcome Administrator</h2>
+                <h2 class="h5 text-white-op animated zoomIn">Welcome {{$current_user->role->role_name}}</h2>
             </div>
         </div>
         <!-- END Page Header -->
@@ -21,24 +21,25 @@
         <div class="content bg-white border-b">
             <div class="row items-push text-uppercase">
                 <div class="col-xs-6 col-sm-3">
-                    <div class="font-w700 text-gray-darker animated fadeIn">Product Sales</div>
+                    <div class="font-w700 text-gray-darker animated fadeIn">Reservation Earnings</div>
                     <div class="text-muted animated fadeIn"><small><i class="si si-calendar"></i> Today</small></div>
-                    <a class="h2 font-w300 text-primary animated flipInX" href="base_comp_charts.html">300</a>
+                    <a class="h2 font-w300 text-primary animated flipInX" href="{{url('/accounting')}}">GHS {{number_format($reservations_data['sum_today'],2)}}</a>
                 </div>
                 <div class="col-xs-6 col-sm-3">
-                    <div class="font-w700 text-gray-darker animated fadeIn">Product Sales</div>
+                    <div class="font-w700 text-gray-darker animated fadeIn">Reservation Earnings</div>
                     <div class="text-muted animated fadeIn"><small><i class="si si-calendar"></i> This Month</small></div>
-                    <a class="h2 font-w300 text-primary animated flipInX" href="base_comp_charts.html">8,790</a>
+                    <a class="h2 font-w300 text-primary animated flipInX" href="{{url('/accounting')}}">GHS {{number_format($reservations_data['sum_monthly'],2)}}</a>
                 </div>
                 <div class="col-xs-6 col-sm-3">
                     <div class="font-w700 text-gray-darker animated fadeIn">Total Earnings</div>
                     <div class="text-muted animated fadeIn"><small><i class="si si-calendar"></i> All Time</small></div>
-                    <a class="h2 font-w300 text-primary animated flipInX" href="base_comp_charts.html">$ 93,880</a>
+                    <a class="h2 font-w300 text-primary animated flipInX" href="{{url('/accounting')}}">GHS {{number_format($all_reservations->where('reservation_status',1)->sum('price'),2)}}</a>
                 </div>
                 <div class="col-xs-6 col-sm-3">
-                    <div class="font-w700 text-gray-darker animated fadeIn">Average Sale</div>
+                    <div class="font-w700 text-gray-darker animated fadeIn">Total Prospective Earnings</div>
                     <div class="text-muted animated fadeIn"><small><i class="si si-calendar"></i> All Time</small></div>
-                    <a class="h2 font-w300 text-primary animated flipInX" href="base_comp_charts.html">$ 270</a>
+                    <a class="h2 font-w300 text-primary animated flipInX" href="{{url('/accounting')}}">GHS {{number_format($all_reservations->where('reservation_status','<',2)->sum('price'),2)}}</a>
+                    <div class="text-muted animated fadeIn"><small>out of a possible GHS {{number_format($all_reservations->sum('price'),2)}}</small></div>
                 </div>
             </div>
         </div>
@@ -49,16 +50,17 @@
 
             <div class="row">
                 <div class="col-lg-8">
-                    <div class="block block-themed">
-                        <div class="block-header bg-primary">
+                    <div class="block">
+                        <div class="block-header">
                             <ul class="block-options">
                                 <li>
-                                    <button type="button"><i class="si si-settings"></i></button>
+                                    <button type="button" data-toggle="block-option" data-action="refresh_toggle" data-action-mode="demo"><i class="si si-refresh"></i></button>
                                 </li>
                             </ul>
                             <h3 class="block-title">Reservation Calendar</h3>
                         </div>
                         <div class="block-content">
+                            <?php $all_calendar_reservations = Calendar::addEvents($callendar_reservation_list); ?>
                             {!! $all_calendar_reservations->calendar() !!}
                         </div>
                     </div>
@@ -72,19 +74,22 @@
                                     <button type="button" data-toggle="block-option" data-action="refresh_toggle" data-action-mode="demo"><i class="si si-refresh"></i></button>
                                 </li>
                             </ul>
-                            <h3 class="block-title">Latest Sales</h3>
+                            <h3 class="block-title">Confirmed Reservations</h3>
                         </div>
                         <div class="block-content bg-gray-lighter">
                             <div class="row items-push">
                                 <div class="col-xs-4">
-                                    <div class="text-muted"><small><i class="si si-calendar"></i> 24 hrs</small></div>
-                                    <div class="font-w600">18 Sales</div>
+                                    <div class="text-muted"><small><i class="si si-calendar"></i> Today</small></div>
+                                    <div class="font-w600">{{$reservations_data['count_today']}} Confirmed Reservations</div>
                                 </div>
                                 <div class="col-xs-4">
-                                    <div class="text-muted"><small><i class="si si-calendar"></i> 7 days</small></div>
-                                    <div class="font-w600">78 Sales</div>
+                                    <div class="text-muted"><small><i class="si si-calendar"></i> This Week</small></div>
+                                    <div class="font-w600">{{$reservations_data['count_sevenday']}} Confirmed Reservations</div>
                                 </div>
-                                <div class="col-xs-4 h1 font-w300 text-right">$769</div>
+                                <div class="col-xs-4">
+                                    <div class="text-muted"><small><i class="si si-calendar"></i> This Month</small></div>
+                                    <div class="font-w600">{{$reservations_data['count_monthly']}} Confirmed Reservations</div>
+                                </div>
                             </div>
                         </div>
                         <div class="block-content">
@@ -95,116 +100,15 @@
                                     <div>
                                         <table class="table remove-margin-b font-s13">
                                             <tbody>
+                                                @foreach($reservations_data['recent_reservations'] as $reservation)
                                                 <tr>
                                                     <td class="font-w600">
-                                                        <a href="javascript:void(0)">Admin Template</a>
+                                                    <a href="javascript:void(0)">{{$reservation->room->name."-".$reservation->guest->first_name}}</a>
                                                     </td>
-                                                    <td class="hidden-xs text-muted text-right" style="width: 70px;">23:01</td>
-                                                    <td class="font-w600 text-success text-right" style="width: 70px;">+ $21</td>
+                                                <td class="hidden-xs text-muted text-right" style="width: 150px;">Check in: {{$reservation->check_in}}</td>
+                                                <td class="font-w600 text-success text-right" style="width: 120px;">+ GH₵ {{$reservation->price}}</td>
                                                 </tr>
-                                                <tr>
-                                                    <td class="font-w600"><a href="javascript:void(0)">WP Theme</a></td>
-                                                    <td class="hidden-xs text-muted text-right">22:15</td>
-                                                    <td class="font-w600 text-success text-right">+ $52</td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="font-w600"><a href="javascript:void(0)">HTML Template</a></td>
-                                                    <td class="hidden-xs text-muted text-right">22:01</td>
-                                                    <td class="font-w600 text-success text-right">+ $16</td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="font-w600"><a href="javascript:void(0)">Admin Template</a></td>
-                                                    <td class="hidden-xs text-muted text-right">21:45</td>
-                                                    <td class="font-w600 text-success text-right">+ $23</td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="font-w600"><a href="javascript:void(0)">WP Theme</a></td>
-                                                    <td class="hidden-xs text-muted text-right">21:15</td>
-                                                    <td class="font-w600 text-success text-right">+ $48</td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="font-w600"><a href="javascript:void(0)">Admin Template</a></td>
-                                                    <td class="hidden-xs text-muted text-right">20:11</td>
-                                                    <td class="font-w600 text-success text-right">+ $23</td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="font-w600"><a href="javascript:void(0)">WP Theme</a></td>
-                                                    <td class="hidden-xs text-muted text-right">20:01</td>
-                                                    <td class="font-w600 text-success text-right">+ $50</td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="font-w600"><a href="javascript:void(0)">HTML Template</a></td>
-                                                    <td class="hidden-xs text-muted text-right">19:35</td>
-                                                    <td class="font-w600 text-success text-right">+ $16</td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="font-w600"><a href="javascript:void(0)">WP Theme</a></td>
-                                                    <td class="hidden-xs text-muted text-right">19:17</td>
-                                                    <td class="font-w600 text-success text-right">+ $60</td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="font-w600"><a href="javascript:void(0)">WP Theme</a></td>
-                                                    <td class="hidden-xs text-muted text-right">17:49</td>
-                                                    <td class="font-w600 text-success text-right">+ $59</td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                    <div>
-                                        <table class="table remove-margin-b font-s13">
-                                            <tbody>
-                                                <tr>
-                                                    <td class="font-w600">
-                                                        <a href="javascript:void(0)">Admin Template</a>
-                                                    </td>
-                                                    <td class="hidden-xs text-muted text-right" style="width: 70px;">16:10</td>
-                                                    <td class="font-w600 text-success text-right" style="width: 70px;">+ $21</td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="font-w600"><a href="javascript:void(0)">WP Theme</a></td>
-                                                    <td class="hidden-xs text-muted text-right">16:06</td>
-                                                    <td class="font-w600 text-success text-right">+ $48</td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="font-w600"><a href="javascript:void(0)">WP Theme</a></td>
-                                                    <td class="hidden-xs text-muted text-right">15:21</td>
-                                                    <td class="font-w600 text-success text-right">+ $52</td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="font-w600"><a href="javascript:void(0)">Admin Template</a></td>
-                                                    <td class="hidden-xs text-muted text-right">12:10</td>
-                                                    <td class="font-w600 text-success text-right">+ $23</td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="font-w600"><a href="javascript:void(0)">Admin Template</a></td>
-                                                    <td class="hidden-xs text-muted text-right">12:09</td>
-                                                    <td class="font-w600 text-success text-right">+ $23</td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="font-w600"><a href="javascript:void(0)">HTML Template</a></td>
-                                                    <td class="hidden-xs text-muted text-right">11:39</td>
-                                                    <td class="font-w600 text-success text-right">+ $16</td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="font-w600"><a href="javascript:void(0)">Admin Template</a></td>
-                                                    <td class="hidden-xs text-muted text-right">11:33</td>
-                                                    <td class="font-w600 text-success text-right">+ $23</td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="font-w600"><a href="javascript:void(0)">Admin Template</a></td>
-                                                    <td class="hidden-xs text-muted text-right">11:18</td>
-                                                    <td class="font-w600 text-success text-right">+ $23</td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="font-w600"><a href="javascript:void(0)">WP Theme</a></td>
-                                                    <td class="hidden-xs text-muted text-right">09:49</td>
-                                                    <td class="font-w600 text-success text-right">+ $50</td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="font-w600"><a href="javascript:void(0)">HTML Template</a></td>
-                                                    <td class="hidden-xs text-muted text-right">09:35</td>
-                                                    <td class="font-w600 text-success text-right">+ $16</td>
-                                                </tr>
+                                                @endforeach
                                             </tbody>
                                         </table>
                                     </div>
@@ -214,153 +118,6 @@
                         </div>
                     </div>
                     <!-- END Latest Sales Widget -->
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-lg-8">
-                    <!-- Main Dashboard Chart -->
-                    <div class="block">
-                        <div class="block-header">
-                            <ul class="block-options">
-                                <li>
-                                    <button type="button" data-toggle="block-option" data-action="refresh_toggle" data-action-mode="demo"><i class="si si-refresh"></i></button>
-                                </li>
-                            </ul>
-                            <h3 class="block-title">Weekly Overview</h3>
-                        </div>
-                        <div class="block-content block-content-full bg-gray-lighter text-center">
-                            <!-- Chart.js Charts (initialized in js/pages/base_pages_dashboard.js), for more examples you can check out http://www.chartjs.org/docs/ -->
-                            <div style="height: 374px;"><canvas class="js-dash-chartjs-lines"></canvas></div>
-                        </div>
-                        <div class="block-content text-center">
-                            <div class="row items-push text-center">
-                                <div class="col-xs-6 col-lg-3">
-                                    <div class="push-10"><i class="si si-graph fa-2x"></i></div>
-                                    <div class="h5 font-w300 text-muted">+ 205 Sales</div>
-                                </div>
-                                <div class="col-xs-6 col-lg-3">
-                                    <div class="push-10"><i class="si si-users fa-2x"></i></div>
-                                    <div class="h5 font-w300 text-muted">+ 25% Clients</div>
-                                </div>
-                                <div class="col-xs-6 col-lg-3 visible-lg">
-                                    <div class="push-10"><i class="si si-star fa-2x"></i></div>
-                                    <div class="h5 font-w300 text-muted">+ 10 Ratings</div>
-                                </div>
-                                <div class="col-xs-6 col-lg-3 visible-lg">
-                                    <div class="push-10"><i class="si si-share fa-2x"></i></div>
-                                    <div class="h5 font-w300 text-muted">+ 35 Followers</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- END Main Dashboard Chart -->
-                </div>
-                <div class="col-lg-4">
-                    <!-- Content Grid -->
-                    <div class="content-grid">
-                        <div class="row">
-                            <div class="col-xs-12">
-                                <!-- Author of the Month -->
-                                <a class="block block-link-hover2" href="base_pages_profile.html">
-                                    <div class="block-header">
-                                        <h3 class="block-title text-center">Author of the Month</h3>
-                                    </div>
-                                    <div class="block-content block-content-full text-center bg-image" style="background-image: url('assets/img/photos/photo2.jpg');">
-                                        <div>
-                                            <img class="img-avatar img-avatar96 img-avatar-thumb" src="assets/img/avatars/avatar1.jpg" alt="">
-                                        </div>
-                                        <div class="h5 text-white push-15-t push-5">Ashley Welch</div>
-                                        <div class="h5 text-white-op">Web Developer</div>
-                                    </div>
-                                    <div class="block-content">
-                                        <div class="row items-push text-center">
-                                            <div class="col-xs-6">
-                                                <div class="push-5"><i class="si si-briefcase fa-2x"></i></div>
-                                                <div class="h5 font-w300 text-muted">9 Projects</div>
-                                            </div>
-                                            <div class="col-xs-6">
-                                                <div class="push-5"><i class="si si-camera fa-2x"></i></div>
-                                                <div class="h5 font-w300 text-muted">74 Photos</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </a>
-                                <!-- END Author of the Month -->
-
-                                <!-- Mini Stats -->
-                                <a class="block block-link-hover3" href="javascript:void(0)">
-                                    <table class="block-table text-center">
-                                        <tbody>
-                                            <tr>
-                                                <td style="width: 50%;">
-                                                    <div class="push-30 push-30-t">
-                                                        <i class="si si-graph fa-3x text-primary"></i>
-                                                    </div>
-                                                </td>
-                                                <td class="bg-gray-lighter" style="width: 50%;">
-                                                    <div class="h1 font-w700"><span class="h2 text-muted">+</span> 78</div>
-                                                    <div class="h5 text-muted text-uppercase push-5-t">Sales</div>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </a>
-                                <a class="block block-link-hover3" href="javascript:void(0)">
-                                    <table class="block-table text-center">
-                                        <tbody>
-                                            <tr>
-                                                <td style="width: 50%;">
-                                                    <div class="push-30 push-30-t">
-                                                        <i class="si si-social-dribbble fa-3x text-smooth"></i>
-                                                    </div>
-                                                </td>
-                                                <td class="bg-gray-lighter" style="width: 50%;">
-                                                    <div class="h1 font-w700"><span class="h2 text-muted">+</span> 69</div>
-                                                    <div class="h5 text-muted text-uppercase push-5-t">Likes</div>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </a>
-                                <a class="block block-link-hover3" href="javascript:void(0)">
-                                    <table class="block-table text-center">
-                                        <tbody>
-                                            <tr>
-                                                <td style="width: 50%;">
-                                                    <div class="push-30 push-30-t">
-                                                        <i class="si si-social-youtube fa-3x text-city"></i>
-                                                    </div>
-                                                </td>
-                                                <td class="bg-gray-lighter" style="width: 50%;">
-                                                    <div class="h1 font-w700"><span class="h2 text-muted">+</span> 88</div>
-                                                    <div class="h5 text-muted text-uppercase push-5-t">Subs</div>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </a>
-                                <a class="block block-link-hover3" href="javascript:void(0)">
-                                    <table class="block-table text-center">
-                                        <tbody>
-                                            <tr>
-                                                <td style="width: 50%;">
-                                                    <div class="push-30 push-30-t">
-                                                        <i class="si si-users fa-3x text-primary-dark"></i>
-                                                    </div>
-                                                </td>
-                                                <td class="bg-gray-lighter" style="width: 50%;">
-                                                    <div class="h1 font-w700"><span class="h2 text-muted">+</span> 96</div>
-                                                    <div class="h5 text-muted text-uppercase push-5-t"> Followers</div>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </a>
-                                <!-- END Mini Stats -->
-                            </div>
-                        </div>
-                    </div>
-                    <!-- END Content Grid -->
                 </div>
             </div>
         </div>

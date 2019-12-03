@@ -15,15 +15,8 @@
                     <li class="dropdown-header">{{ Auth::user()->name }}</li>
                     @endguest
                     <li>
-                        <a tabindex="-1" href="base_pages_inbox.html">
-                            <i class="si si-envelope-open pull-right"></i>
-                            <span class="badge badge-primary pull-right">3</span>Inbox
-                        </a>
-                    </li>
-                    <li>
-                        <a tabindex="-1" href="base_pages_profile.html">
-                            <i class="si si-user pull-right"></i>
-                            <span class="badge badge-success pull-right">1</span>Profile
+                        <a tabindex="-1" href="{{url('user/profile')}}">
+                            <i class="si si-user pull-right"></i>Profile
                         </a>
                     </li>
                     <li>
@@ -32,10 +25,10 @@
                         </a>
                     </li>
                     <li class="divider"></li>
-                    <li class="dropdown-header">Actions</li>
+                    
                     <li>
-                        <a tabindex="-1" href="base_pages_lock.html">
-                            <i class="si si-lock pull-right"></i>Lock Account
+                        <a tabindex="-1" href="{{url('/users')}}">
+                            <i class="si si-users pull-right"></i>Users
                         </a>
                     </li>
                     <li>
@@ -68,12 +61,7 @@
                 <i class="fa fa-navicon"></i>
             </button>
         </li>
-        <li class="hidden-xs hidden-sm">
-            <!-- Layout API, functionality initialized in App() -> uiLayoutApi() -->
-            <button class="btn btn-default" data-toggle="layout" data-action="sidebar_mini_toggle" type="button">
-                <i class="fa fa-ellipsis-v"></i>
-            </button>
-        </li>
+        
         <li>
             <!-- Opens the Apps modal found at the bottom of the page, before including JS code -->
             <button class="btn btn-default pull-right" data-toggle="modal" data-target="#apps-modal" type="button">

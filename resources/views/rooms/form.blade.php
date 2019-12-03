@@ -47,14 +47,13 @@
 			<div class="col-sm-9">
 				<div class="form-material floating">
 					<select name="type" class="form-control">
+						<option value="">Select Room Type</option>
 						@if(isset($create))
 							@foreach($all_roomtypes as $roomtype)
-							<option value="">Select Room Type</option>
 							<option value="{{$roomtype->id}}">{{$roomtype->name}}</option>
 							@endforeach
 						@else
 							@foreach($all_roomtypes as $roomtype)
-							<option value="">Select Room Type</option>
 							<option value="{{$roomtype->id}}" @if($room->room_type_id == $roomtype->id) selected="selected" @endif>{{$roomtype->name}}</option>
 							@endforeach
 						@endif

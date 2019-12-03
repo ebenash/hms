@@ -1,22 +1,14 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Auth;
 
-use App\Payments;
+use App\AccessLevels;
+use App\UserRoles;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 
-class PaymentsController extends Controller
+class AccessLevelsController extends Controller
 {
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        $this->middleware('auth');
-    }
-    
     /**
      * Display a listing of the resource.
      *
@@ -51,10 +43,10 @@ class PaymentsController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Payments  $payments
+     * @param  \App\AccessLevels  $accessLevels
      * @return \Illuminate\Http\Response
      */
-    public function show(Payments $payments)
+    public function show(AccessLevels $accessLevels)
     {
         //
     }
@@ -62,10 +54,10 @@ class PaymentsController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Payments  $payments
+     * @param  \App\AccessLevels  $accessLevels
      * @return \Illuminate\Http\Response
      */
-    public function edit(Payments $payments)
+    public function edit(AccessLevels $accessLevels)
     {
         //
     }
@@ -74,10 +66,10 @@ class PaymentsController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Payments  $payments
+     * @param  \App\AccessLevels  $accessLevels
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Payments $payments)
+    public function update(Request $request, AccessLevels $accessLevels)
     {
         //
     }
@@ -85,10 +77,10 @@ class PaymentsController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Payments  $payments
+     * @param  \App\AccessLevels  $accessLevels
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Payments $payments)
+    public function destroy(AccessLevels $accessLevels)
     {
         //
     }

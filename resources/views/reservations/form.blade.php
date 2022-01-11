@@ -28,8 +28,8 @@
 		<div class="form-group">
 			<div class="col-sm-9">
 				<div class="form-material">
-					<select name="guest" class="form-control">
-						<option value="">Select Reservation Guest</option>
+					<select class="js-select2 form-control" id="guest" style="width: 100%;" data-placeholder="Select Reservation Guest.." name="guest">
+						<option></option>
 						@if(isset($create))
 							@foreach($all_guests as $guest)
 							<option value="{{$guest->id}}">{{$guest->first_name.' '.$guest->last_name}}</option>
@@ -40,15 +40,15 @@
 							@endforeach
 						@endif
 					</select>
-				<label for="material-text2">Guest</label>
+				<label for="material-text2">Guest <p class="text-danger" style="display: inline-block;">*</p></label>
 				</div>
 			</div>
 		</div>
 		<div class="form-group">
 			<div class="col-sm-9">
 				<div class="form-material">
-					<select name="room" class="form-control">
-						<option value="">Select Room To Be Reserved</option>
+					<select class="js-select2 form-control" id="room" style="width: 100%;" data-placeholder="Select Room To Be Reserved.." name="room">
+						<option></option>
 						@if(isset($create))
 							@foreach($all_rooms->where('status',0) as $room)
 							<option value="{{$room->id}}">{{$room->name}} - GH₵ {{$room->price}}</option>
@@ -59,56 +59,84 @@
 							@endforeach
 						@endif
 					</select>
-					<label for="material-text2">Room To Be Reserved</label>
+					<label for="material-text2">Room <p class="text-danger" style="display: inline-block;">*</p></label>
 				</div>
 			</div>
 		</div>
 		<div class="form-group">
 			<div class="col-sm-9">
-				<div class="form-material floating">
+				<div class="js-datepicker form-material input-group date" data-show-today-button="true" data-show-clear="true" data-show-close="true" data-side-by-side="false">
 					@if(isset($create))
-						<input type="date" name="check_in" class="form-control">	
+						<input class="js-datepicker form-control" type="text" id="check_in" name="check_in" placeholder="Choose check-in date..">	
 					@else
-						<input type="date" name="check_in" class="form-control" value="{{$reservation->check_in}}">
+						<input class="js-datepicker form-control" type="text" id="check_in" name="check_in" placeholder="Choose check-in date.." value="{{date_format(date_create($reservation->check_in),'m/d/Y')}}">
 					@endif
-					<label for="material-text2">Check In Date</label>
+					<label for="material-text2">Check In Date <p class="text-danger" style="display: inline-block;">*</p></label>
+					<span class="input-group-addon"><i class="fa fa-calendar"></i></span>
 				</div>
 			</div>
 		</div>
 		<div class="form-group">
 			<div class="col-sm-9">
-				<div class="form-material floating">
+				<div class="js-datepicker form-material input-group date" data-show-today-button="true" data-show-clear="true" data-show-close="true" data-side-by-side="false">
 					@if(isset($create))
-						<input type="date" name="check_out" class="form-control">	
+						<input class="js-datepicker form-control" type="text" id="check_out" name="check_out" placeholder="Choose check-in date..">	
 					@else
-						<input type="date" name="check_out" class="form-control" value="{{$reservation->check_out}}">
+						<input class="js-datepicker form-control" type="text" id="check_out" name="check_out" placeholder="Choose check-in date.." value="{{date_format(date_create($reservation->check_out),'m/d/Y')}}">
 					@endif
-					<label for="material-text2">Check Out Date</label>
+					<label for="material-text2">Check Out Date <p class="text-danger" style="display: inline-block;">*</p></label>
+					<span class="input-group-addon"><i class="fa fa-calendar"></i></span>
 				</div>
 			</div>
 		</div>
 
 		<div class="form-group">
 			<div class="col-sm-9">
-				<div class="form-material floating">
+				<div class="form-material">
+					<select class="js-select2 form-control" id="adults" style="width: 100%;" data-placeholder="Select Number of Adults.." name="adults">
+                    <option></option>
 					@if(isset($create))
-						<input type="number" name="adults" class="form-control">
+						<option value="1">1</option>
+						<option value="2">2</option>
+						<option value="3">3</option>
+						<option value="4">4</option>
+						<option value="5">5</option>
 					@else
-						<input type="number" name="adults" class="form-control" value="{{$reservation->adults}}">
+						<option value="1" @if($reservation->adults == '1') selected="selected" @endif>1</option>
+						<option value="2" @if($reservation->adults == '2') selected="selected" @endif>2</option>
+						<option value="3" @if($reservation->adults == '3') selected="selected" @endif>3</option>
+						<option value="4" @if($reservation->adults == '4') selected="selected" @endif>4</option>
+						<option value="5" @if($reservation->adults == '5') selected="selected" @endif>5</option>
 					@endif
-						<label for="material-text2">Adults</label>
+					</select>
+					<label for="material-text2">Adults <p class="text-danger" style="display: inline-block;">*</p></label>
 				</div>
 			</div>
 		</div>
 		<div class="form-group">
 			<div class="col-sm-9">
-				<div class="form-material floating">
+				<div class="form-material">
+					<select class="js-select2 form-control" id="children" style="width: 100%;" data-placeholder="Select Number of Children.." name="children" required>
+                    <option></option>
 					@if(isset($create))
-						<input type="number" name="children" class="form-control">
+						<option value="0">0</option>
+						<option value="1">1</option>
+						<option value="2">2</option>
+						<option value="3">3</option>
+						<option value="4">4</option>
+						<option value="5">5</option>
+						<option value="6">6</option>
 					@else
-						<input type="number" name="children" class="form-control" value="{{$reservation->children}}">
+						<option value="0" @if($reservation->children == '0') selected="selected" @endif>0</option>
+						<option value="1" @if($reservation->children == '1') selected="selected" @endif>1</option>
+						<option value="2" @if($reservation->children == '2') selected="selected" @endif>2</option>
+						<option value="3" @if($reservation->children == '3') selected="selected" @endif>3</option>
+						<option value="4" @if($reservation->children == '4') selected="selected" @endif>4</option>
+						<option value="5" @if($reservation->children == '5') selected="selected" @endif>5</option>
+						<option value="6" @if($reservation->children == '6') selected="selected" @endif>6</option>
 					@endif
-						<label for="material-text2">Children</label>
+					</select>
+					<label for="material-text2">Children <p class="text-danger" style="display: inline-block;">*</p></label>
 				</div>
 			</div>
 		</div>
@@ -126,7 +154,7 @@
 							<option value="2" @if($reservation->reservation_status == '2') selected="selected" @endif>Cancelled</option>
 						@endif
 					</select>
-					<label for="material-text2">Reservation Status</label>
+					<label for="material-text2">Reservation Status <p class="text-danger" style="display: inline-block;">*</p></label>
 				</div>
 			</div>
 		</div>

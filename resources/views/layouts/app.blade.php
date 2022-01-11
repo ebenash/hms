@@ -3,6 +3,7 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     @include('includes.head')
     <body onload=display_ct();>
+        <div id="page-loader"></div>
         @guest
             <!-- Page Container -->
             <div id="page-container">
@@ -18,7 +19,7 @@
         @else
             <!-- Page Container -->
             <div id="page-container" class="sidebar-l sidebar-o side-scroll header-navbar-fixed">
-            
+
                 @include('includes.sidebar')
                 @include('includes.header')
 

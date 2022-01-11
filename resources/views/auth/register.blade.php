@@ -2,7 +2,7 @@
 
 @section('content')
 <!-- Register Content -->
-<div class="bg-white">
+    <div class="bg-white">
         <div class="content content-boxed overflow-hidden">
             <div class="row">
                 <div class="col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3 col-lg-4 col-lg-offset-4">

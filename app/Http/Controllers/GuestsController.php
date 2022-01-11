@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Guests;
+use App\Models\Guests;
 use Illuminate\Http\Request;
 
 class GuestsController extends Controller
@@ -16,7 +16,7 @@ class GuestsController extends Controller
     {
         $this->middleware('auth');
     }
-    
+
     /**
      * Display a listing of the resource.
      *
@@ -123,7 +123,7 @@ class GuestsController extends Controller
         $guest->phone = $request->input('phone');
         $guest->city = $request->input('city');
         $guest->country = $request->input('country');
-        
+
         $guest->update();
         return redirect('/guests')->with('success','Successfully Updated!');
     }

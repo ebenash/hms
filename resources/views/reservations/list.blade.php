@@ -91,10 +91,10 @@
 											<div class="">Reservation Room: <b>{{$reservation->room->name}}</b></div>
 										</div>
 										<div class="form-group">
-											<div class="">Check In Date: <b>{{$reservation->check_in}}</b></div>
+											<div class="">Check In Date: <b>{{date_format(new DateTime($reservation->check_in), 'l jS F Y')}}</b></div>
 										</div>
 										<div class="form-group">
-											<div class="">Check Out Date: <b>{{$reservation->check_out}}</b></div>
+											<div class="">Check Out Date: <b>{{date_format(new DateTime($reservation->check_out), 'l jS F Y')}}</b></div>
 										</div>
 										<div class="form-group">
 											<div class="">Adults: <b>{{$reservation->adults}}</b></div>

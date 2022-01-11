@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Settings;
+use App\Models\Settings;
 use Illuminate\Http\Request;
 
 class SettingsController extends Controller
@@ -15,6 +15,7 @@ class SettingsController extends Controller
     public function index()
     {
         //
+        return view('settings');
     }
 
     /**

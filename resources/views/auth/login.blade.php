@@ -3,10 +3,10 @@
 @section('content')
 
 <!-- Login Content -->
-<div class="bg-white pulldown">
+    <div class="">
         <div class="content content-boxed overflow-hidden">
             <div class="row">
-                <div class="col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3 col-lg-4 col-lg-offset-4">
+                <div class="col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3 col-lg-4 col-lg-offset-4 bg-white">
                     <div class="push-30-t push-50 animated fadeIn">
                         <!-- Login Title -->
                         <div class="text-center">
@@ -67,7 +67,7 @@
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div class="form-group push-30-t">
                                 <div class="col-xs-12">
                                     <button class="btn btn-sm btn-block btn-primary" type="submit">{{ __('Login') }}</button>
@@ -80,7 +80,7 @@
                                     @endif
                                 </div>
                             </div>
-                            
+
                         </form>
                         <!-- END Login Form -->
                     </div>

@@ -61,7 +61,7 @@
                         <div class="col-sm-12">
                             <div class="form-material floating">
                                 <input type="text" name="first_name" class="form-control">
-                                <label for="material-text2">First Name</label>
+                                <label for="material-text2">First Name <p class="text-danger" style="display: inline-block;">*</p></label>
                             </div>
                         </div>
                     </div>
@@ -69,7 +69,7 @@
                         <div class="col-sm-12">
                             <div class="form-material floating">
                                 <input type="text" name="last_name" class="form-control">
-                                <label for="material-text2">Last Name</label>
+                                <label for="material-text2">Last Name <p class="text-danger" style="display: inline-block;">*</p></label>
                             </div>
                         </div>
                     </div>
@@ -77,7 +77,7 @@
                         <div class="col-sm-12">
                             <div class="form-material floating">
                                 <input type="email" name="email" class="form-control">
-                                <label for="material-text2">Email</label>
+                                <label for="material-text2">Email <p class="text-danger" style="display: inline-block;">*</p></label>
                             </div>
                         </div>
                     </div>
@@ -85,7 +85,7 @@
                     <div class="col-sm-12">
                         <div class="form-material floating">
                                 <input type="text" name="phone" class="form-control">
-                                <label for="material-text2">Phone</label>
+                                <label for="material-text2">Phone <p class="text-danger" style="display: inline-block;">*</p></label>
                             </div>
                         </div>
                     </div>
@@ -97,11 +97,20 @@
                             </div>
                         </div>
                     </div>
+                    
+                    <!--<div class="form-group">
+                        <div class="col-xs-12">
+                            <div class="form-material">
+                               @include('includes.countries')
+                                <label for="example2-select2">Country</label>
+                            </div>
+                        </div>
+                    </div>-->
                     <div class="form-group">
-                        <div class="col-sm-12">
-                            <div class="form-material floating">
-                                @include('includes.countries')
-                                <label for="material-text2">Country</label>
+                        <div class="col-md-12">
+                            <div class="form-material">
+                                <input class="js-autocomplete form-control" type="text" id="example-autocomplete2" name="country" placeholder="Countries..">
+                                <label for="example-autocomplete2">Country</label>
                             </div>
                         </div>
                     </div>
@@ -142,7 +151,7 @@
                         <div class="col-sm-12">
                             <div class="form-material floating">
                                 <input type="text" name="name" class="form-control">
-                                <label for="material-text2">Room Name</label>
+                                <label for="material-text2">Room Name <p class="text-danger" style="display: inline-block;">*</p></label>
                             </div>
                         </div>
                     </div>
@@ -150,19 +159,20 @@
                         <div class="col-sm-12">
                             <div class="form-material floating">
                                 <input type="text" name="price" class="form-control">
-                                <label for="material-text2">Price</label>
+                                <label for="material-text2">Price <p class="text-danger" style="display: inline-block;">*</p></label>
                             </div>
                         </div>
                     </div>
                     <div class="form-group">
                         <div class="col-sm-12">
-                            <div class="form-material floating">
+                            <div class="form-material">
                                 <select name="type" class="form-control">
                                     <option value="">Select Room Type</option>
                                     @foreach($all_roomtypes as $roomtype)
                                     <option value="{{$roomtype->id}}">{{$roomtype->name}}</option>
                                     @endforeach
                                 </select>
+                                <label for="type">Room Type<p class="text-danger" style="display: inline-block;">*</p></label>
                             </div>
                         </div>
                     </div>
@@ -170,7 +180,7 @@
                     <div class="col-sm-12">
                         <div class="form-material floating">
                                 <input type="number" name="max_persons" class="form-control">
-                                <label for="material-text2">Max Persons</label>
+                                <label for="material-text2">Max Persons <p class="text-danger" style="display: inline-block;">*</p></label>
                             </div>
                         </div>
                     </div>
@@ -181,7 +191,7 @@
                                     <option value="0">Available</option>
                                     <option value="1">Inactive</option>
                                 </select>
-                                <label for="material-text2">Room Status</label>
+                                <label for="material-text2">Room Status <p class="text-danger" style="display: inline-block;">*</p></label>
                             </div>
                         </div>
                     </div>
@@ -256,7 +266,7 @@
                                                         <div class="col-sm-12">
                                                             <div class="form-material floating">
                                                                 <input type="text" class="form-control" value="{{$roomtype->name}}" name="name">
-                                                                <label for="material-text2">Room Type Name</label>
+                                                                <label for="material-text2">Room Type Name <p class="text-danger" style="display: inline-block;">*</p></label>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -306,7 +316,7 @@
                             <div class="col-sm-12">
                                 <div class="form-material floating">
                                     <input type="text" class="form-control" name="name">
-                                    <label for="material-text2">Room Type Name</label>
+                                    <label for="material-text2">Room Type Name <p class="text-danger" style="display: inline-block;">*</p></label>
                                 </div>
                             </div>
                         </div>
@@ -346,42 +356,44 @@
                     <div class="form-group">
                         <div class="col-sm-12">
                             <div class="form-material">
-                                <select name="guest" class="form-control">
-                                    <option value="">Select Reservation Guest</option>
+                                 <select class="js-select2 form-control" id="guest" style="width: 100%;" data-placeholder="Choose Guest.." name="guest">
+                                    <option></option>
                                     @foreach($all_guests as $guest)
                                     <option value="{{$guest->id}}">{{$guest->first_name.' '.$guest->last_name}}</option>
                                     @endforeach
                                 </select>
-                                <label for="material-text2">Guest</label>
+                                <label for="material-text2">Guest <p class="text-danger" style="display: inline-block;">*</p></label>
                             </div>
                         </div>
                     </div>
                     <div class="form-group">
                         <div class="col-sm-12">
                             <div class="form-material">
-                                <select name="room" class="form-control">
+                                <select class="js-select2 form-control" id="room" style="width: 100%;" data-placeholder="Choose Room To Be Reserved.." name="room">
                                     <option value="">Select Room To Be Reserved</option>
                                     @foreach($all_rooms->where('status',0) as $room)
                                     <option value="{{$room->id}}">{{$room->name}} - GH₵ {{$room->price}}</option>
                                     @endforeach
                                 </select>
-                                <label for="material-text2">Room To Be Reserved</label>
+                                <label for="material-text2">Room <p class="text-danger" style="display: inline-block;">*</p></label>
                             </div>
                         </div>
                     </div>
                     <div class="form-group">
                         <div class="col-sm-12">
-                            <div class="form-material">
-                                <input type="date" name="check_in" class="form-control">
-                                <label for="material-text2">Check In Date</label>
+                            <div class="js-datepicker form-material input-group date" data-show-today-button="true" data-show-clear="true" data-show-close="true" data-side-by-side="false">
+                                <input class="js-datepicker form-control" type="text" id="check_in" name="check_in" placeholder="Choose check-in date..">
+                                <label for="material-text2">Check In Date <p class="text-danger" style="display: inline-block;">*</p></label>
+                                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
                             </div>
                         </div>
                     </div>
                     <div class="form-group">
                         <div class="col-sm-12">
-                            <div class="form-material">
-                                <input type="date" name="check_out" class="form-control">
-                                <label for="material-text2">Check Out Date</label>
+                            <div class="js-datepicker form-material input-group date" data-show-today-button="true" data-show-clear="true" data-show-close="true" data-side-by-side="false">
+                                <input class="js-datepicker form-control" type="text" id="check_out" name="check_out" placeholder="Choose check-out date..">
+                                <label for="material-text2">Check Out Date <p class="text-danger" style="display: inline-block;">*</p></label>
+                                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
                             </div>
                         </div>
                     </div>
@@ -389,16 +401,31 @@
                     <div class="form-group">
                         <div class="col-sm-12">
                             <div class="form-material floating">
-                                <input type="number" name="adults" class="form-control">
-                                <label for="material-text2">Adults</label>
+                                <select class="form-control" id="adults" style="width: 100%;" name="adults">
+                                    <option>Select Number of Adults</option>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>                                    
+                                </select>
+                                <label for="material-text2">Adults <p class="text-danger" style="display: inline-block;">*</p></label>
                             </div>
                         </div>
                     </div>
                     <div class="form-group">
                         <div class="col-sm-12">
                             <div class="form-material floating">
-                                <input type="number" name="children" class="form-control">
-                                <label for="material-text2">Children</label>
+                                <select class="form-control" id="children" style="width: 100%;" name="children">
+                                    <option>Select Number of Children</option>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                    <option value="6">6</option>                                    
+                                </select>
+                                <label for="material-text2">Children <p class="text-danger" style="display: inline-block;">*</p></label>
                             </div>
                         </div>
                     </div>
@@ -410,7 +437,7 @@
                                     <option value="1">Confirmed</option>
                                     <option value="2">Cancelled</option>
                                 </select>
-                                <label for="material-text2">Reservation Status</label>
+                                <label for="material-text2">Reservation Status <p class="text-danger" style="display: inline-block;">*</p></label>
                             </div>
                         </div>
                     </div>
@@ -468,29 +495,11 @@
                                         <strong>{{ $message }}</strong>
                                     </span>
                                 @enderror
-                                <label for="register-username">{{ __('Name') }}</label>
+                                <label for="register-username">{{ __('Name') }} <p class="text-danger" style="display: inline-block;">*</p></label>
                             </div>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <div class="col-xs-12">
-                            <div class="form-material form-material-success">
-                                <select id="company" type="company" class="form-control @error('company') is-invalid @enderror" name="company" required >
-                                    <option value="">Select Company</option>
-                                    @foreach($all_companies as $company)
-                                    <option value="{{$company->id}}">{{$company->name}}</option>
-                                    @endforeach
-                                </select>
-
-                                @error('company')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
-                                <label for="register-company">{{ __('Company') }}</label>
-                            </div>
-                        </div>
-                    </div>
+                    
                     <div class="form-group">
                         <div class="col-xs-12">
                             <div class="form-material form-material-success">
@@ -501,7 +510,7 @@
                                         <strong>{{ $message }}</strong>
                                     </span>
                                 @enderror
-                                <label for="register-title">{{ __('Title') }}</label>
+                                <label for="register-title">{{ __('Job Title') }} <p class="text-danger" style="display: inline-block;">*</p></label>
                             </div>
                         </div>
                     </div>
@@ -515,7 +524,7 @@
                                         <strong>{{ $message }}</strong>
                                     </span>
                                 @enderror
-                                <label for="register-phone">{{ __('Phone Number') }}</label>
+                                <label for="register-phone">{{ __('Phone Number') }} <p class="text-danger" style="display: inline-block;">*</p></label>
                             </div>
                         </div>
                     </div>
@@ -529,7 +538,7 @@
                                         <strong>{{ $message }}</strong>
                                     </span>
                                 @enderror
-                                <label for="register-email">{{ __('E-Mail Address') }}</label>
+                                <label for="register-email">{{ __('E-Mail Address') }} <p class="text-danger" style="display: inline-block;">*</p></label>
                             </div>
                         </div>
                     </div>
@@ -548,7 +557,7 @@
                                         <strong>{{ $message }}</strong>
                                     </span>
                                 @enderror
-                                <label for="register-role_id">{{ __('User Role') }}</label>
+                                <label for="register-role_id">{{ __('User Role') }} <p class="text-danger" style="display: inline-block;">*</p></label>
                             </div>
                         </div>
                     </div>
@@ -562,7 +571,7 @@
                                         <strong>{{ $message }}</strong>
                                     </span>
                                 @enderror
-                                <label for="register-password">{{ __('Password') }}</label>
+                                <label for="register-password">{{ __('Password') }} <p class="text-danger" style="display: inline-block;">*</p></label>
                             </div>
                         </div>
                     </div>
@@ -570,7 +579,7 @@
                         <div class="col-xs-12">
                             <div class="form-material form-material-success">
                                 <input id="password-confirm" type="password" class="form-control" name="password_confirmation" required autocomplete="new-password" placeholder="..and confirm it">
-                                <label for="register-password2">{{ __('Confirm Password') }}</label>
+                                <label for="register-password2">{{ __('Confirm Password') }} <p class="text-danger" style="display: inline-block;">*</p></label>
                             </div>
                         </div>
                     </div>

@@ -58,17 +58,7 @@
 					</td>
 				</tr>
 				@endforeach
-				<thead>
-				<tr>
-					<th class="hidden-xs">#</th>
-					<th>User Name</th>
-					<th class="hidden-xs">Job Title</th>
-					<th class="hidden-xs">Phone Number</th>
-					<th class="hidden-xs">Email</th>
-					<th class="hidden-xs">User Role</th>
-					<th class="text-center" style="width: 10%;">Actions</th>
-				</tr>
-			</thead>
+				
 			</tbody>
 		</table>
 	</div>

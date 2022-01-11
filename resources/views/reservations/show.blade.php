@@ -40,7 +40,7 @@
 		<div class="form-group">
 			<div class="col-sm-9">
 				<div class="form-material floating">
-					<input type="date" name="check_in" class="form-control" value="{{$reservation->check_in}}" disabled>
+					<input type="text" name="check_in" class="form-control" value="{{date_format(new DateTime($reservation->check_in), 'l jS F Y')}}" disabled>
 					<label for="material-text2">Check In Date</label>
 				</div>
 			</div>
@@ -48,7 +48,7 @@
 		<div class="form-group">
 			<div class="col-sm-9">
 				<div class="form-material floating">
-					<input type="date" name="check_out" class="form-control" value="{{$reservation->check_out}}" disabled>
+					<input type="text" name="check_out" class="form-control" value="{{date_format(new DateTime($reservation->check_out), 'l jS F Y')}}" disabled>
 					<label for="material-text2">Check Out Date</label>
 				</div>
 			</div>

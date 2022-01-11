@@ -12,14 +12,27 @@
 <!-- Page Plugins -->
 <script src="{{ asset('assets/js/plugins/slick/slick.min.js') }}"></script>
 <script src="{{ asset('assets/js/plugins/chartjs/Chart.min.js') }}"></script>
+<script src="{{ asset('assets/js/plugins/jquery-ui/jquery-ui.min.js') }}"></script>
+<script src="{{ asset('assets/js/plugins/fullcalendar/moment.min.js') }}"></script>
+<script src="{{ asset('assets/js/plugins/fullcalendar/fullcalendar.min.js') }}"></script>
+<script src="{{ asset('assets/js/plugins/fullcalendar/gcal.min.js') }}"></script>
 
 <!-- Page JS Plugins -->
 <script src="{{ asset('assets/js/plugins/datatables/jquery.dataTables.min.js') }}"></script>
+<script src="{{ asset('assets/js/plugins/bootstrap-datepicker/bootstrap-datepicker.min.js') }}"></script>
+<script src="{{ asset('assets/js/plugins/bootstrap-datetimepicker/moment.min.js') }}"></script>
+<script src="{{ asset('assets/js/plugins/bootstrap-datetimepicker/bootstrap-datetimepicker.min.js') }}"></script>
+<script src="{{ asset('assets/js/plugins/bootstrap-colorpicker/bootstrap-colorpicker.min.js') }}"></script>
+<script src="{{ asset('assets/js/plugins/bootstrap-maxlength/bootstrap-maxlength.min.js') }}"></script>
+<script src="{{ asset('assets/js/plugins/select2/select2.full.min.js') }}"></script>
+<script src="{{ asset('assets/js/plugins/masked-inputs/jquery.maskedinput.min.js') }}"></script>
+<script src="{{ asset('assets/js/plugins/jquery-auto-complete/jquery.auto-complete.min.js') }}"></script>
+<script src="{{ asset('assets/js/plugins/ion-rangeslider/js/ion.rangeSlider.min.js') }}"></script>
+<script src="{{ asset('assets/js/plugins/dropzonejs/dropzone.min.js') }}"></script>
+<script src="{{ asset('assets/js/plugins/jquery-tags-input/jquery.tagsinput.min.js') }}"></script>
 
 <!-- Page JS Code -->
 <script src="{{ asset('assets/js/pages/base_tables_datatables.js') }}"></script>
-
-<!-- Page JS Code -->
 <!--<script src="{{ asset('assets/js/pages/base_pages_dashboard.js') }}"></script>-->
 <script>
     jQuery(function () {
@@ -40,19 +53,9 @@
     tt=display_c();
     }
 </script>
-
-<!-- Page Plugins -->
-<script src="{{ asset('assets/js/plugins/jquery-ui/jquery-ui.min.js') }}"></script>
-<script src="{{ asset('assets/js/plugins/fullcalendar/moment.min.js') }}"></script>
-<script src="{{ asset('assets/js/plugins/fullcalendar/fullcalendar.min.js') }}"></script>
-<script src="{{ asset('assets/js/plugins/fullcalendar/gcal.min.js') }}"></script>
-
-<!-- Page JS Code -->
 <script src="{{ asset('assets/js/pages/base_comp_calendar.js') }}"></script>
 
-@if(isset($calendar_reservation))
-    {!! $calendar_reservation->calendar() !!}
-@elseif(isset($all_calendar_reservations))
+@if(isset($all_calendar_reservations))
     {!! $all_calendar_reservations->script() !!}
 @endif
 <script>
@@ -64,4 +67,12 @@ $(document).ready(function() {
   }
 
 }); 
+</script>
+
+<script src="{{ asset('assets/js/pages/base_forms_pickers_more.js') }}"></script>
+<script>
+    jQuery(function () {
+        // Init page helpers (BS Datepicker + BS Datetimepicker + BS Colorpicker + BS Maxlength + Select2 + Masked Input + Range Sliders + Tags Inputs plugins)
+        App.initHelpers(['datepicker', 'datetimepicker', 'colorpicker', 'maxlength', 'select2', 'masked-inputs', 'rangeslider', 'tags-inputs']);
+    });
 </script>

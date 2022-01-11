@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\RoomTypes;
+use App\Models\RoomTypes;
 use Illuminate\Http\Request;
 
 class RoomTypesController extends Controller
@@ -16,7 +16,7 @@ class RoomTypesController extends Controller
     {
         $this->middleware('auth');
     }
-    
+
     /**
      * Display a listing of the resource.
      *

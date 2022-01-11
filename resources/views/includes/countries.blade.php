@@ -1,5 +1,5 @@
-<select id="country" name="country" class="form-control">
-   <option value="">Plese select a country</option>
+<select id="country" name="country" class="js-select2 form-control" style="width: 100%;" data-placeholder="Plese select a country..">
+   <option></option>
    <option value="Afganistan">Afghanistan</option>
    <option value="Albania">Albania</option>
    <option value="Algeria">Algeria</option>

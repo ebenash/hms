@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace App\Models;
 
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -40,10 +40,26 @@ class User extends Authenticatable
     ];
 
     public function role(){
-        return $this->belongsTo('App\UserRoles');
+        return $this->belongsTo('App\Models\UserRoles');
     }
 
     public function company(){
-        return $this->belongsTo('App\Company');
+        return $this->belongsTo('App\Models\Company');
+    }
+
+    public function reservations(){
+        return $this->hasMany('App\Models\Reservations','created_by');
+    }
+
+    public function rooms(){
+        return $this->hasMany('App\Models\Rooms','created_by');
+    }
+
+    public function guests(){
+        return $this->hasMany('App\Models\Guests','created_by');
+    }
+
+    public function settings(){
+        return $this->hasOne('App\Models\Settings','created_by');
     }
 }

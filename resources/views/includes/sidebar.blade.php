@@ -106,13 +106,16 @@
                             <li>
                                 <a href="{{url('/reservations/calendar')}}"><i class="fa fa-calendar"></i>Reservations Calendar</a>
                             </li>
+                            <li>
+                                <a href="{{url('/reservations/requests')}}"><i class="fa fa-calendar-plus-o"></i>Reservation Requests</a>
+                            </li>
                         </ul>
                     </li>
                     <li class="open">
                         <a class="nav-submenu" href="#" data-toggle="nav-submenu"><i class="si si-calculator"></i><span class="sidebar-mini-hide">Accounting</span></a>
                         <ul>
                             <li>
-                                <a href="#" data-toggle="modal" data-target="#modal-view-add-reservation"><i class="fa fa-calendar"></i>Reservation Accounting</a>
+                                <a href="#" data-toggle="modal" data-target="#modal-view-add-reservation"><i class="fa fa-calendar"></i>Overview</a>
                             </li>
                             <li>
                                 <a href="{{url('/reservations/today')}}"><i class="fa fa-calendar-check-o"></i>Invoicing & Reciept Tool</a>
@@ -120,10 +123,13 @@
                             <li>
                                 <a href="{{url('/reservations')}}"><i class="fa fa-list"></i>Payments</a>
                             </li>
-                            <li>
-                                <a href="{{url('/reservations/calendar')}}"><i class="fa fa-calendar"></i>Reports</a>
-                            </li>
                         </ul>
+                    </li>
+                    <li>
+                        <a class="nav" href="{{url('/reports/filter')}}" ><i class="si si-docs"></i><span class="sidebar-mini-hide">Reports</span></a>
+                    </li>
+                    <li>
+                        <a class="nav" href="{{url('/settings')}}" ><i class="si si-settings"></i><span class="sidebar-mini-hide">Configuration</span></a>
                     </li>
                     
                 </ul>

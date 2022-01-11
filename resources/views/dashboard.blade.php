@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-    
+
         @if (session('status'))
             <div class="alert alert-success" role="alert">
                 {{ session('status') }}
@@ -23,12 +23,12 @@
                 <div class="col-xs-6 col-sm-3">
                     <div class="font-w700 text-gray-darker animated fadeIn">Reservation Earnings</div>
                     <div class="text-muted animated fadeIn"><small><i class="si si-calendar"></i> Today</small></div>
-                    <a class="h2 font-w300 text-primary animated flipInX" href="{{url('/accounting')}}">GHS {{number_format($reservations_data['sum_today'],2)}}</a>
+                    <a class="h2 font-w300 text-primary animated flipInX" href="{{url('/accounting')}}">GHS {{number_format($sum_today,2)}}</a>
                 </div>
                 <div class="col-xs-6 col-sm-3">
                     <div class="font-w700 text-gray-darker animated fadeIn">Reservation Earnings</div>
                     <div class="text-muted animated fadeIn"><small><i class="si si-calendar"></i> This Month</small></div>
-                    <a class="h2 font-w300 text-primary animated flipInX" href="{{url('/accounting')}}">GHS {{number_format($reservations_data['sum_monthly'],2)}}</a>
+                    <a class="h2 font-w300 text-primary animated flipInX" href="{{url('/accounting')}}">GHS {{number_format($sum_monthly,2)}}</a>
                 </div>
                 <div class="col-xs-6 col-sm-3">
                     <div class="font-w700 text-gray-darker animated fadeIn">Total Earnings</div>
@@ -60,8 +60,7 @@
                             <h3 class="block-title">Reservation Calendar</h3>
                         </div>
                         <div class="block-content">
-                            <?php $all_calendar_reservations = Calendar::addEvents($callendar_reservation_list); ?>
-                            {!! $all_calendar_reservations->calendar() !!}
+                            {{-- {!! $helper->get_calendar($callendar_reservation_list)->calendar() !!} --}}
                         </div>
                     </div>
                 </div>
@@ -80,15 +79,15 @@
                             <div class="row items-push">
                                 <div class="col-xs-4">
                                     <div class="text-muted"><small><i class="si si-calendar"></i> Today</small></div>
-                                    <div class="font-w600">{{$reservations_data['count_today']}} Confirmed Reservations</div>
+                                    <div class="font-w600">{{$count_today}} Confirmed</div>
                                 </div>
                                 <div class="col-xs-4">
                                     <div class="text-muted"><small><i class="si si-calendar"></i> This Week</small></div>
-                                    <div class="font-w600">{{$reservations_data['count_sevenday']}} Confirmed Reservations</div>
+                                    <div class="font-w600">{{$count_sevenday}} Confirmed</div>
                                 </div>
                                 <div class="col-xs-4">
                                     <div class="text-muted"><small><i class="si si-calendar"></i> This Month</small></div>
-                                    <div class="font-w600">{{$reservations_data['count_monthly']}} Confirmed Reservations</div>
+                                    <div class="font-w600">{{$count_monthly}} Confirmed</div>
                                 </div>
                             </div>
                         </div>
@@ -100,7 +99,7 @@
                                     <div>
                                         <table class="table remove-margin-b font-s13">
                                             <tbody>
-                                                @foreach($reservations_data['recent_reservations'] as $reservation)
+                                                @foreach($recent_reservations as $reservation)
                                                 <tr>
                                                     <td class="font-w600">
                                                     <a href="javascript:void(0)">{{$reservation->room->name."-".$reservation->guest->first_name}}</a>
@@ -122,5 +121,5 @@
             </div>
         </div>
         <!-- END Page Content -->
-           
+
 @endsection

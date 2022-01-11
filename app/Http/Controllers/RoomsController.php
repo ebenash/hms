@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Rooms;
-use App\RoomTypes;
+use App\Models\Rooms;
+use App\Models\RoomTypes;
 use Illuminate\Http\Request;
 
 class RoomsController extends Controller
@@ -17,7 +17,7 @@ class RoomsController extends Controller
     {
         $this->middleware('auth');
     }
-    
+
     /**
      * Display a listing of the resource.
      *
@@ -48,13 +48,14 @@ class RoomsController extends Controller
      */
     public function store(Request $request)
     {
-        
+
         //
         $this->validate($request,[
             'name'=>'required',
             'price'=>'required',
             'type'=>'required',
-            'max_persons'=>'required'
+            'max_persons'=>'required',
+            'status'=>'required'
         ]);
 
         $room = new Rooms;
@@ -96,7 +97,7 @@ class RoomsController extends Controller
     {
         //
         $room = Rooms::find($id);
-        
+
         return view('rooms.form')->with('room',$room);
 
     }
@@ -115,7 +116,8 @@ class RoomsController extends Controller
             'name'=>'required',
             'price'=>'required',
             'type'=>'required',
-            'max_persons'=>'required'
+            'max_persons'=>'required',
+            'status'=>'required'
         ]);
 
         $room = Rooms::find($id);

@@ -108,7 +108,6 @@
 		<!-- DataTables init on table by adding .js-dataTable-full-pagination class, functionality initialized in js/pages/base_tables_datatables.js -->
 		<table class="table table-bordered table-hover table-striped" width="100%" style="font-size: 7pt !important; border-collapse: collapse; word-wrap: break-word; padding: 7px;">
 			@if($filter['report_type'] == 1)
-
 			<thead>
 				<tr>
 					<td class="font-w600">#</td>

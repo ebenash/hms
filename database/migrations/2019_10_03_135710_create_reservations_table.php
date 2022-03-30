@@ -15,15 +15,18 @@ class CreateReservationsTable extends Migration
     {
         Schema::create('reservations', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->integer('room_id');
+            $table->integer('room_id')->nullable();
+            $table->integer('room_type');
             $table->integer('guest_id');
             $table->date('check_in');
             $table->date('check_out');
+            $table->integer('days');
             $table->integer('adults');
             $table->integer('children')->nullable();
-            $table->integer('reservation_status');
-            $table->decimal('discount',7,2);
-            $table->decimal('price',15,2);
+            $table->string('reservation_status',10)->default('pending');
+            $table->decimal('discount',7,2)->nullable();
+            $table->decimal('price',15,2)->nullable();
+            $table->string('payment_method',50)->nullable();
             $table->integer('company_id');
             $table->integer('created_by');
             $table->timestamps();

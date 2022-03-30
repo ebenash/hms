@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Guests;
+use App\Models\Guests;
 use Illuminate\Http\Request;
 
 class GuestsController extends Controller
@@ -16,7 +16,7 @@ class GuestsController extends Controller
     {
         $this->middleware('auth');
     }
-    
+
     /**
      * Display a listing of the resource.
      *
@@ -25,7 +25,8 @@ class GuestsController extends Controller
     public function index()
     {
         //
-        return view('guests.list');
+        $data = ['all_guests' => Guests::where('company_id',auth()->user()->company->id)->get()];
+        return view('guests.list',$data);
     }
 
     /**
@@ -49,15 +50,14 @@ class GuestsController extends Controller
     {
         //
         $this->validate($request,[
-            'first_name' => 'required',
-            'last_name' => 'required',
+            'full_name' => 'required',
             'email' => 'required',
             'phone' => 'required'
         ]);
 
         $guest = new Guests;
-        $guest->first_name = $request->input('first_name');
-        $guest->last_name = $request->input('last_name');
+
+        $guest->full_name = $request->input('full_name');
         $guest->email = $request->input('email');
         $guest->phone = $request->input('phone');
         $guest->city = $request->input('city');
@@ -67,7 +67,7 @@ class GuestsController extends Controller
 
         $guest->save();
 
-        return redirect('/guests')->with('success','Successfully Created!');
+        return redirect()->route('guests')->with('success','Successfully Created!');
 
     }
 
@@ -111,21 +111,21 @@ class GuestsController extends Controller
         $guest = Guests::find($id);
 
         $this->validate($request,[
-            'first_name' => 'required',
+            'full_name' => 'required',
             'last_name' => 'required',
             'phone' => 'required',
             'email' => 'required'
         ]);
 
-        $guest->first_name = $request->input('first_name');
+        $guest->full_name = $request->input('full_name');
         $guest->last_name = $request->input('last_name');
         $guest->email = $request->input('email');
         $guest->phone = $request->input('phone');
         $guest->city = $request->input('city');
         $guest->country = $request->input('country');
-        
+
         $guest->update();
-        return redirect('/guests')->with('success','Successfully Updated!');
+        return back()->with('success','Successfully Updated!');
     }
 
     /**
@@ -138,6 +138,15 @@ class GuestsController extends Controller
     {
         //
         Guests::find($id)->delete();
-        return redirect('/guests')->with('success','Successfully Deleted!');
+        return back()->with('success','Successfully Deleted!');
+    }
+
+    public function find_guest($keyword)
+    {
+        //
+        // dd($keyword);
+        $guests = Guests::where("full_name","like","%".$keyword."%")->orWhere("phone","like","%".$keyword."%")->orWhere("email","like","%".$keyword."%")->where('company_id',auth()->user()->company->id)->get();
+
+        return response()->json($guests);
     }
 }

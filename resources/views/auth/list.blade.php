@@ -21,14 +21,14 @@
 
 <!-- Dynamic Table Full Pagination -->
 <div class="block">
-	
+
 	<div class="block-content">
 		<div class="pull-right">
 			<a href="#" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#modal-view-add-user"><i class="fa fa-plus"></i> Add New User</a>
 		</div>
 		<br/><br/>
 		<!-- DataTables init on table by adding .js-dataTable-full-pagination class, functionality initialized in js/pages/base_tables_datatables.js -->
-		<table class="table table-bordered table-hover table-striped js-dataTable-full-pagination">
+		<table class="table table-bordered table-striped table-vcenter js-dataTable-full">
 			<thead>
 				<tr>
 					<th class="hidden-xs">#</th>
@@ -58,17 +58,7 @@
 					</td>
 				</tr>
 				@endforeach
-				<thead>
-				<tr>
-					<th class="hidden-xs">#</th>
-					<th>User Name</th>
-					<th class="hidden-xs">Job Title</th>
-					<th class="hidden-xs">Phone Number</th>
-					<th class="hidden-xs">Email</th>
-					<th class="hidden-xs">User Role</th>
-					<th class="text-center" style="width: 10%;">Actions</th>
-				</tr>
-			</thead>
+
 			</tbody>
 		</table>
 	</div>

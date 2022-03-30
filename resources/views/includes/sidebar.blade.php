@@ -1,137 +1,112 @@
-<!-- Sidebar -->
-<nav id="sidebar">
-    <!-- Sidebar Scroll Container -->
-    <div id="sidebar-scroll">
-        <!-- Sidebar Content -->
-        <!-- Adding .sidebar-mini-hide to an element will hide it when the sidebar is in mini mode -->
-        <div class="sidebar-content">
-            <!-- Side Header -->
-            <div class="side-header side-content bg-white-op">
-                <!-- Layout API, functionality initialized in App() -> uiLayoutApi() -->
-                <button class="btn btn-link text-gray pull-right hidden-md hidden-lg" type="button" data-toggle="layout" data-action="sidebar_close">
-                    <i class="fa fa-times"></i>
-                </button>
-                <!-- Themes functionality initialized in App() -> uiHandleTheme() -->
-                <!--<div class="btn-group pull-right">
-                    <button class="btn btn-link text-gray dropdown-toggle" data-toggle="dropdown" type="button">
-                        <i class="si si-drop"></i>
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-right font-s13 sidebar-mini-hide">
-                        <li>
-                            <a data-toggle="theme" data-theme="default" tabindex="-1" href="javascript:void(0)">
-                                <i class="fa fa-circle text-default pull-right"></i> <span class="font-w600">Default</span>
-                            </a>
+
+<nav id="sidebar" aria-label="Main Navigation">
+    <!-- Side Header -->
+    <div class="content-header bg-white-5">
+        <!-- Logo -->
+        <a class="font-w600 text-dual" href="{{url('/admin/dashboard')}}">
+            <span class="smini-visible">
+                <img src="{{route('hms-uploads-file',($current_user->company->logo ?? 'mist_logo.jpeg'))}}" width="20px"/>
+            </span>
+            <span class="smini-hide font-size-h5 tracking-wider">
+                <img src="{{route('hms-uploads-file',($current_user->company->logo ?? 'mist_logo.jpeg'))}}" height="40px"/>
+            </span>
+        </a>
+        <!-- END Logo -->
+
+        <!-- Extra -->
+        <div>
+
+            <!-- Close Sidebar, Visible only on mobile screens -->
+            <!-- Layout API, functionality initialized in Template._uiApiLayout() -->
+            <a class="d-lg-none btn btn-sm btn-dual ml-1" data-toggle="layout" data-action="sidebar_close" href="javascript:void(0)">
+                <i class="nav-main-link-icon fa fa-fw fa-times"></i>
+            </a>
+            <!-- END Close Sidebar -->
+        </div>
+        <!-- END Extra -->
+    </div>
+    <!-- END Side Header -->
+
+    <!-- Sidebar Scrolling -->
+    <div class="js-sidebar-scroll">
+        <!-- Side Navigation -->
+        <div class="content-side">
+            <ul class="nav-main">
+                <li class="nav-main-item">
+                    <a class="nav-main-link{{ request()->is('admin/dashboard') ? ' active' : '' }}" href="{{route('dashboard')}}">
+                        <i class="nav-main-link-icon si si-speedometer"></i>
+                        <span class="nav-main-link-name">Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-main-heading">Menu</li>
+                <li class="nav-main-item{{ request()->is('admin/guests/*') ? ' open' : '' }}">
+                    <a class="nav-main-link nav-main-link-submenu" data-toggle="submenu" aria-haspopup="true" aria-expanded="true" href="#"><i class="nav-main-link-icon si si-users"></i><span class="nav-main-link-name">Guests</span></a>
+                    <ul class="nav-main-submenu">
+                        <li class="nav-main-item">
+                            <a class="nav-main-link" href="#" data-toggle="modal" data-target="#modal-view-add-guest"><i class="nav-main-link-icon fa fa-plus"></i><span class="nav-main-link-name">Add New Guest</span></a>
                         </li>
-                        <li>
-                            <a data-toggle="theme" data-theme="{{ asset('assets/css/themes/amethyst.min.css') }}" tabindex="-1" href="javascript:void(0)">
-                                <i class="fa fa-circle text-amethyst pull-right"></i> <span class="font-w600">Amethyst</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a data-toggle="theme" data-theme="{{ asset('assets/css/themes/city.min.css') }}" tabindex="-1" href="javascript:void(0)">
-                                <i class="fa fa-circle text-city pull-right"></i> <span class="font-w600">City</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a data-toggle="theme" data-theme="{{ asset('assets/css/themes/flat.min.css') }}" tabindex="-1" href="javascript:void(0)">
-                                <i class="fa fa-circle text-flat pull-right"></i> <span class="font-w600">Flat</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a data-toggle="theme" data-theme="{{ asset('assets/css/themes/modern.min.css') }}" tabindex="-1" href="javascript:void(0)">
-                                <i class="fa fa-circle text-modern pull-right"></i> <span class="font-w600">Modern</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a data-toggle="theme" data-theme="{{ asset('assets/css/themes/smooth.min.css') }}" tabindex="-1" href="javascript:void(0)">
-                                <i class="fa fa-circle text-smooth pull-right"></i> <span class="font-w600">Smooth</span>
-                            </a>
+                        <li class="nav-main-item">
+                            <a class="nav-main-link{{ request()->is('admin/guests/') ? ' active' : '' }}" href="{{url('/admin/guests')}}"><i class="nav-main-link-icon fa fa-list"></i><span class="nav-main-link-name">Guest List</span></a>
                         </li>
                     </ul>
-                </div>-->
-                <a class="h5 text-white" href="{{url('/')}}">
-                    @if((isset($current_user->company->logo) && $current_user->company->logo!= ''))
-                    <img src="{{url('/storage/uploads').'/'.$current_user->company->logo}}" height="50px" style="padding-bottom: 5px;"/>
-                    @else
-                    <img src="{{url('/storage/uploads/mist_logo.jpeg')}}" height="50px" style="padding-bottom: 5px;"/>
-                    @endif
-                </a>
-            </div>
-            <!-- END Side Header -->
-
-            <!-- Side Content -->
-            <div class="side-content">
-                <ul class="nav-main">
-                    <li>
-                        <a class="active" href="{{url('/dashboard')}}"><i class="si si-speedometer"></i><span class="sidebar-mini-hide">Dashboard</span></a>
-                    </li>
-                    <li class="nav-main-heading"><span class="sidebar-mini-hide">Menu</span></li>
-                    <li class="open">
-                        <a class="nav-submenu" href="#" data-toggle="nav-submenu"><i class="si si-users"></i><span class="sidebar-mini-hide">Guests</span></a>
-                        <ul>
-                            <li>
-                                <a href="#" data-toggle="modal" data-target="#modal-view-add-guest"><i class="fa fa-plus"></i>Add New Guest</a>
-                            </li>
-                            <li>
-                                <a href="{{url('/guests')}}"><i class="fa fa-list"></i>Guest List</a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li class="open">
-                        <a class="nav-submenu" href="#" data-toggle="nav-submenu"><i class="si si-home"></i><span class="sidebar-mini-hide">Rooms</span></a>
-                        <ul>
-                            <li>
-                                <a href="#" data-toggle="modal" data-target="#modal-view-add-room"><i class="fa fa-plus"></i>Add New Room</a>
-                            </li>
-                            <li>
-                                <a href="{{url('/rooms')}}"><i class="fa fa-list"></i>Room List</a>
-                            </li>
-                            <li>
-                                <a href="#" data-toggle="modal" data-target="#modal-view-roomtypes"><i class="fa fa-bookmark"></i>Room Types</a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li class="open">
-                        <a class="nav-submenu" href="#" data-toggle="nav-submenu"><i class="si si-notebook"></i><span class="sidebar-mini-hide">Reservations</span></a>
-                        <ul>
-                            <li>
-                                <a href="#" data-toggle="modal" data-target="#modal-view-add-reservation"><i class="fa fa-plus"></i>Add New Reservation</a>
-                            </li>
-                            <li>
-                                <a href="{{url('/reservations/today')}}"><i class="fa fa-calendar-check-o"></i>Today's Check-Ins</a>
-                            </li>
-                            <li>
-                                <a href="{{url('/reservations')}}"><i class="fa fa-list"></i>Reservation List</a>
-                            </li>
-                            <li>
-                                <a href="{{url('/reservations/calendar')}}"><i class="fa fa-calendar"></i>Reservations Calendar</a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li class="open">
-                        <a class="nav-submenu" href="#" data-toggle="nav-submenu"><i class="si si-calculator"></i><span class="sidebar-mini-hide">Accounting</span></a>
-                        <ul>
-                            <li>
-                                <a href="#" data-toggle="modal" data-target="#modal-view-add-reservation"><i class="fa fa-calendar"></i>Reservation Accounting</a>
-                            </li>
-                            <li>
-                                <a href="{{url('/reservations/today')}}"><i class="fa fa-calendar-check-o"></i>Invoicing & Reciept Tool</a>
-                            </li>
-                            <li>
-                                <a href="{{url('/reservations')}}"><i class="fa fa-list"></i>Payments</a>
-                            </li>
-                            <li>
-                                <a href="{{url('/reservations/calendar')}}"><i class="fa fa-calendar"></i>Reports</a>
-                            </li>
-                        </ul>
-                    </li>
-                    
-                </ul>
-            </div>
-            <!-- END Side Content -->
+                </li>
+                <li class="nav-main-item{{ request()->is('admin/rooms') ? ' open' : (request()->is('admin/roomtypes') ? ' open' : '') }}">
+                    <a class="nav-main-link nav-main-link-submenu" data-toggle="submenu" aria-haspopup="true" aria-expanded="true" href="#"><i class="nav-main-link-icon si si-home"></i><span class="nav-main-link-name">Rooms</span></a>
+                    <ul class="nav-main-submenu">
+                        {{-- <li class="nav-main-item">
+                            <a class="nav-main-link" href="#" data-toggle="modal" data-target="#modal-view-add-room"><i class="nav-main-link-icon fa fa-plus"></i><span class="nav-main-link-name">Add New Room</span></a>
+                        </li> --}}
+                        <li class="nav-main-item">
+                            <a class="nav-main-link{{ request()->is('admin/rooms') ? ' active' : '' }}" href="{{url('/admin/rooms')}}"><i class="nav-main-link-icon fa fa-list"></i><span class="nav-main-link-name">Room List</span></a>
+                        </li>
+                        <li class="nav-main-item">
+                            <a class="nav-main-link{{ request()->is('admin/roomtypes') ? ' active' : '' }}" href="{{url('/admin/roomtypes')}}"><i class="nav-main-link-icon fa fa-bookmark"></i><span class="nav-main-link-name">Room Types</span></a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="nav-main-item{{ request()->is('admin/reservations/*') ? ' open' : '' }}">
+                    <a class="nav-main-link nav-main-link-submenu" data-toggle="submenu" aria-haspopup="true" aria-expanded="true" href="#"><i class="nav-main-link-icon si si-notebook"></i><span class="nav-main-link-name">Reservations</span></a>
+                    <ul class="nav-main-submenu">
+                        <li class="nav-main-item">
+                            <a class="nav-main-link{{ request()->is('admin/reservations/create') ? ' active' : '' }}" href="{{route('reservations-create')}}"><i class="nav-main-link-icon fa fa-plus"></i><span class="nav-main-link-name">Add New Reservation</span></a>
+                        </li>
+                        <li class="nav-main-item">
+                            <a class="nav-main-link{{ request()->is('admin/reservations/today') ? ' active' : '' }}" href="{{route('reservations-today')}}"><i class="nav-main-link-icon fa fa-calendar-check"></i><span class="nav-main-link-name">Today's Check-Ins</span></a>
+                        </li>
+                        <li class="nav-main-item">
+                            <a class="nav-main-link{{ request()->is('admin/reservations/') ? ' active' : '' }}" href="{{route('reservations-confirmed')}}"><i class="nav-main-link-icon fa fa-list"></i><span class="nav-main-link-name">Reservation List</span></a>
+                        </li>
+                        <li class="nav-main-item">
+                            <a class="nav-main-link{{ request()->is('admin/reservations/requests') ? ' active' : '' }}" href="{{route('reservations-requests')}}"><i class="nav-main-link-icon fa fa-calendar-plus"></i><span class="nav-main-link-name">Reservation Requests</span></a>
+                        </li>
+                        <li class="nav-main-item">
+                            <a class="nav-main-link{{ request()->is('admin/reservations/calendar') ? ' active' : '' }}" href="{{url('/admin/reservations/calendar')}}"><i class="nav-main-link-icon fa fa-calendar"></i><span class="nav-main-link-name">Reservations Calendar</span></a>
+                        </li>
+                    </ul>
+                </li>
+                {{-- <li class="nav-main-item{{ request()->is('admin/accounting/*') ? ' open' : '' }}">
+                    <a class="nav-main-link nav-main-link-submenu" data-toggle="submenu" aria-haspopup="true" aria-expanded="true" href="#"><i class="nav-main-link-icon si si-calculator"></i><span class="nav-main-link-name">Accounting</span></a>
+                    <ul class="nav-main-submenu">
+                        <li class="nav-main-item">
+                            <a class="nav-main-link{{ request()->is('admin/accounting/') ? ' active' : '' }}" href="#" data-toggle="modal" data-target="#modal-view-add-reservation"><i class="nav-main-link-icon fa fa-calendar"></i><span class="nav-main-link-name">Overview</span></a>
+                        </li>
+                        <li class="nav-main-item">
+                            <a class="nav-main-link{{ request()->is('admin/accounting/invoicing') ? ' active' : '' }}" href="{{url('/admin/reservations/today')}}"><i class="nav-main-link-icon fa fa-calendar-check"></i><span class="nav-main-link-name">Invoicing & Reciept Tool</span></a>
+                        </li>
+                        <li class="nav-main-item">
+                            <a class="nav-main-link{{ request()->is('admin/accounting/payments') ? ' active' : '' }}" href="{{url('/admin/reservations')}}"><i class="nav-main-link-icon fa fa-list"></i><span class="nav-main-link-name">Payments</span></a>
+                        </li>
+                    </ul>
+                </li> --}}
+                {{-- <li class="nav-main-item">
+                    <a class="nav-main-link{{ request()->is('admin/reports') ? ' active' : '' }}" href="{{route('reports')}}" ><i class="nav-main-link-icon si si-docs"></i><span class="nav-main-link-name">Reports</span></a>
+                </li> --}}
+                <li class="nav-main-item">
+                    <a class="nav-main-link{{ request()->is('admin/settings') ? ' active' : '' }}" href="{{route('settings')}}" ><i class="nav-main-link-icon si si-settings"></i><span class="nav-main-link-name">Configuration</span></a>
+                </li>
+            </ul>
         </div>
-        <!-- Sidebar Content -->
+        <!-- END Side Navigation -->
     </div>
-    <!-- END Sidebar Scroll Container -->
+    <!-- END Sidebar Scrolling -->
 </nav>
-<!-- END Sidebar -->

@@ -17,7 +17,7 @@
 					<select name="guest" class="form-control" disabled>
 						<option value="">Select Reservation Guest</option>
 							@foreach($all_guests as $guest)
-							<option value="{{$guest->id}}" @if($reservation->guest->id == $guest->id) selected="selected" @endif>{{$guest->first_name.' '.$guest->last_name}}</option>
+							<option value="{{$guest->id}}" @if($reservation->guest->id == $guest->id) selected="selected" @endif>{{$guest->full_name}}</option>
 							@endforeach
 					</select>
 				<label for="material-text2">Guest</label>
@@ -30,7 +30,7 @@
 					<select name="room" class="form-control" disabled>
 						<option value="">Select Room To Be Reserved</option>
 							@foreach($all_rooms as $room)
-							<option value="{{$room->id}}" @if($reservation->room->id == $room->id) selected="selected" @endif>{{$room->name}} - GH₵ {{$room->price}}</option>
+							<option value="{{$room->id}}" @if(($reservation->room->id ?? null) == $room->id) selected="selected" @endif>{{$room->name}} - GH₵ {{$room->price}}</option>
 							@endforeach
 					</select>
 					<label for="material-text2">Room To Be Reserved</label>
@@ -40,7 +40,7 @@
 		<div class="form-group">
 			<div class="col-sm-9">
 				<div class="form-material floating">
-					<input type="date" name="check_in" class="form-control" value="{{$reservation->check_in}}" disabled>
+					<input type="text" name="check_in" class="form-control" value="{{date_format(new DateTime($reservation->check_in), 'l jS F Y')}}" disabled>
 					<label for="material-text2">Check In Date</label>
 				</div>
 			</div>
@@ -48,7 +48,7 @@
 		<div class="form-group">
 			<div class="col-sm-9">
 				<div class="form-material floating">
-					<input type="date" name="check_out" class="form-control" value="{{$reservation->check_out}}" disabled>
+					<input type="text" name="check_out" class="form-control" value="{{date_format(new DateTime($reservation->check_out), 'l jS F Y')}}" disabled>
 					<label for="material-text2">Check Out Date</label>
 				</div>
 			</div>
@@ -85,7 +85,7 @@
 		<div class="form-group">
 			<div class="col-sm-9">
 				<div class="form-material floating">
-					<input type="number" name="rooprice" class="form-control" value="{{$reservation->room->price}}" disabled>
+					<input type="number" name="rooprice" class="form-control" value="{{$reservation->room->price ?? ''}}" disabled>
 					<label for="material-text2">Room Price</label>
 				</div>
 			</div>

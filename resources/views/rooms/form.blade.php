@@ -27,7 +27,7 @@
 					@else
 						<input type="text" name="name" class="form-control" value="{{$room->name}}">
 					@endif
-				<label for="material-text2">Room Name</label>
+				<label for="material-text2">Room Name <p class="text-danger" style="display: inline-block;">*</p></label>
 				</div>
 			</div>
 		</div>
@@ -39,13 +39,13 @@
 					@else
 						<input type="text" name="price" class="form-control" value="{{$room->price}}">
 					@endif
-					<label for="material-text2">Price</label>
+					<label for="material-text2">Price <p class="text-danger" style="display: inline-block;">*</p></label>
 				</div>
 			</div>
 		</div>
 		<div class="form-group">
 			<div class="col-sm-9">
-				<div class="form-material floating">
+				<div class="form-material">
 					<select name="type" class="form-control">
 						<option value="">Select Room Type</option>
 						@if(isset($create))
@@ -58,6 +58,7 @@
 							@endforeach
 						@endif
 					</select>
+					<label for="material-text2">Room Type <p class="text-danger" style="display: inline-block;">*</p></label>
 				</div>
 			</div>
 		</div>
@@ -69,7 +70,7 @@
 					@else
 						<input type="number" name="max_persons" class="form-control" value="{{$room->max_persons}}">
 					@endif
-						<label for="material-text2">Max Persons</label>
+						<label for="material-text2">Max Persons <p class="text-danger" style="display: inline-block;">*</p></label>
 				</div>
 			</div>
 		</div>
@@ -85,7 +86,7 @@
 							<option value="1" @if($room->status == '1') selected="selected" @endif>Inactive</option>
 						@endif
 					</select>
-					<label for="material-text2">Room Status</label>
+					<label for="material-text2">Room Status <p class="text-danger" style="display: inline-block;">*</p></label>
 				</div>
 			</div>
 		</div>

@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Payments;
+use App\Models\Payments;
 use Illuminate\Http\Request;
 
 class PaymentsController extends Controller
@@ -16,7 +16,7 @@ class PaymentsController extends Controller
     {
         $this->middleware('auth');
     }
-    
+
     /**
      * Display a listing of the resource.
      *

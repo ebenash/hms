@@ -1,58 +1,117 @@
-<!-- OneUI Core JS: jQuery, Bootstrap, slimScroll, scrollLock, Appear, CountTo, Placeholder, Cookie and App.js -->
-<script src="{{ asset('assets/js/core/jquery.min.js') }}"></script>
-<script src="{{ asset('assets/js/core/bootstrap.min.js') }}"></script>
-<script src="{{ asset('assets/js/core/jquery.slimscroll.min.js') }}"></script>
-<script src="{{ asset('assets/js/core/jquery.scrollLock.min.js') }}"></script>
-<script src="{{ asset('assets/js/core/jquery.appear.min.js') }}"></script>
-<script src="{{ asset('assets/js/core/jquery.countTo.min.js') }}"></script>
-<script src="{{ asset('assets/js/core/jquery.placeholder.min.js') }}"></script>
-<script src="{{ asset('assets/js/core/js.cookie.min.js') }}"></script>
-<script src="{{ asset('assets/js/app.js') }}"></script>
+<!-- OneUI Core JS -->
+<script src="{{ mix('js/oneui.app.js') }}"></script>
 
-<!-- Page Plugins -->
-<script src="{{ asset('assets/js/plugins/slick/slick.min.js') }}"></script>
-<script src="{{ asset('assets/js/plugins/chartjs/Chart.min.js') }}"></script>
+<script src="{{ asset('js/plugins/sweetalert2/sweetalert2.min.js') }}"></script>
 
-<!-- Page JS Plugins -->
-<script src="{{ asset('assets/js/plugins/datatables/jquery.dataTables.min.js') }}"></script>
+<!-- Laravel Scaffolding JS -->
+{{-- <script src="{{ mix('/js/laravel.app.js') }}"></script> --}}
 
-<!-- Page JS Code -->
-<script src="{{ asset('assets/js/pages/base_tables_datatables.js') }}"></script>
+@yield('js_after')
 
-<!-- Page JS Code -->
-<!--<script src="{{ asset('assets/js/pages/base_pages_dashboard.js') }}"></script>-->
-<script>
-    jQuery(function () {
-        // Init page helpers (Slick Slider plugin)
-        App.initHelpers('slick');
-    });
-</script>
-
-<script type="text/javascript"> 
+<script type="text/javascript">
     function display_c(){
-    var refresh=1000; // Refresh rate in milli seconds
-    mytime=setTimeout('display_ct()',refresh)
+        var refresh=1000; // Refresh rate in milli seconds
+        mytime=setTimeout('display_ct()',refresh)
     }
     function display_ct() {
-    var x = new Date()
-    var x1=x.toUTCString();// changing the display to UTC string
-    document.getElementById('dateandtime').innerHTML = x1;
-    tt=display_c();
+        var x = new Date()
+        var x1=x.toUTCString();// changing the display to UTC string
+        document.getElementById('dateandtime').innerHTML = x1;
+        tt=display_c();
     }
+    function submitForm(element) {
+        document.getElementById("readnotification"+element).submit();
+    }
+    function swaltoast(title,message,type) {
+        var n = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 5000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
+            },
+            buttonsStyling: !1,
+            customClass: {
+                confirmButton: "btn btn-"+type+" m-1",
+                cancelButton: "btn btn-"+type+" m-1",
+                input: "form-control" }
+            });
+        return n.fire(title, message, type);
+    }
+    function swalnotify(title,message,type) {
+        var n = Swal.mixin({
+            buttonsStyling: !1,
+            customClass: {
+                confirmButton: "btn btn-lg btn-primary m-1",
+                cancelButton: "btn btn-lg btn-alt-primary m-1",
+                input: "form-control" }
+            });
+        return n.fire(title, message, type);
+    }
+    function swalconfirm(title,message,type) {
+        var n = Swal.mixin({
+            buttonsStyling: !1,
+            // icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, delete it!',
+            customClass: {
+                confirmButton: "btn btn-lg btn-primary m-1",
+                cancelButton: "btn btn-lg btn-alt-primary m-1",
+                input: "form-control" }
+            });
+        return n.fire(title, message, type);
+    }
+    function changeTheme(type,value) {
+        searchRequest = $.ajax({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            url: "{{route('update-theme')}}",
+            type: 'POST',
+            data: {type: type, value: value},
+            success: function(response){
+                swaltoast("Success", "Theme Setting Updated", "success");
+            }
+        });
+    }
+    function confimdelete(link,success = null) {
+        swalconfirm("Are you sure?","Once deleted, you will not be able to recover this record!","warning")
+        .then((willDelete) => {
+            if (willDelete.isConfirmed) {
+                $.ajax({
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    url: link,
+                    type: 'POST',
+                    data: '_method=DELETE',
+                    success: function (response) {
+                        if (response) {
+                           swalnotify("Done!", "Your record has been deleted!","success").then((okay) => {
+                               if (success) {
+                                return location.href = success;
+                               } else {
+                                    return location.reload();
+                               }
+
+                           });
+                        } else {
+                           swalnotify("Error!", "There was an error performing the delete! Please try again later","error");
+                        }
+                    }.bind(this)
+                })
+            } else {
+                swalnotify("Cancelled!", "Delete was cancelled!", "error");
+            }
+        });
+        }
+
 </script>
 
-<!-- Page Plugins -->
-<script src="{{ asset('assets/js/plugins/jquery-ui/jquery-ui.min.js') }}"></script>
-<script src="{{ asset('assets/js/plugins/fullcalendar/moment.min.js') }}"></script>
-<script src="{{ asset('assets/js/plugins/fullcalendar/fullcalendar.min.js') }}"></script>
-<script src="{{ asset('assets/js/plugins/fullcalendar/gcal.min.js') }}"></script>
-
-<!-- Page JS Code -->
-<script src="{{ asset('assets/js/pages/base_comp_calendar.js') }}"></script>
-
-@if(isset($calendar_reservation))
-    {!! $calendar_reservation->calendar() !!}
-@elseif(isset($all_calendar_reservations))
+{{-- @if(isset($all_calendar_reservations))
     {!! $all_calendar_reservations->script() !!}
 @endif
 <script>
@@ -63,5 +122,13 @@ $(document).ready(function() {
     $('#modal-view-add-reservation').modal('show');
   }
 
-}); 
-</script>
+});
+</script> --}}
+
+{{-- <script src="{{ asset('assets/js/pages/base_forms_pickers_more.js') }}"></script> --}}
+{{-- <script>
+    jQuery(function () {
+        // Init page helpers (BS Datepicker + BS Datetimepicker + BS Colorpicker + BS Maxlength + Select2 + Masked Input + Range Sliders + Tags Inputs plugins)
+        App.initHelpers(['datepicker', 'datetimepicker', 'colorpicker', 'maxlength', 'select2', 'masked-inputs', 'rangeslider', 'tags-inputs']);
+    });
+</script> --}}

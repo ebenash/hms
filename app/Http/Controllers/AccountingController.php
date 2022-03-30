@@ -2,11 +2,22 @@
 
 namespace App\Http\Controllers;
 
-use App\Accounting;
+use App\Models\Accounting;
 use Illuminate\Http\Request;
 
 class AccountingController extends Controller
 {
+
+    /**
+     * Create a new controller instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
     /**
      * Display a listing of the resource.
      *

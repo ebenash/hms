@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Rooms;
-use App\RoomTypes;
+use App\Models\Rooms;
+use App\Models\RoomTypes;
 use Illuminate\Http\Request;
 
 class RoomsController extends Controller
@@ -17,7 +17,7 @@ class RoomsController extends Controller
     {
         $this->middleware('auth');
     }
-    
+
     /**
      * Display a listing of the resource.
      *
@@ -26,7 +26,11 @@ class RoomsController extends Controller
     public function index()
     {
         //
-        return view('rooms.list');
+        $data = [
+            'all_rooms' => Rooms::where('company_id',auth()->user()->company->id)->orderBy('name','asc')->get(),
+            'all_roomtypes' => RoomTypes::where('company_id',auth()->user()->company->id)->get()
+        ];
+        return view('rooms.list',$data);
     }
 
     /**
@@ -37,7 +41,11 @@ class RoomsController extends Controller
     public function create()
     {
         //
-        return view('rooms.form')->with('create','create');
+        $data = [
+            'all_rooms' => Rooms::where('company_id',auth()->user()->company->id)->orderBy('name','asc')->get(),
+            'all_roomtypes' => RoomTypes::where('company_id',auth()->user()->company->id)->get()
+        ];
+        return view('rooms.form',$data)->with('create','create');
     }
 
     /**
@@ -48,28 +56,24 @@ class RoomsController extends Controller
      */
     public function store(Request $request)
     {
-        
         //
         $this->validate($request,[
             'name'=>'required',
-            'price'=>'required',
             'type'=>'required',
-            'max_persons'=>'required'
+            'status'=>'required'
         ]);
 
         $room = new Rooms;
 
         $room->name = $request->input('name');
-        $room->price = $request->input('price');
         $room->room_type_id = $request->input('type');
-        $room->max_persons = $request->input('max_persons');
         $room->status = $request->input('status');
         $room->company_id = auth()->user()->company->id;
         $room->created_by = auth()->user()->id;
 
         $room->save();
-        return redirect('/rooms')->with('success','Successfully Created!');
 
+        return back()->with('success', 'Room Successfully Saved!');
     }
 
     /**
@@ -83,7 +87,6 @@ class RoomsController extends Controller
         //
         $room = Rooms::find($id);
         return view('rooms.show')->with('room',$room);
-
     }
 
     /**
@@ -96,9 +99,7 @@ class RoomsController extends Controller
     {
         //
         $room = Rooms::find($id);
-        
         return view('rooms.form')->with('room',$room);
-
     }
 
     /**
@@ -111,24 +112,21 @@ class RoomsController extends Controller
     public function update(Request $request, $id)
     {
         //
-        $this->validate($request,[
-            'name'=>'required',
-            'price'=>'required',
-            'type'=>'required',
-            'max_persons'=>'required'
-        ]);
-
         $room = Rooms::find($id);
 
+        $this->validate($request,[
+            'name'=>'required',
+            'type'=>'required',
+            'status'=>'required'
+        ]);
+
         $room->name = $request->input('name');
-        $room->price = $request->input('price');
         $room->room_type_id = $request->input('type');
-        $room->max_persons = $request->input('max_persons');
         $room->status = $request->input('status');
 
         $room->update();
-        return redirect('/rooms')->with('success','Successfully Updated!');
 
+        return back()->with('success','Successfully Updated!');
 
     }
 
@@ -141,7 +139,16 @@ class RoomsController extends Controller
     public function destroy($id)
     {
         //
-        Rooms::find($id)->delete();
-        return redirect('/rooms')->with('success','Successfully Deleted!');
+        return Rooms::find($id)->delete();
+    }
+
+
+    public function get_rooms($id)
+    {
+        //
+        // dd($id);
+        $rooms = Rooms::where('status',1)->where('room_type_id',$id)->get();
+
+        return response()->json($rooms);
     }
 }

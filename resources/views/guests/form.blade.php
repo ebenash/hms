@@ -26,7 +26,7 @@
 					@else
 						<input type="text" name="first_name" class="form-control" value="{{$guest->first_name}}">
 					@endif
-				<label for="material-text2">First Name</label>
+				<label for="material-text2">First Name <p class="text-danger" style="display: inline-block;">*</p></label>
 				</div>
 			</div>
 		</div>
@@ -38,7 +38,7 @@
 					@else
 						<input type="text" name="last_name" class="form-control" value="{{$guest->last_name}}">
 					@endif
-					<label for="material-text2">Last Name</label>
+					<label for="material-text2">Last Name <p class="text-danger" style="display: inline-block;">*</p></label>
 				</div>
 			</div>
 		</div>
@@ -50,7 +50,7 @@
 					@else
 						<input type="email" name="email" class="form-control" value="{{$guest->email}}">
 					@endif
-						<label for="material-text2">Email</label>
+						<label for="material-text2">Email <p class="text-danger" style="display: inline-block;">*</p></label>
 				</div>
 			</div>
 		</div>
@@ -62,7 +62,7 @@
 					@else
 						<input type="text" name="phone" class="form-control" value="{{$guest->phone}}">
 					@endif
-						<label for="material-text2">Phone</label>
+						<label for="material-text2">Phone <p class="text-danger" style="display: inline-block;">*</p></label>
 				</div>
 			</div>
 		</div>
@@ -80,11 +80,11 @@
 		</div>
 		<div class="form-group">
 			<div class="col-sm-9">
-				<div class="form-material floating">
+				<div class="form-material">
 					@if(isset($create))
 						@include('includes.countries')
 					@else
-						<input type="text" name="country" class="form-control" value="{{$guest->country}}">
+						<input class="js-autocomplete form-control" type="text" id="example-autocomplete2" name="country" placeholder="Countries.." value="{{$guest->country}}">
 					@endif
 						<label for="material-text2">Country</label>
 				</div>

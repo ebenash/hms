@@ -1,54 +1,50 @@
 <head>
     <meta charset="utf-8">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
 
     <title>{{ config('app.name', 'MIST Hotel Management System') }}</title>
 
-    <meta name="description" content="OneUI - Admin Dashboard Template &amp; UI Framework created by pixelcave and published on Themeforest">
-    <meta name="author" content="pixelcave">
+    <meta name="description" content="{{ config('app.name', 'MIST Hotel Management System') }}">
+    <meta name="author" content="ebenash">
     <meta name="robots" content="noindex, nofollow">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <!-- CSRF Token -->
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <!-- Icons -->
-    <!-- The following icons can be replaced with your own, they are used by desktop and mobile browsers -->
-    <link rel="shortcut icon" href="{{ asset('assets/img/favicons/mist_fav.jpg') }}">
+    <link rel="shortcut icon" href="{{ asset('media/favicons/favicon.ico') }}">
+    <link rel="icon" sizes="192x192" type="image/png" href="{{ asset('media/favicons/favicon-192x192.png') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('media/favicons/apple-touch-icon-180x180.png') }}">
 
-    <!--<link rel="icon" type="image/png" href="{{ asset('assets/img/favicons/favicon-16x16.png') }}" sizes="16x16">
-    <link rel="icon" type="image/png" href="{{ asset('assets/img/favicons/favicon-32x32.png') }}" sizes="32x32">
-    <link rel="icon" type="image/png" href="{{ asset('assets/img/favicons/favicon-96x96.png') }}" sizes="96x96">
-    <link rel="icon" type="image/png" href="{{ asset('assets/img/favicons/favicon-160x160.png') }}" sizes="160x160">
-    <link rel="icon" type="image/png" href="{{ asset('assets/img/favicons/favicon-192x192.png') }}" sizes="192x192">
+    <!-- Fonts and Styles -->
+    @yield('css_before')
+    {{-- <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"> --}}
+    <link rel="stylesheet" id="css-main" href="{{ mix('/css/oneui.css') }}">
 
-    <link rel="apple-touch-icon" sizes="57x57" href="{{ asset('assets/img/favicons/apple-touch-icon-57x57.png') }}">
-    <link rel="apple-touch-icon" sizes="60x60" href="{{ asset('assets/img/favicons/apple-touch-icon-60x60.png') }}">
-    <link rel="apple-touch-icon" sizes="72x72" href="{{ asset('assets/img/favicons/apple-touch-icon-72x72.png') }}">
-    <link rel="apple-touch-icon" sizes="76x76" href="{{ asset('assets/img/favicons/apple-touch-icon-76x76.png') }}">
-    <link rel="apple-touch-icon" sizes="114x114" href="{{ asset('assets/img/favicons/apple-touch-icon-114x114.png') }}">
-    <link rel="apple-touch-icon" sizes="120x120" href="{{ asset('assets/img/favicons/apple-touch-icon-120x120.png') }}">
-    <link rel="apple-touch-icon" sizes="144x144" href="{{ asset('assets/img/favicons/apple-touch-icon-144x144.png') }}">
-    <link rel="apple-touch-icon" sizes="152x152" href="{{ asset('assets/img/favicons/apple-touch-icon-152x152.png') }}">
-    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('assets/img/favicons/apple-touch-icon-180x180.png') }}">-->
-    <!-- END Icons -->
+    {{-- {{dd(auth()->user()->settings)}} --}}
+    <!-- You can include a specific file from public/css/themes/ folder to alter the default color theme of the template. eg: -->
+    @if (isset(auth()->user()->settings->theme))
+        <link rel="stylesheet" id="css-theme" href="{{ mix('/css/themes/'.(auth()->user()->settings->theme).'.css') }}">
+    @endif
 
-    <!-- Stylesheets -->
-    <!-- Web fonts -->
-    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400italic,600,700%7COpen+Sans:300,400,400italic,600,700">
+    <link rel="stylesheet" href="{{ asset('js/plugins/sweetalert2/sweetalert2.min.css') }}">
 
-    <!-- Page JS Plugins CSS -->
-    <link rel="stylesheet" href="{{ asset('assets/js/plugins/datatables/jquery.dataTables.min.css') }}">
-    <!-- Page JS Plugins CSS -->
-    <link rel="stylesheet" href="{{ asset('assets/js/plugins/fullcalendar/fullcalendar.min.css') }}">
-    
+    @yield('css_after')
 
-    <!-- Page JS Plugins CSS -->
-    <link rel="stylesheet" href="{{ asset('assets/js/plugins/slick/slick.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('assets/js/plugins/slick/slick-theme.min.css') }}">
+    <!-- Scripts -->
+    {{-- <script>window.Laravel = {!! json_encode(['csrfToken' => csrf_token(),]) !!};</script> --}}
+    <style>
+        @media screen and (max-width: 540px) {
+            .logo-view {
+                height: 50px;
+            }
+        }
 
-    <!-- Bootstrap and OneUI CSS framework -->
-    <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.min.css') }}">
-    <link rel="stylesheet" id="css-main" href="{{ asset('assets/css/oneui.css') }}">
-
-    <!-- You can include a specific file from css/themes/ folder to alter the default color theme of the template. eg: -->
-    <link rel="stylesheet" id="css-theme" href="{{ asset('assets/css/themes/flat.min.css') }}">
-    <!-- END Stylesheets -->
+        /* For Tablets */
+        @media screen and (min-width: 540px){
+            .logo-view {
+                width: 80%;
+            }
+        }
+    </style>
 </head>

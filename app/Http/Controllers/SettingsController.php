@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Settings;
+use App\Models\User;
+use App\Models\Company;
+use App\Models\Settings;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Session;
 
 class SettingsController extends Controller
 {
@@ -12,9 +15,11 @@ class SettingsController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index($tab = null)
     {
         //
+        $data = ['all_users'=> User::where('company_id',auth()->user()->company->id)->get()];
+        return view('settings',$data)->with('tab',$tab);
     }
 
     /**
@@ -67,9 +72,67 @@ class SettingsController extends Controller
      * @param  \App\Settings  $settings
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Settings $settings)
+    public function update(Request $request, $id)
+    {
+        // dd($request->all());
+        if ($request->update_type == 'company') {
+            # code...
+            $request->validate([
+                'logo' => 'image|nullable'
+            ]);
+
+
+            $company = Company::find($id);
+
+            if($request->hasFile('logo')){
+                $rawfilename = $request->file('logo')->getClientOriginalName();
+                $filenameonly = pathinfo($rawfilename,PATHINFO_FILENAME);
+                $extension = $request->file('logo')->getClientOriginalExtension();
+                $filename = $filenameonly."_".time().".".$extension;
+                $path = $request->file('logo')->storeAs('public/uploads',$filename);
+
+                if($company->logo != null || $company->logo != "")
+                {
+                    unlink(storage_path('app/public/uploads/'.$company->logo));
+                }
+            }else{
+                $filename = $company->logo;
+            }
+
+            // $company->avatar = $filename;
+
+            $company->name = $request->company_name;
+            $company->email = $request->email;
+            $company->phone = $request->phone;
+            $company->logo = $filename;
+            $company->location = $request->location;
+            $company->website = $request->website;
+            $company->description = $request->description;
+            $company->update();
+        } else {
+            $settings = Settings::where('company_id',$id)->get();
+        }
+
+        return back()->with('success','Settings Successfully Updated!');
+    }
+
+    public function update_theme_setting(Request $request)
     {
         //
+        // dd($request->all());
+        $settings = Settings::where('created_by',auth()->user()->id)->get()->first();
+        if($request->type == 'theme'){
+            $settings->theme = $request->value;
+        }
+        if($request->type == 'sidebar'){
+            $settings->sidebar = $request->value;
+        }
+        if($request->type == 'header'){
+            $settings->header = $request->value;
+        }
+        $settings->save();
+
+        return true;
     }
 
     /**

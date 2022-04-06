@@ -60,7 +60,7 @@ class UserController extends CommonController
             'phone' => ['required', 'string', 'max:100'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'title' => ['required', 'string', 'max:255'],
-            'role_id' => ['required', 'integer'],
+            'role_id' => ['required', 'string'],
         ]);
 
 
@@ -70,13 +70,22 @@ class UserController extends CommonController
 
             $user_id =  DB::table('users')->insertGetId([
                 'name' => $request->input('name'),
-                'phone' => $request->input('phone'),
+                'phone' => $this->formatphonenumber($request->input('phone')),
                 'email' => $request->input('email'),
                 'title' => $request->input('title'),
-                'role_id' => $request->input('role_id'),
+                // 'role_id' => $request->input('role_id'),
                 'password' => Hash::make($password),
                 'company_id' => auth()->user()->company->id,
                 'created_by' => auth()->user()->id,
+            ]);
+
+            $role = DB::table('roles')->where('name',$request->input('role_id'))->first();
+            // dd($role);
+
+            DB::table('model_has_roles')->insert([
+                'role_id' => $role->id,
+                'model_type' => 'App\Models\User',
+                'model_id' => $user_id,
             ]);
 
             DB::table('settings')->insert([
@@ -110,15 +119,21 @@ class UserController extends CommonController
     public function show($id)
     {
         //
-        $user = User::find($id);
-        return view('auth.show')->with('profile',$user);
+        $data = [
+            'profile' => User::find($id),
+            'roles'=> DB::table('roles')->select('name')->get()
+        ];
+        return view('auth.show',$data);
     }
 
     public function profile()
     {
         //
-        $user = User::find(Auth::id());
-        return view('auth.show')->with('profile',$user);
+        $data = [
+            'profile' => User::find(Auth::id()),
+            'roles'=> DB::table('roles')->select('name')->get()
+        ];
+        return view('auth.show',$data);
     }
 
     /**
@@ -146,18 +161,22 @@ class UserController extends CommonController
             'name' => ['required', 'string', 'max:255'],
             'phone' => ['required', 'string', 'max:100'],
             'title' => ['required', 'string', 'max:255'],
-            'role_id' => ['required', 'integer']
+            'role_id' => ['required', 'string']
         ]);
 
         $user = User::find($id);
 
+
         $user->name = $request->input('name');
-        $user->phone = $request->input('phone');
+        $user->phone = $this->formatphonenumber($request->input('phone'));
         $user->title = $request->input('title');
-        $user->role_id = $request->input('role_id');
+        // $user->role_id = $request->input('role_id');
 
         $user->update();
-        return redirect()->route('settings-tab','users')->with('success','Profile Successfully Updated');
+
+        $user->syncRoles([$request->input('role_id')]);
+
+        return back()->with('success','Profile Successfully Updated');
     }
 
     /**
@@ -196,6 +215,14 @@ class UserController extends CommonController
     public function destroy($id)
     {
         //
-        return User::find($id)->delete();
+        $user = User::find($id);
+
+        $roles = $user->getRoleNames();
+        // dd($roles);
+        foreach($roles as $role){
+            $user->removeRole($role);
+        }
+
+        return $user->delete();
     }
 }

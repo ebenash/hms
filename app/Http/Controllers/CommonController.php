@@ -11,6 +11,7 @@ use App\Models\Reservations;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\HotelNotifications;
+use App\Models\Payments;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Notification;
@@ -227,6 +228,22 @@ class CommonController extends Controller
         return substr(str_shuffle($chars),0,$length);
     }
 
+    public function send_admin_notification() {
+        // $all_users= User::where('company_id',Company::find(1)->id)->get();
+
+        // foreach ($all_users as $key => $user) {
+            # code...
+            // $main_company = Company::find(1);
+            Notification::route('mail', env('HOTEL_MAIN_EMAIL'))->notify(new NewRequestNotification());
+            $this->send_to_frog(
+                // $user->phone,
+                env('HOTEL_MAIN_PHONE'),
+                "Hello Admin!\n\nA New Reservation Request has been submitted on ".env('APP_NAME')."!\nPlease verify and approve/reject. \n\nAutomated message from ".env('APP_NAME').".",
+                'SMS'
+            );
+        // }
+    }
+
     public function hotel_notification( $message, $type, $url ) {
         $notification = new HotelNotifications;
         $notification->message = $message;
@@ -236,20 +253,9 @@ class CommonController extends Controller
         $notification->url = $url;
         $notification->save();
 
-        $all_users= User::where('company_id',Company::find(1)->id)->get();
-
-        foreach ($all_users as $key => $user) {
-            # code...
-            // Notification::send($user, new NewRequestNotification($user));
-            $this->send_to_frog(
-                $user->phone,
-                "Hello ".$user->name."!\nA New Reservation Request has been submitted on ".$user->company->name."!\nPlease verify and approve/reject. \n\nAutomated message from ".$user->company->name.".",
-                'SMS'
-            );
-        }
-
         return $notification;
     }
+
     public function notifications_unread( Request $request ) {
         DB::table('hotel_notifications')->where('status','unread')->update([
             'status' => 'read'
@@ -267,7 +273,7 @@ class CommonController extends Controller
     {
         //
         $reservations = Reservations::orderBy('created_at','desc')->where('company_id',auth()->user()->company->id);
-        $nofilter = true;
+        $no_filter = true;
 
         if(isset($request->keyword)){
             $keyword = $request->keyword;
@@ -285,7 +291,7 @@ class CommonController extends Controller
                 } else {
                     $reservations->orWhereIn("guest_id",array_column($guests->toArray(), 'id'));
                 }
-                $nofilter = false;
+                $no_filter = false;
             }
             if (count($rooms) > 0) {
                 if ($first) {
@@ -294,7 +300,7 @@ class CommonController extends Controller
                 } else {
                     $reservations->orWhereIn("room_id",array_column($rooms->toArray(), 'id'));
                 }
-                $nofilter = false;
+                $no_filter = false;
             }
             if (count($roomtypes) > 0) {
                 if ($first) {
@@ -303,13 +309,13 @@ class CommonController extends Controller
                 } else {
                     $reservations->orWhereIn("room_type",array_column($roomtypes->toArray(), 'id'));
                 }
-                $nofilter = false;
+                $no_filter = false;
             }
 
             $reservations->with(['roomtype','room']);
         }
 
-        if($nofilter){
+        if($no_filter){
             $reservations->where('id',-1);
         }
 
@@ -329,7 +335,7 @@ class CommonController extends Controller
         return json_decode(json_encode($array));
     }
 
-    //Mobile Format Fuction
+    //Mobile Format Function
     public function formatphonenumber($phone,$code=null)
     {
         //Remove any parentheses and the numbers they contain:
@@ -359,6 +365,122 @@ class CommonController extends Controller
             }
         }
         return $phone;
+    }
+
+    public function payStackPaymentApi($reservation_id){
+        $reservation = Reservations::find($reservation_id);
+        if($reservation){
+            $oldpayment = Payments::where('reservation_id',$reservation_id)->where('created_at','>=',date('Y-m-d H:i:s', strtotime('-1 days')))->first();
+            if($oldpayment){
+                return redirect($oldpayment->authorization_url);
+            }else{
+                $url = "https://api.paystack.co/transaction/initialize";
+                $fields = [
+                    'email' => $reservation->guest->email,
+                    'currency' => $reservation->currency,
+                    'amount' => number_format(($reservation->price*100),0,'.','')
+                ];
+                // dd($fields);
+                $fields_string = http_build_query($fields);
+                //open connection
+                $ch = curl_init();
+
+                //set the url, number of POST vars, POST data
+                curl_setopt($ch,CURLOPT_URL, $url);
+                curl_setopt($ch,CURLOPT_POST, true);
+                curl_setopt($ch,CURLOPT_POSTFIELDS, $fields_string);
+                curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+                "Authorization: Bearer ".env('PAYSTACK_SK'),
+                "Cache-Control: no-cache",
+                ));
+
+                //So that curl_exec returns the contents of the cURL; rather than echoing it
+                curl_setopt($ch,CURLOPT_RETURNTRANSFER, true);
+
+                //execute post
+                $result = json_decode(curl_exec($ch));
+
+                $this->writelog("Paystack Callback Payload: ".json_encode($result)."\n",1);
+                // dd($result);
+                if ($result) {
+                    if ($result->status) {
+                        try {
+                            DB::beginTransaction();
+                            DB::table('payments')->insert([
+                                'currency' => $reservation->currency,
+                                'provider' => 'paystack',
+                                'reservation_id' => $reservation->id,
+                                'amount' => $reservation->price*100,
+                                'requested_amount' => $reservation->price*100,
+                                'authorization_url' => $result->data->authorization_url,
+                                'access_code' => $result->data->access_code,
+                                'reference' => $result->data->reference,
+                                'created_at' => date('Y-m-d H:i:s'),
+                            ]);
+                            DB::commit();
+                        } catch (\Exception $e) {
+                            DB::rollBack();
+                            $this->ExceptionHandler($e);
+                            return redirect()->route('home.roomdetails',$reservation->room_type)->with('error','There was an error redirecting to the payment page. Please try again.');
+                        }
+
+                        return redirect($result->data->authorization_url);
+                    }
+                    return redirect()->route('home.roomdetails',$reservation->room_type)->with('error','There was an error redirecting to the payment page. Please try again.');
+                }
+                return redirect()->route('home.roomdetails',$reservation->room_type)->with('error','There was an error redirecting to the payment page. Please try again.');
+            }
+        }
+        return redirect()->route('home.rooms')->with('error','There was an error redirecting to the payment page. Please try again.');
+    }
+
+    public function payStackCallback(Request $request)
+    {
+        //
+        $this->writelog("Paystack Callback Payload: ".json_encode($request->all())."\n",1);
+        try{
+            $callback_results = $this->objectify($request->all());
+
+            if($callback_results->status){
+                $payment = Payments::select('id','reservation_id')->where('reference',$callback_results->data->reference)->first();
+
+                // dd($payment);
+                if($payment){
+                    DB::beginTransaction();
+
+                    DB::table('payments')->where('id',$payment->id)->update([
+                        'transaction_date' => $callback_results->data->transaction_date,
+                        'status' => $callback_results->data->status,
+                        'domain' => $callback_results->data->domain,
+                        'gateway_response' => $callback_results->data->gateway_response,
+                        'message' => $callback_results->data->message,
+                        'channel' => $callback_results->data->channel,
+                        'ip_address' => $callback_results->data->ip_address,
+                        'log' => json_encode($callback_results->data->log),
+                        'authorization' => json_encode($callback_results->data->authorization),
+                        'customer' => json_encode($callback_results->data->customer),
+                        'fees' => $callback_results->data->fees,
+                        'plan' => $callback_results->data->plan,
+                        'requested_amount' => $callback_results->data->requested_amount,
+                        'updated_at' => date('Y-m-d H:i:s'),
+                    ]);
+
+                    if ($callback_results->data->status == "success") {
+                        DB::table('reservations')->where('id',$payment->reservation_id)->update([
+                            'reservation_status' => 'confirmed'
+                        ]);
+                    }
+
+                    DB::commit();
+                }
+            }
+
+            return array("code" => 200, "message"=> "MESSAGE ACCEPTED", "result"=> []);
+        }catch(\Exception $e){
+            DB::rollBack();
+            $this->ExceptionHandler($e);
+            return array("code" => 400, "message"=> "MESSAGE REJECTED", "result"=> []);
+        }
     }
 
 }

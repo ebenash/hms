@@ -3,12 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
+// use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Payments extends Model
 {
     //
-    use SoftDeletes;
+    // use SoftDeletes;
 
     public function reservation(){
     	return $this->belongsTo('App\Models\Reservations');

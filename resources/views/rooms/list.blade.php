@@ -54,7 +54,7 @@
                             <div class="modal-content">
                                 <div class="block block-themed block-transparent remove-margin-b">
                                     <div class="block-header bg-primary-dark">
-                                        <h3 class="block-title">Room Info</h3>
+                                        <h3 class="block-title">Update Room</h3>
                                         <div class="block-options">
                                             <button type="button" class="btn-block-option" data-dismiss="modal" aria-label="Close">
                                                 <i class="si si-close"></i>
@@ -62,22 +62,35 @@
                                         </div>
                                     </div>
                                     <div class="block-content">
-                                        <div>
+                                        <form method="post" action="{{route('rooms-update',$room->id)}}" class="form-horizontal push-10-t">
+                                            {{ csrf_field() }}
                                             <div class="form-group">
-                                                <div class="">Room Name: <b>{{$room->name}}</b></div>
+                                                <label for="material-text2">Room Name <span class="text-danger" style="display: inline-block;">*</span></label>
+                                                <input type="text" name="name" class="form-control" value="{{$room->name}}">
                                             </div>
                                             <div class="form-group">
-                                                <div class="">Room Type: <b>{{$room->roomtype->name}}</b></div>
+                                                <label for="type">Room Type<span class="text-danger" style="display: inline-block;">*</span></label>
+                                                <select name="type" class="form-control">
+                                                    <option value="">Select Room Type</option>
+                                                    @foreach($all_roomtypes as $roomtype)
+                                                        <option value="{{$roomtype->id}}" {{$room->room_type_id == $roomtype->id ? 'selected' : ''}}>{{$roomtype->name}}</option>
+                                                    @endforeach
+                                                </select>
                                             </div>
+
                                             <div class="form-group">
-                                                <div class="">Status: <b> @if($room->status == 1) <span class="label label-success">Available</span>  @else <span class="label label-danger">Inactive</span> @endif </b></div>
+                                                <label for="material-text2">Room Status <span class="text-danger" style="display: inline-block;">*</span></label>
+                                                <select name="status" class="form-control">
+                                                    <option value="1" {{$room->status == 1 ? 'selected' : ''}}>Available</option>
+                                                    <option value="0" {{$room->status == 0 ? 'selected' : ''}}>Inactive</option>
+                                                </select>
                                             </div>
-                                        </div>
+                                            <div class="modal-footer">
+                                                <button class="btn btn-lg btn-alt-primary" type="button" data-dismiss="modal">Close</button>
+                                                <button class="btn btn-lg btn-primary" type="submit"><i class="fa fa-calendar-check-o"></i> Submit</button>
+                                            </div>
+                                        </form>
                                     </div>
-                                </div>
-                                <div class="modal-footer">
-                                    <button class="btn btn-lg btn-alt-primary" type="button" data-dismiss="modal">Close</button>
-                                    <button class="btn btn-lg btn-primary" type="button" data-dismiss="modal"><i class="fa fa-calendar-check-o"></i> Submit</button>
                                 </div>
                             </div>
                         </div>
@@ -102,7 +115,6 @@
                         </div>
                     </div>
                     <div class="block-content block-content-narrow">
-
                         <form method="post" action="{{route('rooms-store')}}" class="form-horizontal push-10-t">
                             {{ csrf_field() }}
                             <div class="form-group">

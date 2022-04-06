@@ -43,13 +43,14 @@
                                     $deleteurl = route('roomtypes-destroy',$roomtype->id);
                                     // $successurl = route('settings-tab','users');
                                 @endphp
-                                <div style="display: inline-block;"><a href="#" class="btn btn-sm btn-primary"  data-toggle="modal" data-target="#modal-view{{$roomtype->id}}" title="View Room Type"> <i class="fa fa-eye"> </i></a></div>
+                                <div style="display: inline-block;"><a href="#" class="btn btn-sm btn-primary"  data-toggle="modal" data-target="#modal-view-roomtype{{$roomtype->id}}" title="View Room Type"> <i class="fa fa-eye"> </i></a></div>
+                                <div style="display: inline-block;"><a href="#" class="btn btn-sm btn-info"  data-toggle="modal" data-target="#modal-update-roomtype{{$roomtype->id}}" title="Update Room Type"> <i class="fa fa-edit"> </i></a></div>
                                 {{-- <div style="display: inline-block;"><a href="/roomtypes/{{$roomtype->id}}/edit" class="btn btn-sm btn-warning" data-toggle="tooltip" title="Edit Room Type"> <i class="fa fa-edit"></i> </a></div> --}}
                                 <div style="display: inline-block;"><button class="btn btn-sm btn-danger" type="button" data-toggle="tooltip" title="Remove Room Type" onclick="confimdelete('{{$deleteurl}}')"><i class="fa fa-times"> </i></button></div>
                             </div>
                         </td>
                     </tr>
-                    <div class="modal fade" id="modal-view{{$roomtype->id}}" tabindex="-1" role="dialog" aria-hidden="true">
+                    <div class="modal fade" id="modal-view-roomtype{{$roomtype->id}}" tabindex="-1" role="dialog" aria-hidden="true">
                         <div class="modal-dialog  modal-dialog-popout">
                             <div class="modal-content">
                                 <div class="block block-themed block-transparent remove-margin-b">
@@ -139,6 +140,70 @@
                                 <div class="modal-footer">
                                     <button class="btn btn-lg btn-alt-primary" type="button" data-dismiss="modal">Close</button>
                                     {{-- <button class="btn btn-lg btn-primary" type="button" data-dismiss="modal"><i class="fa fa-calendar-check-o"></i> Submit</button> --}}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal fade" id="modal-update-roomtype{{$roomtype->id}}" tabindex="-1" role="dialog" aria-hidden="true">
+                        <div class="modal-dialog  modal-dialog-popout">
+                            <div class="modal-content">
+                                <div class="block block-themed block-transparent mb-0">
+                                    <div class="block-header bg-primary-dark">
+                                        <h3 class="block-title">Update Room Type</h3>
+                                        <div class="block-options">
+                                            <button type="button" class="btn-block-option" data-dismiss="modal" aria-label="Close">
+                                                <i class="si si-close"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <form method="post" action="{{route('roomtypes-update',$roomtype->id)}}" class="form-horizontal push-10-t">
+                                        {{ csrf_field() }}
+                                        <div class="block-content">
+                                            <div class="form-group">
+                                                <label for="material-text2">Room Type Name: <span class="text-danger" style="display: inline-block;">*</span></label>
+                                                <input type="text" name="name" class="form-control" value="{{$roomtype->name}}">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="material-text2">Price Starting From (GHS): <span class="text-danger" style="display: inline-block;">*</span></label>
+                                                <input type="text" name="price_from" class="form-control" value="{{$roomtype->price_from}}">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="material-text2">Max Persons: <span class="text-danger" style="display: inline-block;">*</span></label>
+                                                <input type="number" name="max_persons" class="form-control" min="1" max="10" value="{{$roomtype->max_persons}}">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="material-text2">Bed Type: eg. "1 King Bed" <span class="text-danger" style="display: inline-block;">*</span></label>
+                                                <input type="text" name="bed_type" class="form-control" value="{{$roomtype->bed_type}}">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="material-text2">Category: <span class="text-danger" style="display: inline-block;">*</span></label>
+                                                <select name="category" id="category" class="form-control">
+                                                    <option value="room" {{$roomtype->category == "room" ? 'selected' : ''}}>Room</option>
+                                                    <option value="suite" {{$roomtype->category == "suite" ? 'selected' : ''}}>Suite</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="material-text2">Image 1 URL: <span class="text-danger" style="display: inline-block;">*</span></label>
+                                                <input type="text" name="image_one" class="form-control" value="{{$roomtype->image_one}}">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="material-text2">Image 2 URL: </label>
+                                                <input type="text" name="image_two" class="form-control" value="{{$roomtype->image_two}}">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="material-text2">Image 3 URL: </label>
+                                                <input type="text" name="image_three" class="form-control" value="{{$roomtype->image_three}}">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="material-text2">Description: </label>
+                                                <textarea name="description" id="description" class="form-control" cols="30" rows="10"> {{$roomtype->description}}</textarea>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button class="btn btn-lg btn-alt-primary" type="button" data-dismiss="modal">Close</button>
+                                                <button class="btn btn-lg btn-primary" type="submit"><i class="fa fa-calendar-check-o"></i> Submit</button>
+                                            </div>
+                                        </div>
+                                    </form>
                                 </div>
                             </div>
                         </div>

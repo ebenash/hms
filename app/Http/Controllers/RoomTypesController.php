@@ -122,21 +122,26 @@ class RoomTypesController extends Controller
         $this->validate($request,[
             'name'=>'required',
             'price_from'=>'required',
-            'type'=>'required',
+            'bed_type'=>'required',
             'max_persons'=>'required',
-            'status'=>'required'
+            'category'=>'required',
+            'image_one'=>'required'
         ]);
 
-        $room = RoomTypes::find($id);
+        $roomtype = RoomTypes::find($id);
 
-        $room->name = $request->input('name');
-        $room->price_from = $request->input('price_from');
-        $room->room_type_id = $request->input('type');
-        $room->max_persons = $request->input('max_persons');
-        $room->status = $request->input('status');
+        $roomtype->name = $request->input('name');
+        $roomtype->price_from = $request->input('price_from');
+        $roomtype->bed_type = $request->input('bed_type');
+        $roomtype->max_persons = $request->input('max_persons');
+        $roomtype->category = $request->input('category');
+        $roomtype->image_one = $request->input('image_one');
+        $roomtype->image_two = $request->input('image_two');
+        $roomtype->image_three = $request->input('image_three');
+        $roomtype->description = $request->input('description');
 
-        $room->update();
-        return redirect('/roomtypes')->with('success','Successfully Updated!');
+        $roomtype->update();
+        return back()->with('success','Successfully Updated!');
 
 
     }

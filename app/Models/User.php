@@ -5,12 +5,14 @@ namespace App\Models;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Permission\Traits\HasRoles;
+// use Illuminate\Database\Eloquent\SoftDeletes;
 
 class User extends Authenticatable
 {
     use Notifiable;
-    use SoftDeletes;
+    use HasRoles;
+    // use SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -40,7 +42,7 @@ class User extends Authenticatable
     ];
 
     public function role(){
-        return $this->belongsTo('App\Models\UserRoles');
+        return $this->belongsTo(\Spatie\Permission\Models\Role::class);
     }
 
     public function company(){

@@ -25,6 +25,7 @@ class CreateReservationsTable extends Migration
             $table->integer('children')->nullable();
             $table->string('reservation_status',10)->default('pending');
             $table->decimal('discount',7,2)->nullable();
+            $table->string('currency',5)->nullable();
             $table->decimal('price',15,2)->nullable();
             $table->string('payment_method',50)->nullable();
             $table->integer('company_id');

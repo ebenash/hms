@@ -11,16 +11,14 @@ class NewRequestNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    public $user;
     /**
      * Create a new notification instance.
      *
      * @return void
      */
-    public function __construct($user)
+    public function __construct()
     {
         //
-        $this->user = $user;
     }
 
     /**
@@ -44,10 +42,10 @@ class NewRequestNotification extends Notification implements ShouldQueue
     {
         return (new MailMessage)
                     ->subject('New Reservation Request Submitted.')
-                    ->greeting('Hello '.$this->user->name ?? $this->user->username.'!')
-                    ->line("A New Reservation Request has been submitted on ".$this->user->company->name."!")
+                    ->greeting('Hello Admin!')
+                    ->line("A New Reservation Request has been submitted on ".env('APP_NAME')."!")
                     ->line('Please verify and approve/reject. ')
-                    ->line("Automated message from ".$this->user->company->name.".");
+                    ->line("Automated message from ".env('APP_NAME').".");
     }
 
     /**

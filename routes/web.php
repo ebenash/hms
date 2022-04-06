@@ -28,6 +28,8 @@ Route::get('/room/details/{id}', 'RoomTypesController@homepage_room_details')->n
 Route::get('/reservation', 'ReservationsController@homepage_reservation')->name('home.reservation');
 Route::post('/reservation/store', 'ReservationsController@homepage_reservation_store')->name('home.reservation.store');
 
+Route::get('/reservation/payment/{id}', 'CommonController@payStackPaymentApi')->name('paystack-payment-url');
+
 Route::get('/gallery', function () {
     return view('homepage.gallery');
 })->name('home.gallery');
@@ -40,9 +42,12 @@ Route::prefix('admin')->group(function(){
     Route::get('/dashboard', 'DashboardController@index')->name('dashboard');
     Auth::routes(['register'=>false]);
     Route::post('/guests/store', 'GuestsController@store')->name('guests-store');
+    Route::post('/guests/update/{id}', 'GuestsController@update')->name('guests-update');
     Route::post('/guests/findguest/{search}', 'GuestsController@find_guest')->name('find-guest');
     Route::post('/roomtypes/store', 'RoomTypesController@store')->name('roomtypes-store');
+    Route::post('/roomtypes/update/{id}', 'RoomTypesController@update')->name('roomtypes-update');
     Route::post('/reservations/store', 'ReservationsController@store')->name('reservations-store');
+    Route::post('/reservations/update/{id}', 'ReservationsController@update')->name('reservations-update');
     Route::get('/reservations/calendar', 'ReservationsController@calendar')->name('reservations-calendar');
     Route::get('/reservations/today', 'ReservationsController@today')->name('reservations-today');
     Route::get('/reservations/tomorrow', 'ReservationsController@tomorrow')->name('reservations-tomorrow');
@@ -55,6 +60,7 @@ Route::prefix('admin')->group(function(){
     Route::post('/reservations/request/update/{id}', 'ReservationsController@request_update')->name('reservations-update-request');
     Route::post('/notifications/unread', 'CommonController@notifications_unread')->name('notifications-unread');
     Route::post('/rooms/store', 'RoomsController@store')->name('rooms-store');
+    Route::post('/rooms/update/{id}', 'RoomsController@update')->name('rooms-update');
     Route::post('/rooms/getrooms/{id}', 'RoomsController@get_rooms')->name('get-rooms');
     Route::post('/payments/store', 'PaymentsController@store')->name('payments-store');
     Route::get('/reports', 'ReportsController@index')->name('reports');
@@ -69,16 +75,17 @@ Route::prefix('admin')->group(function(){
     Route::put('/user/profile/update/{id}', 'Auth\UserController@update')->name('user-profile-update');
     Route::put('/user/password/update/{id}', 'Auth\UserController@update_password')->name('user-password-update');
     Route::post('/user/store', 'Auth\UserController@store')->name('user-store');
+    Route::post('/user/update/{id}', 'Auth\UserController@update')->name('user-update');
     Route::post('/notifications/read/{id}', 'CommonController@handle_notification')->name('handle-notification');
     Route::post('/search', 'CommonController@global_search')->name('global-search');
     Route::resource('guests','GuestsController', [
         'names' => [
             'index' => 'guests',
             'create' => 'guests-create',
-            'store' => 'guests-store',
+            // 'store' => 'guests-store',
             'show' => 'guests-show',
             'edit' => 'guests-edit',
-            'update' => 'guests-update',
+            // 'update' => 'guests-update',
             'destroy' => 'guests-destroy',
         ]
     ]);
@@ -86,10 +93,10 @@ Route::prefix('admin')->group(function(){
         'names' => [
             'index' => 'rooms',
             'create' => 'rooms-create',
-            'store' => 'rooms-store',
+            // 'store' => 'rooms-store',
             'show' => 'rooms-show',
             'edit' => 'rooms-edit',
-            'update' => 'rooms-update',
+            // 'update' => 'rooms-update',
             'destroy' => 'rooms-destroy',
         ]
     ]);
@@ -97,10 +104,10 @@ Route::prefix('admin')->group(function(){
         'names' => [
             'index' => 'reservations',
             'create' => 'reservations-create',
-            'store' => 'reservations-store',
+            // 'store' => 'reservations-store',
             'show' => 'reservations-show',
             'edit' => 'reservations-edit',
-            'update' => 'reservations-update',
+            // 'update' => 'reservations-update',
             'destroy' => 'reservations-destroy',
         ]
     ]);
@@ -108,10 +115,10 @@ Route::prefix('admin')->group(function(){
         'names' => [
             'index' => 'roomtypes',
             'create' => 'roomtypes-create',
-            'store' => 'roomtypes-store',
+            // 'store' => 'roomtypes-store',
             'show' => 'roomtypes-show',
             'edit' => 'roomtypes-edit',
-            'update' => 'roomtypes-update',
+            // 'update' => 'roomtypes-update',
             'destroy' => 'roomtypes-destroy',
         ]
     ]);
@@ -119,10 +126,10 @@ Route::prefix('admin')->group(function(){
         'names' => [
             'index' => 'payments',
             'create' => 'payments-create',
-            'store' => 'payments-store',
+            // 'store' => 'payments-store',
             'show' => 'payments-show',
             'edit' => 'payments-edit',
-            'update' => 'payments-update',
+            // 'update' => 'payments-update',
             'destroy' => 'payments-destroy',
         ]
     ]);
@@ -130,10 +137,10 @@ Route::prefix('admin')->group(function(){
         'names' => [
             'index' => 'users',
             'create' => 'users-create',
-            'store' => 'users-store',
+            // 'store' => 'users-store',
             'show' => 'users-show',
             'edit' => 'users-edit',
-            'update' => 'users-update',
+            // 'update' => 'users-update',
             'destroy' => 'users-destroy',
         ]
     ]);

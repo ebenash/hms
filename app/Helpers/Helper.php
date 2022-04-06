@@ -53,7 +53,7 @@ class Helper
             if ($CharNo == 13) { $newtext .= $Char; continue; } // keep \r
             if ($CharNo == 10) { $newtext .= $Char; continue; } // keep \n
             if ($CharNo > 31 && $CharNo < 127) {
-            $newtext .= $Char;
+                $newtext .= $Char;
             }
         }
         return utf8_encode($newtext);
@@ -73,7 +73,7 @@ class Helper
             'headerToolbar' => [
                 'center' => 'prev,next today myCustomButton',
                 'left' => 'title',
-                'right' => 'dayGridMonth,timeGridWeek,timeGridDay,listMonth'
+                'right' => 'dayGridMonth,dayGridWeek,dayGridDay,listMonth'
             ],
             'customButtons' => [
                 'myCustomButton' => [

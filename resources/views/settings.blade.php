@@ -36,9 +36,13 @@
                 @csrf
                 <input type="hidden" name="update_type" value="company">
                 <div class="form-group row">
-                    <div class="col-lg-12">
+                    <div class="col-lg-6">
                         <label for="company_name">Company Name</label>
                         <input class="form-control" type="text" id="company_name" name="company_name" value="{{$current_user->company->name}}">
+                    </div>
+                    <div class="col-lg-6">
+                        <label for="phone">Phone</label>
+                        <input class="form-control" type="tel" id="phone" name="phone" value="{{$current_user->company->phone}}">
                     </div>
                 </div>
                 <div class="form-group row">
@@ -47,8 +51,8 @@
                         <input class="form-control" type="email" id="email" name="email" value="{{$current_user->company->email}}">
                     </div>
                     <div class="col-lg-6">
-                        <label for="phone">Phone</label>
-                        <input class="form-control" type="tel" id="phone" name="phone" value="{{$current_user->company->phone}}">
+                        <label for="website">Website</label>
+                        <input class="form-control" type="text" id="website" name="website" value="{{$current_user->company->website}}">
                     </div>
                 </div>
                 <div class="form-group row">
@@ -69,8 +73,11 @@
                         <input class="form-control" type="text" id="location" name="location" value="{{$current_user->company->location}}">
                     </div>
                     <div class="col-lg-6">
-                        <label for="website">Website</label>
-                        <input class="form-control" type="text" id="website" name="website" value="{{$current_user->company->website}}">
+                        <label for="currency">Currency</label>
+                        <select class="form-control" id="currency" name="currency">
+                            <option value="GHS" {{$current_user->company->currency == 'GHS' ? 'selected' : ''}}>GHS</option>
+                            <option value="USD" {{$current_user->company->currency == 'USD' ? 'selected' : ''}}>USD</option>
+                        </select>
                     </div>
                 </div>
                 <div class="form-group">
@@ -89,11 +96,15 @@
         <!-- END Company Information -->
 
         <!-- Users -->
-        <div class="tab-pane fade fade-up {{isset($tab) ? ($tab == 'users' ? 'show active' : '') : ''}}" id="settings-users" role="tabpanel">
-            <div class="block-content block-content-full">
+        <div class="tab-pane {{isset($tab) ? ($tab == 'users' ? 'show active' : '') : ''}}" id="settings-users" role="tabpanel">
+            <div class="block-header">
+                <h3 class="block-title">Users <small></small></h3>
                 <div class="pull-right mb-3">
                     <a href="#" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#modal-view-add-user"><i class="fa fa-plus"></i> Add New User</a>
                 </div>
+
+            </div>
+            <div class="block-content block-content-full">
                 <!-- DataTables init on table by adding .js-dataTable-full-pagination class, functionality initialized in js/pages/base_tables_datatables.js -->
                 <table class="table table-bordered table-striped table-vcenter js-dataTable-full">
                     <thead>
@@ -116,17 +127,140 @@
                             <td class="hidden-xs">{{$user->title}}</td>
                             <td class="hidden-xs">{{$user->phone}}</td>
                             <td class="hidden-xs">{{$user->email}}</td>
-                            <td class="hidden-xs">{{$user->role->role_name}}</td>
+                            <td class="hidden-xs">{{ucfirst(implode(", ",json_decode($user->getRoleNames())))}}</td>
                             <td class="text-center">
                                 @php
                                     $deleteurl = route('users-destroy',$user->id);
                                     $successurl = route('settings-tab','users');
                                 @endphp
                                 <div class="btn-group">
-                                    {{-- <div style="display: inline-block;"><a href="/users/{{$user->id}}" class="btn btn-xs btn-primary" data-toggle="tooltip" title="View User"> <i class="fa fa-eye"> </i></a></div> --}}
+                                    <div style="display: inline-block;"><a href="#" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#modal-update-user{{$user->id}}" title="View User"> <i class="fa fa-edit"> </i></a></div>
                                     <div style="display: inline-block;"><button class="btn btn-sm btn-danger" type="button" data-toggle="tooltip" title="Remove User" onclick="confimdelete('{{$deleteurl}}','{{$successurl}}')"><i class="fa fa-times"> </i></button></div>
                                 </div>
                             </td>
+
+                            <div class="modal fade" id="modal-update-user{{$user->id}}" tabindex="-1" role="dialog" aria-hidden="true">
+                                <div class="modal-dialog  modal-dialog-popout">
+                                    <div class="modal-content">
+                                        <div class="block block-themed block-transparent mb-0">
+                                            <div class="block-header bg-primary-dark">
+                                                <h3 class="block-title">Update User</h3>
+                                                <div class="block-options">
+                                                    <button type="button" class="btn-block-option" data-dismiss="modal" aria-label="Close">
+                                                        <i class="si si-close"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="block-content block-content-narrow">
+
+
+                                            <form class="js-validation-register form-horizontal push-50-t push-50" action="{{ route('user-update',$user->id) }}" method="post">
+                                                @csrf
+                                                <div class="form-group">
+                                                    <div class="col-xs-12">
+                                                        <div class="form-material form-material-success">
+                                                            <label for="register-username">{{ __('Name') }} <span class="text-danger" style="display: inline-block;">*</span></label>
+                                                            <input id="name" type="text" class="form-control @error('name') is-invalid @enderror" name="name" value="{{ $user->name }}" required autocomplete="name" autofocus placeholder="Please enter a Name">
+                                                            @error('name')
+                                                                <span class="invalid-feedback" role="alert">
+                                                                    <strong>{{ $message }}</strong>
+                                                                </span>
+                                                            @enderror
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <div class="col-xs-12">
+                                                        <div class="form-material form-material-success">
+                                                            <label for="register-title">{{ __('Job Title') }} <span class="text-danger" style="display: inline-block;">*</span></label>
+                                                            <input id="title" type="text" class="form-control @error('title') is-invalid @enderror" name="title" value="{{ $user->title }}" required autocomplete="title" autofocus placeholder="Please enter a Title">
+                                                            @error('title')
+                                                                <span class="invalid-feedback" role="alert">
+                                                                    <strong>{{ $message }}</strong>
+                                                                </span>
+                                                            @enderror
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <div class="col-xs-12">
+                                                        <div class="form-material form-material-success">
+                                                            <label for="register-phone">{{ __('Phone Number') }} <span class="text-danger" style="display: inline-block;">*</span></label>
+                                                            <input id="phone" type="tel" class="form-control @error('phone') is-invalid @enderror" name="phone" value="{{ $user->phone }}" required autocomplete="phone" placeholder="Please provide your phone number">
+                                                            @error('phone')
+                                                                <span class="invalid-feedback" role="alert">
+                                                                    <strong>{{ $message }}</strong>
+                                                                </span>
+                                                            @enderror
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <div class="col-xs-12">
+                                                        <div class="form-material form-material-success">
+                                                            <label for="register-email">{{ __('E-Mail Address') }} <span class="text-danger" style="display: inline-block;">*</span></label>
+                                                            <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ $user->email }}" required autocomplete="email" placeholder="Please provide your email">
+                                                            @error('email')
+                                                                <span class="invalid-feedback" role="alert">
+                                                                    <strong>{{ $message }}</strong>
+                                                                </span>
+                                                            @enderror
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <div class="col-xs-12">
+                                                        <div class="form-material form-material-success">
+                                                            <label for="register-role_id">{{ __('User Role') }} <span class="text-danger" style="display: inline-block;">*</span></label>
+                                                            <select id="role_id" type="role_id" class="form-control @error('role_id') is-invalid @enderror" name="role_id" required >
+                                                                <option value="">Select Role</option>
+
+                                                                @foreach($roles as $role)
+                                                                    <option value="{{$role->name}}" {{$user->hasRole($role->name) ? 'selected' : ''}}>{{ucfirst($role->name)}}</option>
+                                                                @endforeach
+                                                            </select>
+                                                            @error('role_id')
+                                                                <span class="invalid-feedback" role="alert">
+                                                                    <strong>{{ $message }}</strong>
+                                                                </span>
+                                                            @enderror
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                {{-- <div class="form-group">
+                                                    <div class="col-xs-12">
+                                                        <div class="form-material form-material-success">
+                                                            <label for="register-password">{{ __('Password') }} <span class="text-danger" style="display: inline-block;">*</span></label>
+                                                            <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" required autocomplete="new-password" placeholder="Choose a strong password..">
+                                                            @error('password')
+                                                                <span class="invalid-feedback" role="alert">
+                                                                    <strong>{{ $message }}</strong>
+                                                                </span>
+                                                            @enderror
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <div class="col-xs-12">
+                                                        <div class="form-material form-material-success">
+                                                            <label for="register-password2">{{ __('Confirm Password') }} <span class="text-danger" style="display: inline-block;">*</span></label>
+                                                            <input id="password-confirm" type="password" class="form-control" name="password_confirmation" required autocomplete="new-password" placeholder="..and confirm it">
+                                                        </div>
+                                                    </div>
+                                                </div> --}}
+
+                                                <div class="modal-footer">
+                                                    <button class="btn btn-lg btn-alt-primary" type="button" data-dismiss="modal">Close</button>
+                                                    <button class="btn btn-lg btn-primary" type="submit">Update User</button>
+                                                </div>
+                                            </form>
+                                            <!-- END Register Form -->
+                                        </div>
+                                    </div>
+                                    </div>
+                                </div>
+                            </div>
                         </tr>
                         @endforeach
 
@@ -214,6 +348,130 @@
 
     </div>
 </div>
+
+
+<div class="modal fade" id="modal-view-add-user" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog  modal-dialog-popout">
+        <div class="modal-content">
+            <div class="block block-themed block-transparent mb-0">
+                <div class="block-header bg-primary-dark">
+                    <h3 class="block-title">Add New User</h3>
+                    <div class="block-options">
+                        <button type="button" class="btn-block-option" data-dismiss="modal" aria-label="Close">
+                            <i class="si si-close"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="block-content block-content-narrow">
+
+
+                <form class="js-validation-register form-horizontal push-50-t push-50" action="{{ route('user-store') }}" method="post">
+                    @csrf
+                    <div class="form-group">
+                        <div class="col-xs-12">
+                            <div class="form-material form-material-success">
+                                <label for="register-username">{{ __('Name') }} <span class="text-danger" style="display: inline-block;">*</span></label>
+                                <input id="name" type="text" class="form-control @error('name') is-invalid @enderror" name="name" value="{{ old('name') }}" required autocomplete="name" autofocus placeholder="Please enter a Name">
+                                @error('name')
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-xs-12">
+                            <div class="form-material form-material-success">
+                                <label for="register-title">{{ __('Job Title') }} <span class="text-danger" style="display: inline-block;">*</span></label>
+                                <input id="title" type="text" class="form-control @error('title') is-invalid @enderror" name="title" value="{{ old('title') }}" required autocomplete="title" autofocus placeholder="Please enter a Title">
+                                @error('title')
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-xs-12">
+                            <div class="form-material form-material-success">
+                                <label for="register-phone">{{ __('Phone Number') }} <span class="text-danger" style="display: inline-block;">*</span></label>
+                                <input id="phone" type="tel" class="form-control @error('phone') is-invalid @enderror" name="phone" value="{{ old('phone') }}" required autocomplete="phone" placeholder="Please provide your phone number">
+                                @error('phone')
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-xs-12">
+                            <div class="form-material form-material-success">
+                                <label for="register-email">{{ __('E-Mail Address') }} <span class="text-danger" style="display: inline-block;">*</span></label>
+                                <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" required autocomplete="email" placeholder="Please provide your email">
+                                @error('email')
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-xs-12">
+                            <div class="form-material form-material-success">
+                                <label for="register-role_id">{{ __('User Role') }} <span class="text-danger" style="display: inline-block;">*</span></label>
+                                <select id="role_id" type="role_id" class="form-control @error('role_id') is-invalid @enderror" name="role_id" required >
+                                    <option value="">Select Role</option>
+                                    @foreach($roles as $role)
+                                        <option value="{{$role->name}}">{{ucfirst($role->name)}}</option>
+                                    @endforeach
+                                </select>
+                                @error('role_id')
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+                    {{-- <div class="form-group">
+                        <div class="col-xs-12">
+                            <div class="form-material form-material-success">
+                                <label for="register-password">{{ __('Password') }} <span class="text-danger" style="display: inline-block;">*</span></label>
+                                <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" required autocomplete="new-password" placeholder="Choose a strong password..">
+                                @error('password')
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-xs-12">
+                            <div class="form-material form-material-success">
+                                <label for="register-password2">{{ __('Confirm Password') }} <span class="text-danger" style="display: inline-block;">*</span></label>
+                                <input id="password-confirm" type="password" class="form-control" name="password_confirmation" required autocomplete="new-password" placeholder="..and confirm it">
+                            </div>
+                        </div>
+                    </div> --}}
+
+                    <div class="modal-footer">
+                        <button class="btn btn-lg btn-alt-primary" type="button" data-dismiss="modal">Close</button>
+                        <button class="btn btn-lg btn-primary" type="submit">Create User</button>
+                    </div>
+                </form>
+                <!-- END Register Form -->
+            </div>
+        </div>
+        </div>
+    </div>
+</div>
+
 
 @endsection
 

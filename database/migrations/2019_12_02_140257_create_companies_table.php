@@ -18,10 +18,12 @@ class CreateCompaniesTable extends Migration
             $table->string('name');
             $table->string('phone');
             $table->string('email');
+            $table->string('currency',5)->default('GHS');
             $table->text('description')->nullable();
             $table->string('location');
             $table->string('logo')->nullable();
             $table->string('website')->nullable();
+            $table->string('handle_payments')->default('online');
             $table->timestamps();
             $table->softDeletes();
         });

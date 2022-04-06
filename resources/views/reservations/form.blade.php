@@ -207,14 +207,31 @@
                             </div>
 
                             <div class="form-row mb-2 col-lg-12">
-                                <label for="price">Current Room Price</label>
+                                <label for="price">Current Room Price Per Day</label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <span class="input-group-text input-group-text-alt">
-                                            GHS
+                                            {{$current_user->company->currency}}
                                         </span>
                                     </div>
-                                    <input type="number" name="price" class="form-control text-center" value="{{$reservation->price ?? ''}}" {{isset($show) ? 'disabled':'required' }}  style="{{(isset($request) ? "border: 1px solid red !important;":'')}}" placeholder="Room Price">
+                                    <input type="number" id="price_per_day" name="price_per_day" class="form-control text-center" value="{{isset($reservation->price) ? ($reservation->price/$reservation->days) : ''}}" {{isset($show) ? 'disabled':'required' }}  style="{{(isset($request) ? "border: 1px solid red !important;":'')}}" placeholder="Room Price Per Day">
+                                </div>
+                            </div>
+                            <div class="form-row mb-2 col-lg-12">
+                                <label for="discount">Total Amount For {{$reservation->days ?? 'Specified'}} Day(s)</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text input-group-text-alt">
+                                            {{$current_user->company->currency}}
+                                        </span>
+                                    </div>
+                                    <input type="hidden" name="currency" value="{{$current_user->company->currency}}">
+                                    <input type="number" id="total_price" name="price" class="form-control text-center" value="{{$reservation->price ?? ''}}" readonly placeholder="Total Amount">
+                                    <div class="input-group-append">
+                                        <span class="input-group-text input-group-text-alt">
+                                            <i class="fa fa-calculator"></i>
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                             {{-- <div class="form-row mb-2 col-lg-12">
@@ -297,6 +314,23 @@
 
     <script>
         // getRooms();
+        $("#price_per_day").keyup(function () {
+            var price = $(this).val();
+            var date1 = new Date($("#check_in").val());
+            var date2 = new Date($("#check_out").val());
+
+            // To calculate the time difference of two dates
+            var timediff = date2.getTime() - date1.getTime();
+
+            // To calculate the no. of days between two dates
+            var daydiff = timediff / (1000 * 3600 * 24);
+            console.log(daydiff);
+
+            $('#total_price').val(price * daydiff);
+
+        });
+
+
         function getRooms() {
             var room_type = $("#room_type").val();
             $.ajax({

@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Company;
 use App\Models\Settings;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 
 class SettingsController extends Controller
@@ -18,7 +19,11 @@ class SettingsController extends Controller
     public function index($tab = null)
     {
         //
-        $data = ['all_users'=> User::where('company_id',auth()->user()->company->id)->get()];
+        $data = [
+            'all_users'=> User::where('company_id',auth()->user()->company->id)->get(),
+            'roles'=> DB::table('roles')->select('name')->get()
+        ];
+        // dd($data);
         return view('settings',$data)->with('tab',$tab);
     }
 
@@ -105,6 +110,7 @@ class SettingsController extends Controller
             $company->email = $request->email;
             $company->phone = $request->phone;
             $company->logo = $filename;
+            $company->currency = $request->currency;
             $company->location = $request->location;
             $company->website = $request->website;
             $company->description = $request->description;

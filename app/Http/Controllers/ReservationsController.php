@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Payments;
 use App\Models\Guests;
 use App\Helpers\Helper;
 use App\Models\Reservations;
@@ -10,6 +11,8 @@ use App\Models\RoomTypes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Acaronlex\LaravelCalendar\Calendar;
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\RequestResponseNotification;
 
 class ReservationsController extends CommonController
 {
@@ -263,6 +266,7 @@ class ReservationsController extends CommonController
             'check_out' => 'required|date|after:check_in',
             'adults' => 'required',
             'children' => 'required',
+            'currency' => 'required',
             'price' => 'required',
             'payment_type' => 'required',
             'status' => 'required',
@@ -292,7 +296,8 @@ class ReservationsController extends CommonController
                         'adults' => $request->input('adults'),
                         'children' => $request->input('children'),
                         'reservation_status' => $request->input('status'),
-                        'discount' => $request->input('discount'),
+                        // 'discount' => $request->input('discount'),
+                        'currency' => $request->input('currency'),
                         'payment_method' => $request->input('payment_type'),
                         'price' => $price,
                         'company_id' => auth()->user()->company->id,
@@ -320,7 +325,8 @@ class ReservationsController extends CommonController
         // dd($request->all());
         $request->validate([
             'room' => 'required',
-            'price' => 'required'
+            'price' => 'required',
+            'currency' => 'required'
         ]);
         try{
             $resrequest = Reservations::find($id);
@@ -339,12 +345,18 @@ class ReservationsController extends CommonController
                 $reservation =[
                     'room_id' => $room,
                     // 'discount' => $request->input('discount'),
+                    'currency' => $request->input('currency'),
                     'price' => $price
                 ];
                 DB::beginTransaction();
                 DB::table('reservations')->where('id',$id)->update($reservation);
                 DB::commit();
-                $this->send_feedback_to_guest($resrequest);
+                $feedbacksent = $this->send_feedback_to_guest($resrequest);
+                if($feedbacksent){
+                    return redirect()->route('reservations-calendar')->with('success','Reservation Record Updated Successfully');
+                }else{
+                    return redirect()->route('reservations-calendar')->with('warning','Reservation Record Updated But Could Not Send Feedback To Guest. Please try Again');
+                }
             }
 
         }catch(\Exception $e){
@@ -352,8 +364,6 @@ class ReservationsController extends CommonController
             DB::rollback();
             return back()->with('error','Could Not Record Reservation Request. Please Contact The Hotel Directly.');
         }
-        // dd("Well");
-        return redirect()->route('reservations-calendar')->with('success','Reservation Record Saved Successfully');
     }
 
     /**
@@ -494,6 +504,7 @@ class ReservationsController extends CommonController
             $reservation->children = $request->input('children');
             $reservation->reservation_status = $request->input('status');
             $reservation->discount = $request->input('discount');
+            $reservation->currency = $request->input('currency');
             $reservation->price = $price;
 
             $reservation->update();
@@ -516,11 +527,13 @@ class ReservationsController extends CommonController
     }
     public function send_feedback_to_guest($reservation)
     {
-        //
-
-        //temporary - change status to booked
-        $reservation->reservation_status = 'confirmed';
-        $reservation->save();
+        try {
+            Notification::route('mail', $reservation->guest->email)->notify(new RequestResponseNotification($reservation));
+            return true;
+        } catch (\Exception $e) {
+            $this->ExceptionHandler($e);
+            return false;
+        }
     }
 
     public function homepage_reservation()
@@ -554,17 +567,31 @@ class ReservationsController extends CommonController
         $days = date_diff(date_create($check_in),date_create($check_out))->format("%a");
         // dd($days);
         try{
-            DB::beginTransaction();
+            $phone = $this->formatphonenumber($request->input('bookNowPhone'));
+            $namearr = explode(" ",$request->input('bookNowFullName'));
+            $partname = isset($namearr[0]) ? $namearr[0] : $request->input('bookNowFullName');
+            // dd($partname);
 
-            $guest_id = DB::table('guests')->insertGetId([
-                'full_name' => $request->input('bookNowFullName'),
-                'email' => $request->input('bookNowEmail'),
-                'phone' => $this->formatphonenumber($request->input('bookNowPhone')),
-                'city' => $request->input('bookNowCity'),
-                'country' => $request->input('bookNowCountry'),
-                'company_id' => 1,
-                'created_by' => 0,
-            ]);
+            $same = Guests::where("full_name","like","%".$partname."%")->where('email',$request->input('bookNowEmail'))->first();
+
+            DB::beginTransaction();
+            if($same){
+                $guest_id = $same->id;
+                if ($same->phone != $phone) {
+                    $same->phone = $phone;
+                    $same->update();
+                }
+            }else{
+                $guest_id = DB::table('guests')->insertGetId([
+                    'full_name' => $request->input('bookNowFullName'),
+                    'email' => $request->input('bookNowEmail'),
+                    'phone' => $phone,
+                    'city' => $request->input('bookNowCity'),
+                    'country' => $request->input('bookNowCountry'),
+                    'company_id' => 1,
+                    'created_by' => 0,
+                ]);
+            }
 
             $reservation_id = DB::table('reservations')->insertGetId([
                 'room_type' => $request->input('bookNowRoom'),
@@ -585,6 +612,7 @@ class ReservationsController extends CommonController
             DB::commit();
 
             $this->hotel_notification( "New Reservation From ".$request->input('bookNowFullName'), 'success', route('reservations-view-request',$reservation_id) );
+            $this->send_admin_notification();
 
         }catch(\Exception $e){
             $this->ExceptionHandler($e);

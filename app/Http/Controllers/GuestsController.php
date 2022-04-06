@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Guests;
 use Illuminate\Http\Request;
 
-class GuestsController extends Controller
+class GuestsController extends CommonController
 {
     /**
      * Create a new controller instance.
@@ -59,7 +59,7 @@ class GuestsController extends Controller
 
         $guest->full_name = $request->input('full_name');
         $guest->email = $request->input('email');
-        $guest->phone = $request->input('phone');
+        $guest->phone = $this->formatphonenumber($request->input('phone'));
         $guest->city = $request->input('city');
         $guest->country = $request->input('country');
         $guest->company_id = auth()->user()->company->id;
@@ -112,15 +112,13 @@ class GuestsController extends Controller
 
         $this->validate($request,[
             'full_name' => 'required',
-            'last_name' => 'required',
-            'phone' => 'required',
-            'email' => 'required'
+            'email' => 'required',
+            'phone' => 'required'
         ]);
 
         $guest->full_name = $request->input('full_name');
-        $guest->last_name = $request->input('last_name');
         $guest->email = $request->input('email');
-        $guest->phone = $request->input('phone');
+        $guest->phone = $this->formatphonenumber($request->input('phone'));
         $guest->city = $request->input('city');
         $guest->country = $request->input('country');
 

@@ -45,13 +45,12 @@
                                 // $successurl = route('settings-tab','users');
                             @endphp
 							<div style="display: inline-block;"><a href="#" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#modal-view{{$guest->id}}" title="View Guest"> <i class="fa fa-eye"></i></a></div>
-							{{-- <div style="display: inline-block;"><a href="/guests/{{$guest->id}}/edit" class="btn btn-sm btn-warning" data-toggle="tooltip" title="Edit Guest"> <i class="fa fa-edit"></i></a></div> --}}
+							<div style="display: inline-block;"><a href="#" class="btn btn-sm btn-info" data-toggle="modal" data-target="#modal-edit{{$guest->id}}" title="View Guest"> <i class="fa fa-edit"></i></a></div>
 							<div style="display: inline-block;"><button class="btn btn-sm btn-danger" type="button" data-toggle="tooltip" title="Remove Guest" onclick="confimdelete('{{$deleteurl}}')"><i class="fa fa-times"> </i></button></div>
 						</div>
 					</td>
 				</tr>
 			    <div class="modal fade" id="modal-view{{$guest->id}}" tabindex="-1" role="dialog" aria-hidden="true">
-
                     <div class="modal-dialog  modal-dialog-popout">
                         <div class="modal-content">
                             <div class="block block-themed block-transparent mb-0">
@@ -86,6 +85,56 @@
                                 <div class="modal-footer">
                                     <button class="btn btn-lg btn-alt-primary" type="button" data-dismiss="modal">Close</button>
                                     <a href="{{route('reservations-create-guest',$guest->id)}}" class="btn btn-lg btn-primary"><i class="fa fa-calendar-check-o"></i> Make Reservation</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+			    <div class="modal fade" id="modal-edit{{$guest->id}}" tabindex="-1" role="dialog" aria-hidden="true">
+                    <div class="modal-dialog  modal-dialog-popout">
+                        <div class="modal-content">
+                            <div class="block block-themed block-transparent mb-0">
+                                <div class="block-header bg-primary-dark">
+                                    <h3 class="block-title">Update Guest Info</h3>
+                                    <div class="block-options">
+                                        <button type="button" class="btn-block-option" data-dismiss="modal" aria-label="Close">
+                                            <i class="si si-close"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="block-content block-content-narrow">
+                                    <form method="post" action="{{route('guests-update',$guest->id)}}" class="form-horizontal push-10-t">
+                                        @csrf
+                                        <div class="form-group">
+                                            <label for="material-text2">Full Name <span class="text-danger" style="display: inline-block;">*</span></label>
+                                            <input type="text" name="full_name" class="form-control" value="{{$guest->full_name}}">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="material-text2">Email <span class="text-danger" style="display: inline-block;">*</span></label>
+                                            <input type="email" name="email" class="form-control" value="{{$guest->email}}">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="material-text2">Phone <span class="text-danger" style="display: inline-block;">*</span></label>
+                                            <input type="text" name="phone" class="form-control" value="{{$guest->phone}}">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="material-text2">City</label>
+                                            <input type="text" name="city" class="form-control" value="{{$guest->city}}">
+                                        </div>
+
+                                        {{-- <div class="form-group">
+                                            <label for="example2-select2">Country</label>
+                                            @include('includes.countries')
+                                        </div> --}}
+                                        <div class="form-group">
+                                            <label for="example-autocomplete2">Country</label>
+                                            <input class="js-autocomplete form-control" type="text" id="example-autocomplete2" name="country" value="{{$guest->country}}">
+                                        </div>
+                                        <div class="form-group text-right">
+                                            <button class="btn btn-lg btn-alt-primary" type="button" data-dismiss="modal">Close</button>
+                                            <button class="btn btn-lg btn-primary" type="submit">Update</button>
+                                        </div>
+                                    </form>
                                 </div>
                             </div>
                         </div>

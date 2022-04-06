@@ -41,11 +41,11 @@
                                 <label>User Role</label>
                                 <select id="role_id" type="displayed_role_id" class="form-control input-lg" name="displayed_role_id" disabled >
                                     <option value="">Select Role</option>
-                                    @foreach($all_roles as $role)
-                                    <option value="{{$role->id}}" @if($profile->role->id == $role->id) selected="selected" @endif>{{$role->role_name}}</option>
+                                    @foreach($roles as $role)
+                                        <option value="{{$role->name}}" {{$profile->hasRole($role->name) ? 'selected' : ''}}>{{ucfirst($role->name)}}</option>
                                     @endforeach
                                 </select>
-                                <input type="hidden" name="role_id" value="{{$profile->role->id}}"/>
+                                <input type="hidden" name="role_id" value="{{implode(', ',json_decode($profile->getRoleNames()))}}"/>
                             </div>
                         </div>
                         <div class="form-group">

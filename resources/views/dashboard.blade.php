@@ -5,7 +5,7 @@
         Main Dashboard
     </h1>
     <h2 class="h6 font-w500 text-muted mb-0">
-        Welcome <a class="font-w600" href="{{route('user-profile')}}">{{ Auth::user()->name ?? 'User'}}</a>, you have <a href="javascript:void(0)">{{count($notifications)}}</a> new notifications.
+        Welcome <a class="font-w600" href="{{route('user-profile')}}">{{ Auth::user()->name ?? 'User'}}</a>@can('respond to reservation requests'), you have <a href="javascript:void(0)">{{count($notifications)}}</a> new notifications. @endcan
     </h2>
 @endsection
 
@@ -16,95 +16,96 @@
                 {{ session('status') }}
             </div>
         @endif
-
-        <!-- Overview -->
-        <div class="row row-deck">
-            <div class="col-sm-6 col-xl-3">
-                <!-- Today Checkins -->
-                <div class="block block-rounded d-flex flex-column">
-                    <div class="block-content block-content-full flex-grow-1 d-flex justify-content-between align-items-center">
-                        <dl class="mb-0">
-                            <dt class="font-size-h2 font-w700">{{$count_today}}</dt>
-                            <dd class="text-muted mb-0">Today</dd>
-                        </dl>
-                        <div class="item item-rounded bg-body">
-                            <i class="fa fa-calendar-alt font-size-h3 text-primary"></i>
+        @can('view reservations')
+            <!-- Reservations Overview -->
+            <div class="row row-deck">
+                <div class="col-sm-6 col-xl-3">
+                    <!-- Today Checkins -->
+                    <div class="block block-rounded d-flex flex-column">
+                        <div class="block-content block-content-full flex-grow-1 d-flex justify-content-between align-items-center">
+                            <dl class="mb-0">
+                                <dt class="font-size-h2 font-w700">{{$count_today}}</dt>
+                                <dd class="text-muted mb-0">Today</dd>
+                            </dl>
+                            <div class="item item-rounded bg-body">
+                                <i class="fa fa-calendar-alt font-size-h3 text-primary"></i>
+                            </div>
+                        </div>
+                        <div class="block-content block-content-full block-content-sm bg-body-light font-size-sm">
+                            <a class="font-w500 d-flex align-items-center" href="{{route('reservations-today')}}">
+                                Check-ins today
+                                <i class="fa fa-arrow-alt-circle-right ml-1 opacity-25 font-size-base"></i>
+                            </a>
                         </div>
                     </div>
-                    <div class="block-content block-content-full block-content-sm bg-body-light font-size-sm">
-                        <a class="font-w500 d-flex align-items-center" href="{{route('reservations-today')}}">
-                            Check-ins today
-                            <i class="fa fa-arrow-alt-circle-right ml-1 opacity-25 font-size-base"></i>
-                        </a>
-                    </div>
+                    <!-- END Today Checkins -->
                 </div>
-                <!-- END Today Checkins -->
-            </div>
-            <div class="col-sm-6 col-xl-3">
-                <!-- Pending Requests -->
-                <div class="block block-rounded d-flex flex-column">
-                    <div class="block-content block-content-full flex-grow-1 d-flex justify-content-between align-items-center">
-                        <dl class="mb-0">
-                            <dt class="font-size-h2 font-w700">{{$count_requests}}</dt>
-                            <dd class="text-muted mb-0">Requests</dd>
-                        </dl>
-                        <div class="item item-rounded bg-body">
-                            <i class="fa fa-calendar-plus font-size-h3 text-primary"></i>
+                <div class="col-sm-6 col-xl-3">
+                    <!-- Pending Requests -->
+                    <div class="block block-rounded d-flex flex-column">
+                        <div class="block-content block-content-full flex-grow-1 d-flex justify-content-between align-items-center">
+                            <dl class="mb-0">
+                                <dt class="font-size-h2 font-w700">{{$count_requests}}</dt>
+                                <dd class="text-muted mb-0">Requests</dd>
+                            </dl>
+                            <div class="item item-rounded bg-body">
+                                <i class="fa fa-calendar-plus font-size-h3 text-primary"></i>
+                            </div>
+                        </div>
+                        <div class="block-content block-content-full block-content-sm bg-body-light font-size-sm">
+                            <a class="font-w500 d-flex align-items-center" href="{{route('reservations-requests')}}">
+                                Pending requests
+                                <i class="fa fa-arrow-alt-circle-right ml-1 opacity-25 font-size-base"></i>
+                            </a>
                         </div>
                     </div>
-                    <div class="block-content block-content-full block-content-sm bg-body-light font-size-sm">
-                        <a class="font-w500 d-flex align-items-center" href="{{route('reservations-requests')}}">
-                            Pending requests
-                            <i class="fa fa-arrow-alt-circle-right ml-1 opacity-25 font-size-base"></i>
-                        </a>
-                    </div>
+                    <!-- END Pending Requests -->
                 </div>
-                <!-- END Pending Requests -->
-            </div>
-            <div class="col-sm-6 col-xl-3">
-                <!-- Confirmed Reservations -->
-                <div class="block block-rounded d-flex flex-column">
-                    <div class="block-content block-content-full flex-grow-1 d-flex justify-content-between align-items-center">
-                        <dl class="mb-0">
-                            <dt class="font-size-h2 font-w700">{{$count_confirmed}}</dt>
-                            <dd class="text-muted mb-0">Confirmed</dd>
-                        </dl>
-                        <div class="item item-rounded bg-body">
-                            <i class="fa fa-calendar-check font-size-h3 text-primary"></i>
+                <div class="col-sm-6 col-xl-3">
+                    <!-- Confirmed Reservations -->
+                    <div class="block block-rounded d-flex flex-column">
+                        <div class="block-content block-content-full flex-grow-1 d-flex justify-content-between align-items-center">
+                            <dl class="mb-0">
+                                <dt class="font-size-h2 font-w700">{{$count_confirmed}}</dt>
+                                <dd class="text-muted mb-0">Confirmed</dd>
+                            </dl>
+                            <div class="item item-rounded bg-body">
+                                <i class="fa fa-calendar-check font-size-h3 text-primary"></i>
+                            </div>
+                        </div>
+                        <div class="block-content block-content-full block-content-sm bg-body-light font-size-sm">
+                            <a class="font-w500 d-flex align-items-center" href="{{route('reservations-confirmed')}}">
+                                Confirmed reservations
+                                <i class="fa fa-arrow-alt-circle-right ml-1 opacity-25 font-size-base"></i>
+                            </a>
                         </div>
                     </div>
-                    <div class="block-content block-content-full block-content-sm bg-body-light font-size-sm">
-                        <a class="font-w500 d-flex align-items-center" href="{{route('reservations-confirmed')}}">
-                            Confirmed reservations
-                            <i class="fa fa-arrow-alt-circle-right ml-1 opacity-25 font-size-base"></i>
-                        </a>
-                    </div>
+                    <!-- END Confirmed Reservations-->
                 </div>
-                <!-- END Confirmed Reservations-->
-            </div>
-            <div class="col-sm-6 col-xl-3">
-                <!-- Cancelled -->
-                <div class="block block-rounded d-flex flex-column">
-                    <div class="block-content block-content-full flex-grow-1 d-flex justify-content-between align-items-center">
-                        <dl class="mb-0">
-                            <dt class="font-size-h2 font-w700">{{$count_cancelled}}</dt>
-                            <dd class="text-muted mb-0">Cancelled</dd>
-                        </dl>
-                        <div class="item item-rounded bg-body">
-                            <i class="fa fa-calendar-times font-size-h3 text-primary"></i>
+                <div class="col-sm-6 col-xl-3">
+                    <!-- Cancelled -->
+                    <div class="block block-rounded d-flex flex-column">
+                        <div class="block-content block-content-full flex-grow-1 d-flex justify-content-between align-items-center">
+                            <dl class="mb-0">
+                                <dt class="font-size-h2 font-w700">{{$count_cancelled}}</dt>
+                                <dd class="text-muted mb-0">Cancelled</dd>
+                            </dl>
+                            <div class="item item-rounded bg-body">
+                                <i class="fa fa-calendar-times font-size-h3 text-primary"></i>
+                            </div>
+                        </div>
+                        <div class="block-content block-content-full block-content-sm bg-body-light font-size-sm">
+                            <a class="font-w500 d-flex align-items-center" href="{{route('reservations-cancelled')}}">
+                                Cancelled reservations
+                                <i class="fa fa-arrow-alt-circle-right ml-1 opacity-25 font-size-base"></i>
+                            </a>
                         </div>
                     </div>
-                    <div class="block-content block-content-full block-content-sm bg-body-light font-size-sm">
-                        <a class="font-w500 d-flex align-items-center" href="{{route('reservations-cancelled')}}">
-                            Cancelled reservations
-                            <i class="fa fa-arrow-alt-circle-right ml-1 opacity-25 font-size-base"></i>
-                        </a>
-                    </div>
+                    <!-- END Cancelled -->
                 </div>
-                <!-- END Cancelled -->
             </div>
-        </div>
-        <!-- END Overview -->
+            <!-- END Reservations Overview -->
+        @endcan
 
         <!-- Statistics -->
         {{-- <div class="row">
@@ -265,34 +266,36 @@
             </div>
         </div> --}}
         <!-- END Statistics -->
-        <div class="row">
-            <div class="col-lg-12 d-flex flex-column">
-                <!-- Calendar -->
-                <div class="block block-rounded flex-grow-1 d-flex flex-column">
-                    <div class="block-header block-header-default">
-                        <h3 class="block-title">Calendar</h3>
-                        <div class="block-options">
-                            <button type="button" class="btn-block-option" data-toggle="block-option" data-action="state_toggle" data-action-mode="demo">
-                                <i class="si si-refresh"></i>
-                            </button>
-                            {{-- <button type="button" class="btn-block-option">
-                                <i class="si si-settings"></i>
-                            </button> --}}
+        @can('view reservations')
+            <div class="row">
+                <div class="col-lg-12 d-flex flex-column">
+                    <!-- Calendar -->
+                    <div class="block block-rounded flex-grow-1 d-flex flex-column">
+                        <div class="block-header block-header-default">
+                            <h3 class="block-title">Calendar</h3>
+                            <div class="block-options">
+                                <button type="button" class="btn-block-option" data-toggle="block-option" data-action="state_toggle" data-action-mode="demo">
+                                    <i class="si si-refresh"></i>
+                                </button>
+                                {{-- <button type="button" class="btn-block-option">
+                                    <i class="si si-settings"></i>
+                                </button> --}}
+                            </div>
+                        </div>
+                        <div class="block-content block-content-full flex-grow-1 align-items-center">
+                            <?php $all_calendar_reservations = $helper->get_calendar($callendar_reservation_list); ?>
+                            @if(isset($calendar_reservation))
+                                {!! $calendar_reservation->calendar() !!}
+                            @else
+                                {!! $all_calendar_reservations->calendar() !!}
+                                {!! $all_calendar_reservations->script() !!}
+                            @endif
                         </div>
                     </div>
-                    <div class="block-content block-content-full flex-grow-1 d-flex align-items-center">
-                        <?php $all_calendar_reservations = $helper->get_calendar($callendar_reservation_list); ?>
-                        @if(isset($calendar_reservation))
-                            {!! $calendar_reservation->calendar() !!}
-                        @else
-                            {!! $all_calendar_reservations->calendar() !!}
-                            {!! $all_calendar_reservations->script() !!}
-                        @endif
-                    </div>
+                    <!-- END Calendar -->
                 </div>
-                <!-- END Calendar -->
             </div>
-        </div>
+        @endcan
         {{-- <div class="block block-rounded">
             <div class="block-header block-header-default">
                 <h3 class="block-title">Recent Orders</h3>

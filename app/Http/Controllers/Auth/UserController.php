@@ -174,7 +174,7 @@ class UserController extends CommonController
 
         $user->update();
 
-        $user->syncRoles([$request->input('role_id')]);
+        $user->syncRoles($request->input('role_id'));
 
         return back()->with('success','Profile Successfully Updated');
     }

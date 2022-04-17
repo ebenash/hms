@@ -39,24 +39,25 @@ class ReservationsController extends CommonController
     public function filter(Request $request)
     {
         //
+        // dump($request->filter_type);
         if ($request->filter_type == 'today') {
             # code...
-            return $this->today($request);
+            return redirect()->route('reservations-today',$request);
         }else if ($request->filter_type == 'requests') {
             # code...
-            return $this->requests($request);
+            return redirect()->route('reservations-requests',$request);
         }else if ($request->filter_type == 'cancelled') {
             # code...
-            return $this->cancelled($request);
+            return redirect()->route('reservations-cancelled',$request);
         } else {
             # code...
-            return $this->confirmed($request);
+            return redirect()->route('reservations-confirmed',$request);
         }
     }
     public function confirmed(Request $request)
     {
         //
-        $reservations = Reservations::orderBy('created_at','desc')->where('check_in','>',date("Y-m-d", strtotime('-30 days')))->where('company_id',auth()->user()->company->id)->where('reservation_status','confirmed');
+        $reservations = DB::table('reservations')->join('guests','reservations.guest_id','=','guests.id')->join('rooms','reservations.room_id','=','rooms.id','left')->select('reservations.*','guests.full_name','rooms.name as roomname')->orderBy('reservations.created_at','desc')->where('reservations.check_in','>',date("Y-m-d", strtotime('-30 days')))->where('reservations.company_id',auth()->user()->company->id)->where('reservations.reservation_status','confirmed');
         $response = $request->all();
         // dd($response);
         if(isset($response['guest'])){
@@ -86,7 +87,7 @@ class ReservationsController extends CommonController
         $data = [
             'all_rooms' => Rooms::where('status',1)->where('company_id',auth()->user()->company->id)->orderBy('name','asc')->get(),
             'all_roomtypes' => RoomTypes::where('company_id',auth()->user()->company->id)->get(),
-            'all_reservations' => $reservations->orderBy('check_in','desc')->get(),
+            'all_reservations' => $reservations->orderBy('check_in','desc')->paginate(50),
             'filter' => $response
         ];
         return view('reservations.list',$data)->with('confirmed','confirmed');
@@ -95,7 +96,7 @@ class ReservationsController extends CommonController
     public function today(Request $request)
     {
         //
-        $reservations = Reservations::orderBy('created_at','desc')->where('company_id',auth()->user()->company->id)->where('check_in',date('Y-m-d'))->where('reservation_status','confirmed');
+        $reservations = DB::table('reservations')->join('guests','reservations.guest_id','=','guests.id')->join('rooms','reservations.room_id','=','rooms.id','left')->select('reservations.*','guests.full_name','rooms.name as roomname')->orderBy('reservations.created_at','desc')->where('reservations.company_id',auth()->user()->company->id)->where('reservations.check_in',date('Y-m-d'))->where('reservations.reservation_status','confirmed');
         $response = $request->all();
         // dd($response);
         if(isset($response['guest'])){
@@ -125,7 +126,7 @@ class ReservationsController extends CommonController
         $data = [
             'all_rooms' => Rooms::where('status',1)->where('company_id',auth()->user()->company->id)->orderBy('name','asc')->get(),
             'all_roomtypes' => RoomTypes::where('company_id',auth()->user()->company->id)->get(),
-            'all_reservations' => $reservations->orderBy('check_in','desc')->get(),
+            'all_reservations' => $reservations->orderBy('check_in','desc')->paginate(50),
             'filter' => $response
         ];
         return view('reservations.list',$data)->with('today','today');
@@ -134,7 +135,7 @@ class ReservationsController extends CommonController
     public function requests(Request $request)
     {
         //
-        $reservations = Reservations::orderBy('created_at','desc')->where('check_in','>',date("Y-m-d", strtotime('-30 days')))->where('company_id',auth()->user()->company->id)->where('reservation_status','pending');
+        $reservations = DB::table('reservations')->join('guests','reservations.guest_id','=','guests.id')->join('rooms','reservations.room_id','=','rooms.id','left')->select('reservations.*','guests.full_name','rooms.name as roomname')->orderBy('reservations.created_at','desc')->where('reservations.check_in','>',date("Y-m-d", strtotime('-30 days')))->where('reservations.company_id',auth()->user()->company->id)->where('reservations.reservation_status','pending');
         $response = $request->all();
         // dd($response);
         if(isset($response['guest'])){
@@ -164,7 +165,7 @@ class ReservationsController extends CommonController
         $data = [
             'all_rooms' => Rooms::where('status',1)->where('company_id',auth()->user()->company->id)->orderBy('name','asc')->get(),
             'all_roomtypes' => RoomTypes::where('company_id',auth()->user()->company->id)->get(),
-            'all_reservations' => $reservations->orderBy('check_in','desc')->get(),
+            'all_reservations' => $reservations->orderBy('check_in','desc')->paginate(50),
             'filter' => $response
         ];
         return view('reservations.list',$data)->with('requests','requests');
@@ -172,7 +173,7 @@ class ReservationsController extends CommonController
     public function cancelled(Request $request)
     {
         //
-        $reservations = Reservations::orderBy('created_at','desc')->where('check_in','>',date("Y-m-d", strtotime('-30 days')))->where('company_id',auth()->user()->company->id)->where('reservation_status','cancelled');
+        $reservations = DB::table('reservations')->join('guests','reservations.guest_id','=','guests.id')->join('rooms','reservations.room_id','=','rooms.id','left')->select('reservations.*','guests.full_name','rooms.name as roomname')->orderBy('reservations.created_at','desc')->where('reservations.check_in','>',date("Y-m-d", strtotime('-30 days')))->where('reservations.company_id',auth()->user()->company->id)->where('reservations.reservation_status','cancelled');
         $response = $request->all();
         // dd($response);
         if(isset($response['guest'])){
@@ -202,7 +203,7 @@ class ReservationsController extends CommonController
         $data = [
             'all_rooms' => Rooms::where('status',1)->where('company_id',auth()->user()->company->id)->orderBy('name','asc')->get(),
             'all_roomtypes' => RoomTypes::where('company_id',auth()->user()->company->id)->get(),
-            'all_reservations' => $reservations->orderBy('check_in','desc')->get(),
+            'all_reservations' => $reservations->orderBy('check_in','desc')->paginate(50),
             'filter' => $response
         ];
         return view('reservations.list',$data)->with('cancelled','cancelled');
@@ -212,12 +213,12 @@ class ReservationsController extends CommonController
     public function tomorrow(Request $request)
     {
         // dd(date('Y-m-d', strtotime('tomorrow')));
-        $reservations = Reservations::orderBy('created_at','desc')->where('company_id',auth()->user()->company->id)->where('check_in',date('Y-m-d', strtotime('tomorrow')))->where('reservation_status','confirmed');
+        $reservations = DB::table('reservations')->join('guests','reservations.guest_id','=','guests.id')->join('rooms','reservations.room_id','=','rooms.id','left')->select('reservations.*','guests.full_name','rooms.name as roomname')->orderBy('reservations.created_at','desc')->where('reservations.company_id',auth()->user()->company->id)->where('check_in',date('Y-m-d', strtotime('tomorrow')))->where('reservations.reservation_status','confirmed');
 
         $data = [
             'all_rooms' => Rooms::where('status',1)->where('company_id',auth()->user()->company->id)->orderBy('name','asc')->get(),
             'all_roomtypes' => RoomTypes::where('company_id',auth()->user()->company->id)->get(),
-            'all_reservations' => $reservations->get()
+            'all_reservations' => $reservations->paginate(50)
         ];
         return view('reservations.list',$data)->with('tomorrow','tomorrow');
     }
@@ -388,13 +389,13 @@ class ReservationsController extends CommonController
     public function view_request($id)
     {
         //
-        $reservation = Reservations::with('roomtype')->find($id);
+        $reservation = Reservations::find($id);
 
         $data = [
             'all_rooms' => Rooms::where('status',1)->where('company_id',auth()->user()->company->id)->orderBy('name','asc')->get(),
             'all_roomtypes' => RoomTypes::where('company_id',auth()->user()->company->id)->get(),
             'reservation' => $reservation,
-            'req_rooms' => $reservation->roomtype->rooms->where('status',1),
+            'req_rooms' => $reservation->roomtype ? $reservation->roomtype->rooms->where('status',1) : [],
             'request' => 'request'
         ];
         // dd($data);
@@ -404,23 +405,30 @@ class ReservationsController extends CommonController
     public function calendar()
     {
         //
-        $reservations = Reservations::where('company_id',auth()->user()->company->id)->where('check_in','>',date("Y-m-d", strtotime('-30 days')))->get();
+        $reservations = DB::table('reservations')->join('guests','reservations.guest_id','=','guests.id')->join('rooms','reservations.room_id','=','rooms.id','left')->select('reservations.*','guests.full_name','rooms.name as roomname')->where('reservations.company_id',auth()->user()->company->id)->where('reservations.check_in','>',date("Y-m-d", strtotime('-30 days')))->orderBy('reservations.check_in','asc');
+        $limit = 3000;
+        if($reservations->count() > $limit){
+            $reservations->limit($limit);
+        }
+        $reservations=$reservations->get();
+
         $callendar_reservation_list = [];
+        // dd($reservations);
 
         foreach ($reservations as $key => $reservation) {
             if($reservation->reservation_status == "pending"){
                 if(strtotime($reservation->check_in) < strtotime(date("Y-m-d"))){
-                    $color = ['color' => '#FF0000','textColor' => '#fff','url' => route('reservations-show',$reservation->id)];
+                    $color = ['color' => '#FF0000','textColor' => '#fff','url' => (auth()->user()->can('view reservations') ? route('reservations-show',$reservation->id) : '#')];
                 }else{
-                    $color = ['color' => '#f3b760','textColor' => '#FF0000','url' => route('reservations-view-request',$reservation->id)];
+                    $color = ['color' => '#f3b760','textColor' => '#FF0000','url' => (auth()->user()->can('respond to reservation requests') ? route('reservations-view-request',$reservation->id) : route('reservations-show',$reservation->id))];
                 }
             }else if($reservation->reservation_status == "confirmed"){
-                $color = ['color' => '#46c37b','textColor' => '#ffffff','url' => route('reservations-show',$reservation->id)];
+                $color = ['color' => '#46c37b','textColor' => '#ffffff','url' => (auth()->user()->can('view reservations') ? route('reservations-show',$reservation->id) : '#')];
             }else{
-                $color = ['color' => '#d26a5c','textColor' => '#ffffff','url' => route('reservations-show',$reservation->id)];
+                $color = ['color' => '#d26a5c','textColor' => '#ffffff','url' => (auth()->user()->can('view reservations') ? route('reservations-show',$reservation->id) : '#')];
             }
             $callendar_reservation_list[] = Calendar::event(
-                ($reservation->reservation_status == "pending" ? (strtotime($reservation->check_in) < strtotime(date("Y-m-d")) ? 'Expired Reservation Request: ' : 'Reservation Request: ') :'Reservation: ').$reservation->roomtype->name.' - '.($reservation->room->name ?? 'Unassigned Room Number').' ('.$reservation->guest->full_name.')',
+                ($reservation->reservation_status == "pending" ? (strtotime($reservation->check_in) < strtotime(date("Y-m-d")) ? 'Expired Reservation Request: ' : 'Reservation Request: ') :'Reservation: ').'Room - '.($reservation->roomname ?? 'Unassigned Room Number').' ('.$reservation->full_name.')',
                 true,
                 new \DateTime($reservation->check_in),
                 new \DateTime($reservation->check_out.' +1 day'),

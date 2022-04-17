@@ -2,7 +2,7 @@
 
 @section('content')
 <!-- Hero -->
-<div class="bg-image" style="background-image: url('/media/photos/photo8@2x.jpg');">
+<div class="bg-image" style="background-image: url('/homepage/assets/img/reh/MG_8094.jpg');">
     <div class="bg-black-75">
         <div class="content content-full text-center">
             <div class="my-3">
@@ -32,7 +32,7 @@
                 <div class="row items-push">
                     <div class="col-lg-4">
                         <p class="font-size-sm text-muted">
-                            Your account’s vital info. Your username will be publicly visible.
+                            Your account’s vital info. Your data will be publicly visible.
                         </p>
                     </div>
                     <div class="col-sm-6 col-sm-offset-3 form-horizontal">

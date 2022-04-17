@@ -4,11 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 // use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Rooms extends Model
 {
     //
     // use SoftDeletes;
+    use HasFactory;
 
     public function roomtype(){
     	return $this->belongsTo('App\Models\RoomTypes', 'room_type_id');

@@ -11,41 +11,45 @@
     }
     $.fn.extend({
         maxlength: function(options, callback) {
-            var documentBody = $("body"), defaults = {
-                showOnReady: false,
-                alwaysShow: true,
-                threshold: 0,
-                warningClass: "small form-text text-muted",
-                limitReachedClass: "small form-text text-danger",
-                separator: " / ",
-                preText: "",
-                postText: "",
-                showMaxLength: true,
-                placement: "bottom-right-inside",
-                message: null,
-                showCharsTyped: true,
-                validate: false,
-                utf8: false,
-                appendToParent: false,
-                twoCharLinebreak: true,
-                customMaxAttribute: null,
-                allowOverMax: false,
-                zIndex: 1099
-            };
+            var documentBody = $("body"),
+                defaults = {
+                    showOnReady: false,
+                    alwaysShow: true,
+                    threshold: 0,
+                    warningClass: "small form-text text-muted",
+                    limitReachedClass: "small form-text text-danger",
+                    separator: " / ",
+                    preText: "",
+                    postText: "",
+                    showMaxLength: true,
+                    placement: "bottom-right-inside",
+                    message: null,
+                    showCharsTyped: true,
+                    validate: false,
+                    utf8: false,
+                    appendToParent: false,
+                    twoCharLinebreak: true,
+                    customMaxAttribute: null,
+                    allowOverMax: false,
+                    zIndex: 1099
+                };
             if ($.isFunction(options) && !callback) {
                 callback = options;
                 options = {};
             }
             options = $.extend(defaults, options);
+
             function utf8CharByteCount(character) {
                 var c = character.charCodeAt();
                 return !c ? 0 : c < 128 ? 1 : c < 2048 ? 2 : 3;
             }
+
             function utf8Length(string) {
                 return string.split("").map(utf8CharByteCount).concat(0).reduce((function(sum, val) {
                     return sum + val;
                 }));
             }
+
             function inputLength(input) {
                 var text = input.val();
                 if (options.twoCharLinebreak) {
@@ -64,6 +68,7 @@
                 }
                 return currentLength;
             }
+
             function truncateChars(input, maxlength) {
                 var text = input.val();
                 if (options.twoCharLinebreak) {
@@ -74,11 +79,12 @@
                 }
                 if (options.utf8) {
                     var indexedSize = text.split("").map(utf8CharByteCount);
-                    for (var removedBytes = 0, bytesPastMax = utf8Length(text) - maxlength; removedBytes < bytesPastMax; removedBytes += indexedSize.pop()) ;
+                    for (var removedBytes = 0, bytesPastMax = utf8Length(text) - maxlength; removedBytes < bytesPastMax; removedBytes += indexedSize.pop());
                     maxlength -= maxlength - indexedSize.length;
                 }
                 input.val(text.substr(0, maxlength));
             }
+
             function charsLeftThreshold(input, threshold, maxlength) {
                 var output = true;
                 if (!options.alwaysShow && maxlength - inputLength(input) > threshold) {
@@ -86,16 +92,19 @@
                 }
                 return output;
             }
+
             function remainingChars(input, maxlength) {
                 var length = maxlength - inputLength(input);
                 return length;
             }
+
             function showRemaining(currentInput, indicator) {
                 indicator.css({
                     display: "block"
                 });
                 currentInput.trigger("maxlength.shown");
             }
+
             function hideRemaining(currentInput, indicator) {
                 if (options.alwaysShow) {
                     return;
@@ -105,6 +114,7 @@
                 });
                 currentInput.trigger("maxlength.hidden");
             }
+
             function updateMaxLengthHTML(currentInputText, maxLengthThisInput, typedChars) {
                 var output = "";
                 if (options.message) {
@@ -131,6 +141,7 @@
                 }
                 return output;
             }
+
             function manageRemainingVisibility(remaining, currentInput, maxLengthCurrentInput, maxLengthIndicator) {
                 if (maxLengthIndicator) {
                     maxLengthIndicator.html(updateMaxLengthHTML(currentInput.val(), maxLengthCurrentInput, maxLengthCurrentInput - remaining));
@@ -152,6 +163,7 @@
                     }
                 }
             }
+
             function getPosition(currentInput) {
                 var el = currentInput[0];
                 return $.extend({}, typeof el.getBoundingClientRect === "function" ? el.getBoundingClientRect() : {
@@ -159,11 +171,12 @@
                     height: el.offsetHeight
                 }, currentInput.offset());
             }
+
             function placeWithCSS(placement, maxLengthIndicator) {
                 if (!placement || !maxLengthIndicator) {
                     return;
                 }
-                var POSITION_KEYS = [ "top", "bottom", "left", "right", "position" ];
+                var POSITION_KEYS = ["top", "bottom", "left", "right", "position"];
                 var cssPos = {};
                 $.each(POSITION_KEYS, (function(i, key) {
                     var val = options.placement[key];
@@ -174,6 +187,7 @@
                 maxLengthIndicator.css(cssPos);
                 return;
             }
+
             function place(currentInput, maxLengthIndicator) {
                 var pos = getPosition(currentInput);
                 if ($.type(options.placement) === "function") {
@@ -184,107 +198,112 @@
                     placeWithCSS(options.placement, maxLengthIndicator);
                     return;
                 }
-                var inputOuter = currentInput.outerWidth(), outerWidth = maxLengthIndicator.outerWidth(), actualWidth = maxLengthIndicator.width(), actualHeight = maxLengthIndicator.height();
+                var inputOuter = currentInput.outerWidth(),
+                    outerWidth = maxLengthIndicator.outerWidth(),
+                    actualWidth = maxLengthIndicator.width(),
+                    actualHeight = maxLengthIndicator.height();
                 if (options.appendToParent) {
                     pos.top -= currentInput.parent().offset().top;
                     pos.left -= currentInput.parent().offset().left;
                 }
                 switch (options.placement) {
-                  case "bottom":
-                    maxLengthIndicator.css({
-                        top: pos.top + pos.height,
-                        left: pos.left + pos.width / 2 - actualWidth / 2
-                    });
-                    break;
+                    case "bottom":
+                        maxLengthIndicator.css({
+                            top: pos.top + pos.height,
+                            left: pos.left + pos.width / 2 - actualWidth / 2
+                        });
+                        break;
 
-                  case "top":
-                    maxLengthIndicator.css({
-                        top: pos.top - actualHeight,
-                        left: pos.left + pos.width / 2 - actualWidth / 2
-                    });
-                    break;
+                    case "top":
+                        maxLengthIndicator.css({
+                            top: pos.top - actualHeight,
+                            left: pos.left + pos.width / 2 - actualWidth / 2
+                        });
+                        break;
 
-                  case "left":
-                    maxLengthIndicator.css({
-                        top: pos.top + pos.height / 2 - actualHeight / 2,
-                        left: pos.left - actualWidth
-                    });
-                    break;
+                    case "left":
+                        maxLengthIndicator.css({
+                            top: pos.top + pos.height / 2 - actualHeight / 2,
+                            left: pos.left - actualWidth
+                        });
+                        break;
 
-                  case "right":
-                    maxLengthIndicator.css({
-                        top: pos.top + pos.height / 2 - actualHeight / 2,
-                        left: pos.left + pos.width
-                    });
-                    break;
+                    case "right":
+                        maxLengthIndicator.css({
+                            top: pos.top + pos.height / 2 - actualHeight / 2,
+                            left: pos.left + pos.width
+                        });
+                        break;
 
-                  case "bottom-right":
-                    maxLengthIndicator.css({
-                        top: pos.top + pos.height,
-                        left: pos.left + pos.width
-                    });
-                    break;
+                    case "bottom-right":
+                        maxLengthIndicator.css({
+                            top: pos.top + pos.height,
+                            left: pos.left + pos.width
+                        });
+                        break;
 
-                  case "top-right":
-                    maxLengthIndicator.css({
-                        top: pos.top - actualHeight,
-                        left: pos.left + inputOuter
-                    });
-                    break;
+                    case "top-right":
+                        maxLengthIndicator.css({
+                            top: pos.top - actualHeight,
+                            left: pos.left + inputOuter
+                        });
+                        break;
 
-                  case "top-left":
-                    maxLengthIndicator.css({
-                        top: pos.top - actualHeight,
-                        left: pos.left - outerWidth
-                    });
-                    break;
+                    case "top-left":
+                        maxLengthIndicator.css({
+                            top: pos.top - actualHeight,
+                            left: pos.left - outerWidth
+                        });
+                        break;
 
-                  case "bottom-left":
-                    maxLengthIndicator.css({
-                        top: pos.top + currentInput.outerHeight(),
-                        left: pos.left - outerWidth
-                    });
-                    break;
+                    case "bottom-left":
+                        maxLengthIndicator.css({
+                            top: pos.top + currentInput.outerHeight(),
+                            left: pos.left - outerWidth
+                        });
+                        break;
 
-                  case "centered-right":
-                    maxLengthIndicator.css({
-                        top: pos.top + actualHeight / 2,
-                        left: pos.left + inputOuter - outerWidth - 3
-                    });
-                    break;
+                    case "centered-right":
+                        maxLengthIndicator.css({
+                            top: pos.top + actualHeight / 2,
+                            left: pos.left + inputOuter - outerWidth - 3
+                        });
+                        break;
 
-                  case "bottom-right-inside":
-                    maxLengthIndicator.css({
-                        top: pos.top + pos.height,
-                        left: pos.left + pos.width - outerWidth
-                    });
-                    break;
+                    case "bottom-right-inside":
+                        maxLengthIndicator.css({
+                            top: pos.top + pos.height,
+                            left: pos.left + pos.width - outerWidth
+                        });
+                        break;
 
-                  case "top-right-inside":
-                    maxLengthIndicator.css({
-                        top: pos.top - actualHeight,
-                        left: pos.left + inputOuter - outerWidth
-                    });
-                    break;
+                    case "top-right-inside":
+                        maxLengthIndicator.css({
+                            top: pos.top - actualHeight,
+                            left: pos.left + inputOuter - outerWidth
+                        });
+                        break;
 
-                  case "top-left-inside":
-                    maxLengthIndicator.css({
-                        top: pos.top - actualHeight,
-                        left: pos.left
-                    });
-                    break;
+                    case "top-left-inside":
+                        maxLengthIndicator.css({
+                            top: pos.top - actualHeight,
+                            left: pos.left
+                        });
+                        break;
 
-                  case "bottom-left-inside":
-                    maxLengthIndicator.css({
-                        top: pos.top + currentInput.outerHeight(),
-                        left: pos.left
-                    });
-                    break;
+                    case "bottom-left-inside":
+                        maxLengthIndicator.css({
+                            top: pos.top + currentInput.outerHeight(),
+                            left: pos.left
+                        });
+                        break;
                 }
             }
+
             function isPlacementMutable() {
                 return options.placement === "bottom-right-inside" || options.placement === "top-right-inside" || typeof options.placement === "function" || options.message && typeof options.message === "function";
             }
+
             function getMaxLength(currentInput) {
                 var max = currentInput.attr("maxlength") || options.customMaxAttribute;
                 if (options.customMaxAttribute && !options.allowOverMax) {
@@ -299,12 +318,14 @@
                 return max;
             }
             return this.each((function() {
-                var currentInput = $(this), maxLengthCurrentInput, maxLengthIndicator;
+                var currentInput = $(this),
+                    maxLengthCurrentInput, maxLengthIndicator;
                 $(window).resize((function() {
                     if (maxLengthIndicator) {
                         place(currentInput, maxLengthIndicator);
                     }
                 }));
+
                 function firstInit() {
                     var maxlengthContent = updateMaxLengthHTML(currentInput.val(), maxLengthCurrentInput, "0");
                     maxLengthCurrentInput = getMaxLength(currentInput);
@@ -360,7 +381,9 @@
                     }
                 }));
                 currentInput.on("input", (function() {
-                    var maxlength = getMaxLength(currentInput), remaining = remainingChars(currentInput, maxlength), output = true;
+                    var maxlength = getMaxLength(currentInput),
+                        remaining = remainingChars(currentInput, maxlength),
+                        output = true;
                     if (options.validate && remaining < 0) {
                         truncateChars(currentInput, maxlength);
                         output = false;

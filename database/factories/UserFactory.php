@@ -16,14 +16,13 @@ class UserFactory extends Factory
     {
         return [
             'name' => 'Eben Ash',
-            'email' => 'eben.ash77@gmail.com',
+            'email' => 'ebenezer.ashiakwei@gmail.com',
             'email_verified_at' => now(),
             'password' => '$2y$10$esSZrwPgI9Icg6sQfsiW.OwlGveOfC8nFZoZcNgPB8xqSvucXYYzy', // i10
             'remember_token' => Str::random(10),
             'title' => 'Admin',
             'company_id' => 1,
             'phone' => $this->faker->phoneNumber(),
-            'role_id' => 1,
         ];
     }
 

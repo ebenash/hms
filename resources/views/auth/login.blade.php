@@ -4,7 +4,7 @@
 
 
 
-    <div class="bg-image" style="background-image: url('/media/photos/photo28@2x.jpg');">
+    <div class="bg-image" style="background-image: url('/homepage/assets/img/reh/MG_8094.jpg');">
         <div class="row no-gutters bg-primary-dark-op">
             <!-- Meta Info Section -->
             <div class="hero-static col-lg-4 d-none d-lg-flex flex-column justify-content-center">
@@ -14,7 +14,7 @@
                             <img src="{{route('hms-uploads-file',($main_company->logo ?? 'mist_logo.jpeg'))}}" height="70px"/>
                         </a>
                         <p class="text-white-75 mt-2">
-                            Welcome to your hotel portal. Feel free to login and start managing your hotel.
+                            {{-- Welcome to your hotel portal. Feel free to login and start managing your hotel. --}}
                         </p>
                     </div>
                 </div>

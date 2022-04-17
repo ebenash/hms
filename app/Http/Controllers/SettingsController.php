@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Company;
 use App\Models\Settings;
+use Illuminate\Auth\Access\Gate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
@@ -23,6 +24,19 @@ class SettingsController extends Controller
             'all_users'=> User::where('company_id',auth()->user()->company->id)->get(),
             'roles'=> DB::table('roles')->select('name')->get()
         ];
+
+        // auth()->user()->roles->first()->givePermissionTo('edit users');
+        // dd(auth()->user()->can('edit users'));
+
+        if(!$tab){
+             if(auth()->user()->can('edit company')){
+                $tab = 'company';
+             }else if(auth()->user()->can('view users')){
+                $tab = 'users';
+             }else{
+                $tab = 'theme';
+             }
+        }
         // dd($data);
         return view('settings',$data)->with('tab',$tab);
     }
@@ -135,6 +149,13 @@ class SettingsController extends Controller
         }
         if($request->type == 'header'){
             $settings->header = $request->value;
+        }
+        if($request->type == 'minimize'){
+            if ($settings->minimize) {
+                $settings->minimize = null;
+            } else {
+                $settings->minimize = $request->value;
+            }
         }
         $settings->save();
 

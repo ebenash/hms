@@ -14,56 +14,56 @@ let sparklineTimeout;
 
 // Helpers
 export default class Helpers {
-   /*
-    * Run helpers
-    *
-    */
-   static run(helpers, options = {}) {
-       let helperList = {
-           'core-bootstrap-tooltip': () => this.coreBootstrapTooltip(),
-           'core-bootstrap-popover': () => this.coreBootstrapPopover(),
-           'core-bootstrap-tabs': () => this.coreBootstrapTabs(),
-           'core-bootstrap-custom-file-input': () => this.coreBootstrapCustomFileInput(),
-           'core-toggle-class': () => this.coreToggleClass(),
-           'core-scroll-to': () => this.coreScrollTo(),
-           'core-year-copy': () => this.coreYearCopy(),
-           'core-appear': () => this.coreAppear(),
-           'core-ripple': () => this.coreRipple(),
-           print: () => this.print(),
-           'table-tools-sections': () => this.tableToolsSections(),
-           'table-tools-checkable': () => this.tableToolsCheckable(),
-           'magnific-popup': () => this.magnific(),
-           summernote: () => this.summernote(),
-           ckeditor: () => this.ckeditor(),
-           ckeditor5: () => this.ckeditor5(),
-           simplemde: () => this.simpleMDE(),
-           slick: () => this.slick(),
-           datepicker: () => this.datepicker(),
-           colorpicker: () => this.colorpicker(),
-           'masked-inputs': () => this.maskedInputs(),
-           select2: () => this.select2(),
-           highlightjs: () => this.highlightjs(),
-           notify: (options) => this.notify(options),
-           'easy-pie-chart': () => this.easyPieChart(),
-           maxlength: () => this.maxlength(),
-           rangeslider: () => this.rangeslider(),
-           sparkline: () => this.sparkline(),
-           validation: () => this.validation(),
-           flatpickr: () => this.flatpickr()
-       };
+    /*
+     * Run helpers
+     *
+     */
+    static run(helpers, options = {}) {
+        let helperList = {
+            'core-bootstrap-tooltip': () => this.coreBootstrapTooltip(),
+            'core-bootstrap-popover': () => this.coreBootstrapPopover(),
+            'core-bootstrap-tabs': () => this.coreBootstrapTabs(),
+            'core-bootstrap-custom-file-input': () => this.coreBootstrapCustomFileInput(),
+            'core-toggle-class': () => this.coreToggleClass(),
+            'core-scroll-to': () => this.coreScrollTo(),
+            'core-year-copy': () => this.coreYearCopy(),
+            'core-appear': () => this.coreAppear(),
+            'core-ripple': () => this.coreRipple(),
+            print: () => this.print(),
+            'table-tools-sections': () => this.tableToolsSections(),
+            'table-tools-checkable': () => this.tableToolsCheckable(),
+            'magnific-popup': () => this.magnific(),
+            summernote: () => this.summernote(),
+            ckeditor: () => this.ckeditor(),
+            ckeditor5: () => this.ckeditor5(),
+            simplemde: () => this.simpleMDE(),
+            slick: () => this.slick(),
+            datepicker: () => this.datepicker(),
+            colorpicker: () => this.colorpicker(),
+            'masked-inputs': () => this.maskedInputs(),
+            select2: () => this.select2(),
+            highlightjs: () => this.highlightjs(),
+            notify: (options) => this.notify(options),
+            'easy-pie-chart': () => this.easyPieChart(),
+            maxlength: () => this.maxlength(),
+            rangeslider: () => this.rangeslider(),
+            sparkline: () => this.sparkline(),
+            validation: () => this.validation(),
+            flatpickr: () => this.flatpickr()
+        };
 
-       if (helpers instanceof Array) {
-           for (let index in helpers) {
-               if (helperList[helpers[index]]) {
-                   helperList[helpers[index]](options);
-               }
-           }
-       } else {
-           if (helperList[helpers]) {
-               helperList[helpers](options);
-           }
-       }
-   }
+        if (helpers instanceof Array) {
+            for (let index in helpers) {
+                if (helperList[helpers[index]]) {
+                    helperList[helpers[index]](options);
+                }
+            }
+        } else {
+            if (helperList[helpers]) {
+                helperList[helpers](options);
+            }
+        }
+    }
 
     /*
      ********************************************************************************************
@@ -183,16 +183,16 @@ export default class Helpers {
      */
     static coreToggleClass() {
         jQuery('[data-toggle="class-toggle"]:not(.js-class-toggle-enabled)')
-                .add('.js-class-toggle:not(.js-class-toggle-enabled)')
-                .on('click.pixelcave.helpers.core', e => {
-            let el = jQuery(e.currentTarget);
+            .add('.js-class-toggle:not(.js-class-toggle-enabled)')
+            .on('click.pixelcave.helpers.core', e => {
+                let el = jQuery(e.currentTarget);
 
-            // Add .js-class-toggle-enabled class to tag it as activated and then blur it
-            el.addClass('js-class-toggle-enabled').trigger('blur');
+                // Add .js-class-toggle-enabled class to tag it as activated and then blur it
+                el.addClass('js-class-toggle-enabled').trigger('blur');
 
-            // Toggle class
-            jQuery(el.data('target').toString()).toggleClass(el.data('class').toString());
-        });
+                // Toggle class
+                jQuery(el.data('target').toString()).toggleClass(el.data('class').toString());
+            });
     }
 
     /*
@@ -211,11 +211,11 @@ export default class Helpers {
             e.stopPropagation();
 
             // Set variables
-            let lHeader         = jQuery('#page-header');
-            let el              = jQuery(e.currentTarget);
-            let elTarget        = el.data('target') || el.attr('href');
-            let elSpeed         = el.data('speed') || 1000;
-            let headerHeight    = (lHeader.length && jQuery('#page-container').hasClass('page-header-fixed')) ? lHeader.outerHeight() : 0;
+            let lHeader = jQuery('#page-header');
+            let el = jQuery(e.currentTarget);
+            let elTarget = el.data('target') || el.attr('href');
+            let elSpeed = el.data('speed') || 1000;
+            let headerHeight = (lHeader.length && jQuery('#page-container').hasClass('page-header-fixed')) ? lHeader.outerHeight() : 0;
 
             // Add .js-scroll-to-enabled class to tag it as activated
             el.addClass('js-scroll-to-enabled');
@@ -242,9 +242,9 @@ export default class Helpers {
         let el = jQuery('[data-toggle="year-copy"]:not(.js-year-copy-enabled)');
 
         if (el.length > 0) {
-            let date        = new Date();
-            let curYear     = date.getFullYear();
-            let baseYear    = (el.html().length > 0) ? el.html() : curYear;
+            let date = new Date();
+            let curYear = date.getFullYear();
+            let baseYear = (el.html().length > 0) ? el.html() : curYear;
 
             // Add .js-scroll-to-enabled class to tag it as activated and set the correct year
             el.addClass('js-year-copy-enabled').html(
@@ -266,18 +266,18 @@ export default class Helpers {
     static coreAppear() {
         // Add a specific class on elements (when they become visible on scrolling)
         jQuery('[data-toggle="appear"]:not(.js-appear-enabled)').each((index, element) => {
-            let windowW     = Tools.getWidth();
-            let el          = jQuery(element);
-            let elCssClass  = el.data('class') || 'animated fadeIn';
-            let elOffset    = el.data('offset') || 0;
-            let elTimeout   = (windowW < 992) ? 0 : (el.data('timeout') ? el.data('timeout') : 0);
+            let windowW = Tools.getWidth();
+            let el = jQuery(element);
+            let elCssClass = el.data('class') || 'animated fadeIn';
+            let elOffset = el.data('offset') || 0;
+            let elTimeout = (windowW < 992) ? 0 : (el.data('timeout') ? el.data('timeout') : 0);
 
             // Add .js-appear-enabled class to tag it as activated and init it
             el.addClass('js-appear-enabled').appear(() => {
                 setTimeout(() => {
                     el.removeClass('invisible').addClass(elCssClass);
                 }, elTimeout);
-            }, {accY: elOffset});
+            }, { accY: elOffset });
         });
     }
 
@@ -302,13 +302,13 @@ export default class Helpers {
                     position: 'relative',
                     'z-index': 1
                 }).on('click.pixelcave.helpers.core', e => {
-                    let cssClass = 'click-ripple', ripple, d, x, y;
+                    let cssClass = 'click-ripple',
+                        ripple, d, x, y;
 
                     // If the ripple element doesn't exist in this element, add it..
                     if (el.children('.' + cssClass).length === 0) {
                         el.prepend('<span class="' + cssClass + '"></span>');
-                    }
-                    else { // ..else remove .animate class from ripple element
+                    } else { // ..else remove .animate class from ripple element
                         el.children('.' + cssClass).removeClass('animate');
                     }
 
@@ -316,17 +316,17 @@ export default class Helpers {
                     ripple = el.children('.' + cssClass);
 
                     // If the ripple element doesn't have dimensions, set them accordingly
-                    if(!ripple.height() && !ripple.width()) {
+                    if (!ripple.height() && !ripple.width()) {
                         d = Math.max(el.outerWidth(), el.outerHeight());
-                        ripple.css({height: d, width: d});
+                        ripple.css({ height: d, width: d });
                     }
 
                     // Get coordinates for our ripple element
-                    x = e.pageX - el.offset().left - ripple.width()/2;
-                    y = e.pageY - el.offset().top - ripple.height()/2;
+                    x = e.pageX - el.offset().left - ripple.width() / 2;
+                    y = e.pageY - el.offset().top - ripple.height() / 2;
 
                     // Position the ripple element and add the class .animate to it
-                    ripple.css({top: y + 'px', left: x + 'px'}).addClass('animate');
+                    ripple.css({ top: y + 'px', left: x + 'px' }).addClass('animate');
                 });
         });
     }
@@ -343,12 +343,12 @@ export default class Helpers {
      ********************************************************************************************
      */
 
-     /*
-      * Print Page functionality
-      *
-      * Helpers.run('print');
-      *
-      */
+    /*
+     * Print Page functionality
+     *
+     * Helpers.run('print');
+     *
+     */
     static print() {
         // Store all #page-container classes
         let lPage = jQuery('#page-container');
@@ -384,15 +384,15 @@ export default class Helpers {
 
             // When a row is clicked in tbody.js-table-sections-header
             jQuery('.js-table-sections-header > tr', table).on('click.pixelcave.helpers', e => {
-                if (e.target.type !== 'checkbox'
-                        && e.target.type !== 'button'
-                        && e.target.tagName.toLowerCase() !== 'a'
-                        && !jQuery(e.target).parent('a').length
-                        && !jQuery(e.target).parent('button').length
-                        && !jQuery(e.target).parent('.custom-control').length
-                        && !jQuery(e.target).parent('label').length) {
-                    let row    = jQuery(e.currentTarget);
-                    let tbody  = row.parent('tbody');
+                if (e.target.type !== 'checkbox' &&
+                    e.target.type !== 'button' &&
+                    e.target.tagName.toLowerCase() !== 'a' &&
+                    !jQuery(e.target).parent('a').length &&
+                    !jQuery(e.target).parent('button').length &&
+                    !jQuery(e.target).parent('.custom-control').length &&
+                    !jQuery(e.target).parent('label').length) {
+                    let row = jQuery(e.currentTarget);
+                    let tbody = row.parent('tbody');
 
                     if (!tbody.hasClass('show')) {
                         jQuery('tbody', table).removeClass('show table-active');
@@ -438,7 +438,7 @@ export default class Helpers {
             // When a checkbox is clicked in tbody
             jQuery('tbody input:checkbox, tbody input + label', table).on('click.pixelcave.helpers', e => {
                 let checkbox = jQuery(e.currentTarget);
-                let checkedStatus  = checkbox.prop('checked');
+                let checkedStatus = checkbox.prop('checked');
 
                 if (!checkedStatus) {
                     jQuery('thead input:checkbox', table).prop('checked', false);
@@ -453,15 +453,15 @@ export default class Helpers {
 
             // When a row is clicked in tbody
             jQuery('tbody > tr', table).on('click.pixelcave.helpers', e => {
-                if (e.target.type !== 'checkbox'
-                        && e.target.type !== 'button'
-                        && e.target.tagName.toLowerCase() !== 'a'
-                        && !jQuery(e.target).parent('a').length
-                        && !jQuery(e.target).parent('button').length
-                        && !jQuery(e.target).parent('.custom-control').length
-                        && !jQuery(e.target).parent('label').length) {
-                    let checkbox       = jQuery('input:checkbox', e.currentTarget);
-                    let checkedStatus  = checkbox.prop('checked');
+                if (e.target.type !== 'checkbox' &&
+                    e.target.type !== 'button' &&
+                    e.target.tagName.toLowerCase() !== 'a' &&
+                    !jQuery(e.target).parent('a').length &&
+                    !jQuery(e.target).parent('button').length &&
+                    !jQuery(e.target).parent('.custom-control').length &&
+                    !jQuery(e.target).parent('label').length) {
+                    let checkbox = jQuery('input:checkbox', e.currentTarget);
+                    let checkedStatus = checkbox.prop('checked');
 
                     checkbox.prop('checked', !checkedStatus).change();
                     this.tableToolscheckRow(checkbox, !checkedStatus);
@@ -569,7 +569,7 @@ export default class Helpers {
     static ckeditor() {
         // Init inline text editor
         if (jQuery('#js-ckeditor-inline:not(.js-ckeditor-inline-enabled)').length) {
-            jQuery('#js-ckeditor-inline').attr('contenteditable','true');
+            jQuery('#js-ckeditor-inline').attr('contenteditable', 'true');
             CKEDITOR.inline('js-ckeditor-inline');
 
             // Add .js-ckeditor-inline-enabled class to tag it as activated
@@ -601,13 +601,13 @@ export default class Helpers {
         // Init inline text editor
         if (jQuery('#js-ckeditor5-inline:not(.js-ckeditor5-inline-enabled)').length) {
             InlineEditor
-                .create( document.querySelector( '#js-ckeditor5-inline' ) )
-                .then( editor => {
+                .create(document.querySelector('#js-ckeditor5-inline'))
+                .then(editor => {
                     window.editor = editor;
-                } )
-                .catch( error => {
-                    console.error( 'There was a problem initializing the inline editor.', error );
-                } );
+                })
+                .catch(error => {
+                    console.error('There was a problem initializing the inline editor.', error);
+                });
 
             // Add .js-ckeditor5-inline-enabled class to tag it as activated
             jQuery('#js-ckeditor5-inline').addClass('js-ckeditor5-inline-enabled');
@@ -616,13 +616,13 @@ export default class Helpers {
         // Init full text editor
         if (jQuery('#js-ckeditor5-classic:not(.js-ckeditor5-classic-enabled)').length) {
             ClassicEditor
-                .create( document.querySelector( '#js-ckeditor5-classic' ) )
-                .then( editor => {
+                .create(document.querySelector('#js-ckeditor5-classic'))
+                .then(editor => {
                     window.editor = editor;
-                } )
-                .catch( error => {
-                    console.error( 'There was a problem initializing the classic editor.', error );
-                } );
+                })
+                .catch(error => {
+                    console.error('There was a problem initializing the classic editor.', error);
+                });
 
             // Add .js-ckeditor5-classic-enabled class to tag it as activated
             jQuery('#js-ckeditor5-classic').addClass('js-ckeditor5-classic-enabled');
@@ -801,7 +801,7 @@ export default class Helpers {
      */
     static highlightjs() {
         // Init Highlight.js
-        if ( ! hljs.isHighlighted) {
+        if (!hljs.isHighlighted) {
             hljs.initHighlighting();
         }
     }
@@ -826,59 +826,57 @@ export default class Helpers {
 
                     // Create notification
                     jQuery.notify({
-                            icon: el.data('icon') || '',
-                            message: el.data('message'),
-                            url: el.data('url') || ''
+                        icon: el.data('icon') || '',
+                        message: el.data('message'),
+                        url: el.data('url') || ''
+                    }, {
+                        element: 'body',
+                        type: el.data('type') || 'info',
+                        placement: {
+                            from: el.data('from') || 'top',
+                            align: el.data('align') || 'right'
                         },
-                        {
-                            element: 'body',
-                            type: el.data('type') || 'info',
-                            placement: {
-                                from: el.data('from') || 'top',
-                                align: el.data('align') || 'right'
-                            },
-                            allow_dismiss: true,
-                            newest_on_top: true,
-                            showProgressbar: false,
-                            offset: 20,
-                            spacing: 10,
-                            z_index: 1033,
-                            delay: 5000,
-                            timer: 1000,
-                            animate: {
-                                enter: 'animated fadeIn',
-                                exit: 'animated fadeOutDown'
-                            }
-                        });
+                        allow_dismiss: true,
+                        newest_on_top: true,
+                        showProgressbar: false,
+                        offset: 20,
+                        spacing: 10,
+                        z_index: 1033,
+                        delay: 5000,
+                        timer: 1000,
+                        animate: {
+                            enter: 'animated fadeIn',
+                            exit: 'animated fadeOutDown'
+                        }
+                    });
                 });
             });
         } else {
             // Create notification
             jQuery.notify({
-                    icon: options.icon || '',
-                    message: options.message,
-                    url: options.url || ''
+                icon: options.icon || '',
+                message: options.message,
+                url: options.url || ''
+            }, {
+                element: options.element || 'body',
+                type: options.type || 'info',
+                placement: {
+                    from: options.from || 'top',
+                    align: options.align || 'right'
                 },
-                {
-                    element: options.element || 'body',
-                    type: options.type || 'info',
-                    placement: {
-                        from: options.from || 'top',
-                        align: options.align || 'right'
-                    },
-                    allow_dismiss: (options.allow_dismiss === false) ? false : true,
-                    newest_on_top: (options.newest_on_top === false) ? false : true,
-                    showProgressbar: options.show_progress_bar ? true : false,
-                    offset: options.offset || 20,
-                    spacing: options.spacing || 10,
-                    z_index: options.z_index || 1033,
-                    delay: options.delay || 5000,
-                    timer: options.timer || 1000,
-                    animate: {
-                        enter: options.animate_enter || 'animated fadeIn',
-                        exit: options.animate_exit || 'animated fadeOutDown'
-                    }
-                });
+                allow_dismiss: (options.allow_dismiss === false) ? false : true,
+                newest_on_top: (options.newest_on_top === false) ? false : true,
+                showProgressbar: options.show_progress_bar ? true : false,
+                offset: options.offset || 20,
+                spacing: options.spacing || 10,
+                z_index: options.z_index || 1033,
+                delay: options.delay || 5000,
+                timer: options.timer || 1000,
+                animate: {
+                    enter: options.animate_enter || 'animated fadeIn',
+                    exit: options.animate_exit || 'animated fadeOutDown'
+                }
+            });
         }
     }
 
@@ -978,44 +976,44 @@ export default class Helpers {
 
         // Init jQuery Sparkline Charts (with .js-sparkline class)
         jQuery('.js-sparkline:not(.js-sparkline-enabled)').each((index, element) => {
-            let el      = jQuery(element);
-            let type    = el.data('type');
+            let el = jQuery(element);
+            let type = el.data('type');
             let options = {};
 
             // Sparkline types
             let types = {
                 line: () => {
-                    options['type']                 = type;
-                    options['lineWidth']            = el.data('line-width') || 2;
-                    options['lineColor']            = el.data('line-color') || '#0665d0';
-                    options['fillColor']            = el.data('fill-color') || '#0665d0';
-                    options['spotColor']            = el.data('spot-color') || '#495057';
-                    options['minSpotColor']         = el.data('min-spot-color') || '#495057';
-                    options['maxSpotColor']         = el.data('max-spot-color') || '#495057';
-                    options['highlightSpotColor']   = el.data('highlight-spot-color') || '#495057';
-                    options['highlightLineColor']   = el.data('highlight-line-color') || '#495057';
-                    options['spotRadius']           = el.data('spot-radius') || 2;
-                    options['tooltipFormat']        = '{{prefix}}{{y}}{{suffix}}';
+                    options['type'] = type;
+                    options['lineWidth'] = el.data('line-width') || 2;
+                    options['lineColor'] = el.data('line-color') || '#0665d0';
+                    options['fillColor'] = el.data('fill-color') || '#0665d0';
+                    options['spotColor'] = el.data('spot-color') || '#495057';
+                    options['minSpotColor'] = el.data('min-spot-color') || '#495057';
+                    options['maxSpotColor'] = el.data('max-spot-color') || '#495057';
+                    options['highlightSpotColor'] = el.data('highlight-spot-color') || '#495057';
+                    options['highlightLineColor'] = el.data('highlight-line-color') || '#495057';
+                    options['spotRadius'] = el.data('spot-radius') || 2;
+                    options['tooltipFormat'] = '{{prefix}}{{y}}{{suffix}}';
                 },
                 bar: () => {
-                    options['type']                 = type;
-                    options['barWidth']             = el.data('bar-width') || 8;
-                    options['barSpacing']           = el.data('bar-spacing') || 6;
-                    options['barColor']             = el.data('bar-color') || '#0665d0';
-                    options['tooltipFormat']        = '{{prefix}}{{value}}{{suffix}}';
+                    options['type'] = type;
+                    options['barWidth'] = el.data('bar-width') || 8;
+                    options['barSpacing'] = el.data('bar-spacing') || 6;
+                    options['barColor'] = el.data('bar-color') || '#0665d0';
+                    options['tooltipFormat'] = '{{prefix}}{{value}}{{suffix}}';
                 },
                 pie: () => {
-                    options['type']                 = type;
-                    options['sliceColors']          = ['#fadb7d','#faad7d', '#75b0eb','#abe37d'];
-                    options['highlightLighten']     = el.data('highlight-lighten') || 1.1;
-                    options['tooltipFormat']        = '{{prefix}}{{value}}{{suffix}}';
+                    options['type'] = type;
+                    options['sliceColors'] = ['#fadb7d', '#faad7d', '#75b0eb', '#abe37d'];
+                    options['highlightLighten'] = el.data('highlight-lighten') || 1.1;
+                    options['tooltipFormat'] = '{{prefix}}{{value}}{{suffix}}';
                 },
                 tristate: () => {
-                    options['type']                 = type;
-                    options['barWidth']             = el.data('bar-width') || 8;
-                    options['barSpacing']           = el.data('bar-spacing') || 6;
-                    options['posBarColor']          = el.data('pos-bar-color') || '#82b54b';
-                    options['negBarColor']          = el.data('neg-bar-color') || '#e04f1a';
+                    options['type'] = type;
+                    options['barWidth'] = el.data('bar-width') || 8;
+                    options['barSpacing'] = el.data('bar-spacing') || 6;
+                    options['posBarColor'] = el.data('pos-bar-color') || '#82b54b';
+                    options['negBarColor'] = el.data('neg-bar-color') || '#e04f1a';
                 }
             };
 
@@ -1035,10 +1033,10 @@ export default class Helpers {
                 }
 
                 // Add common options used in all types
-                options['width']            = el.data('width') || '120px';
-                options['height']           = el.data('height') || '80px';
-                options['tooltipPrefix']    = el.data('tooltip-prefix') ? el.data('tooltip-prefix') + ' ' : '';
-                options['tooltipSuffix']    = el.data('tooltip-suffix') ? ' ' + el.data('tooltip-suffix') : '';
+                options['width'] = el.data('width') || '120px';
+                options['height'] = el.data('height') || '80px';
+                options['tooltipPrefix'] = el.data('tooltip-prefix') ? el.data('tooltip-prefix') + ' ' : '';
+                options['tooltipSuffix'] = el.data('tooltip-suffix') ? ' ' + el.data('tooltip-suffix') : '';
 
                 // If we need a responsive width for the chart, then don't add .js-sparkline-enabled class and re-run the helper on window resize
                 if (options['width'] === '100%') {

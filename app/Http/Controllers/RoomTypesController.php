@@ -127,6 +127,7 @@ class RoomTypesController extends Controller
             'category'=>'required',
             'image_one'=>'required'
         ]);
+        // dd($request->all());
 
         $roomtype = RoomTypes::find($id);
 

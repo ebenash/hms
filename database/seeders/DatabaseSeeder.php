@@ -2,6 +2,11 @@
 
 namespace Database\Seeders;
 
+use App\Models\Company;
+use App\Models\Guests;
+use App\Models\Reservations;
+use App\Models\Rooms;
+use App\Models\RoomTypes;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
@@ -16,106 +21,89 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        // \App\Models\User::factory(10)->create();
-        $admin = Role::create(['name' => 'administrator']);
-        $editor = Role::create(['name' => 'editor']);
-        $author = Role::create(['name' => 'author']);
+        // Company::factory(1)->create();
+        // User::factory(1)->create();
+        // Guests::factory(20000)->create();
+        // Rooms::factory(1000)->create();
+        // RoomTypes::factory(500)->create();
+        Reservations::factory(20000)->create();
 
-        $permission = Permission::create(['name' => 'view guests']);
-        $permission->assignRole($admin);
-        $permission->assignRole($editor);
-        $permission->assignRole($author);
+        $admin = Role::findOrCreate('administrator');
+        $editor = Role::findOrCreate('editor');
+        $user = Role::findOrCreate('user');
+        $auditor = Role::findOrCreate('auditor');
 
-        $permission = Permission::create(['name' => 'add guests']);
-        $permission->assignRole($admin);
-        $permission->assignRole($editor);
-        $permission->assignRole($author);
+        $permission = Permission::findOrCreate('view guests');
+        $permission->syncRoles([$admin,$editor,$user,$auditor]);
+        // $permission->assignRole($user);
 
-        $permission = Permission::create(['name' => 'edit guests']);
-        $permission->assignRole($admin);
-        $permission->assignRole($editor);
+        $permission = Permission::findOrCreate('add guests');
+        $permission->syncRoles([$admin,$editor,$user]);
 
-        $permission = Permission::create(['name' => 'remove guests']);
-        $permission->assignRole($admin);
+        $permission = Permission::findOrCreate('edit guests');
+        $permission->syncRoles([$admin,$editor]);
 
-        $permission = Permission::create(['name' => 'view rooms']);
-        $permission->assignRole($admin);
-        $permission->assignRole($editor);
-        $permission->assignRole($author);
+        $permission = Permission::findOrCreate('remove guests');
+        $permission->syncRoles([$admin]);
 
-        $permission = Permission::create(['name' => 'add rooms']);
-        $permission->assignRole($admin);
-        $permission->assignRole($editor);
+        $permission = Permission::findOrCreate('view rooms');
+        $permission->syncRoles([$admin,$editor,$user,$auditor]);
 
-        $permission = Permission::create(['name' => 'edit rooms']);
-        $permission->assignRole($admin);
-        $permission->assignRole($editor);
+        $permission = Permission::findOrCreate('add rooms');
+        $permission->syncRoles([$admin,$editor]);
 
-        $permission = Permission::create(['name' => 'remove rooms']);
-        $permission->assignRole($admin);
+        $permission = Permission::findOrCreate('edit rooms');
+        $permission->syncRoles([$admin,$editor]);
 
-        $permission = Permission::create(['name' => 'view roomtypes']);
-        $permission->assignRole($admin);
-        $permission->assignRole($editor);
-        $permission->assignRole($author);
+        $permission = Permission::findOrCreate('remove rooms');
+        $permission->syncRoles([$admin]);
 
-        $permission = Permission::create(['name' => 'add roomtypes']);
-        $permission->assignRole($admin);
-        $permission->assignRole($editor);
+        $permission = Permission::findOrCreate('view roomtypes');
+        $permission->syncRoles([$admin,$editor,$user,$auditor]);
 
-        $permission = Permission::create(['name' => 'edit roomtypes']);
-        $permission->assignRole($admin);
-        $permission->assignRole($editor);
+        $permission = Permission::findOrCreate('add roomtypes');
+        $permission->syncRoles([$admin,$editor]);
 
-        $permission = Permission::create(['name' => 'remove roomtypes']);
-        $permission->assignRole($admin);
+        $permission = Permission::findOrCreate('edit roomtypes');
+        $permission->syncRoles([$admin,$editor]);
 
-        $permission = Permission::create(['name' => 'view users']);
-        $permission->assignRole($admin);
-        $permission->assignRole($editor);
+        $permission = Permission::findOrCreate('remove roomtypes');
+        $permission->syncRoles([$admin]);
 
-        $permission = Permission::create(['name' => 'add users']);
-        $permission->assignRole($admin);
-        $permission->assignRole($editor);
+        $permission = Permission::findOrCreate('view users');
+        $permission->syncRoles([$admin,$editor,$user,$auditor]);
 
-        $permission = Permission::create(['name' => 'edit users']);
-        $permission->assignRole($admin);
-        $permission->assignRole($editor);
+        $permission = Permission::findOrCreate('add users');
+        $permission->syncRoles([$admin,$editor]);
 
-        $permission = Permission::create(['name' => 'remove users']);
-        $permission->assignRole($admin);
+        $permission = Permission::findOrCreate('edit users');
+        $permission->syncRoles([$admin,$editor]);
 
-        $permission = Permission::create(['name' => 'view settings']);
-        $permission->assignRole($admin);
-        $permission->assignRole($editor);
-        $permission->assignRole($author);
+        $permission = Permission::findOrCreate('remove users');
+        $permission->syncRoles([$admin]);
 
-        $permission = Permission::create(['name' => 'edit company']);
-        $permission->assignRole($admin);
+        $permission = Permission::findOrCreate('view settings');
+        $permission->syncRoles([$admin,$editor,$user,$auditor]);
 
-        $permission = Permission::create(['name' => 'view reservation']);
-        $permission->assignRole($admin);
-        $permission->assignRole($editor);
-        $permission->assignRole($author);
+        $permission = Permission::findOrCreate('edit company');
+        $permission->syncRoles([$admin]);
 
-        $permission = Permission::create(['name' => 'add reservation']);
-        $permission->assignRole($admin);
-        $permission->assignRole($editor);
-        $permission->assignRole($author);
+        $permission = Permission::findOrCreate('view reservations');
+        $permission->syncRoles([$admin,$editor,$user,$auditor]);
 
-        $permission = Permission::create(['name' => 'respond to reservation requests']);
-        $permission->assignRole($admin);
-        $permission->assignRole($editor);
-        $permission->assignRole($author);
+        $permission = Permission::findOrCreate('add reservations');
+        $permission->syncRoles([$admin,$editor,$user]);
 
-        $permission = Permission::create(['name' => 'edit reservation']);
-        $permission->assignRole($admin);
-        $permission->assignRole($editor);
+        $permission = Permission::findOrCreate('respond to reservation requests');
+        $permission->syncRoles([$admin,$editor,$user]);
 
-        $permission = Permission::create(['name' => 'remove reservation']);
-        $permission->assignRole($admin);
+        $permission = Permission::findOrCreate('edit reservations');
+        $permission->syncRoles([$admin,$editor]);
+
+        $permission = Permission::findOrCreate('remove reservations');
+        $permission->syncRoles([$admin]);
 
         $user = User::find(1);
-        $user->assignRole('administrator');
+        $user->syncRoles('administrator');
     }
 }

@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Reservations;
 use Illuminate\Support\Facades\Auth;
 use App\Helpers\Helper;
+use Illuminate\Support\Facades\DB;
 use Acaronlex\LaravelCalendar\Calendar;
 
 class DashboardController extends CommonController
@@ -56,23 +57,28 @@ class DashboardController extends CommonController
             }
         }
 
-        $reservations = Reservations::where('company_id',auth()->user()->company->id)->where('check_in','>',date("Y-m-d", strtotime('-30 days')))->get();
+        $limit = 10000;
+        // $reservations = [];//$this->mysqli_fetch_normal("select `reservations`.*, `guests`.`full_name`, `rooms`.`name` as `roomname` from `reservations` inner join `guests` on `reservations`.`guest_id` = `guests`.`id` left join `rooms` on `reservations`.`room_id` = `rooms`.`id` where `reservations`.`company_id` = ".auth()->user()->company->id." and `reservations`.`check_in` > '".date("Y-m-d", strtotime('-30 days'))."' order by `reservations`.`check_in` asc limit ".$limit."");
+
+        $reservations = DB::table('reservations')->join('guests','reservations.guest_id','=','guests.id')->join('rooms','reservations.room_id','=','rooms.id','left')->select('reservations.*','guests.full_name','rooms.name as roomname')->where('reservations.company_id',auth()->user()->company->id)->where('reservations.check_in','>',date("Y-m-d", strtotime('-30 days')))->orderBy('reservations.check_in','asc')->limit($limit)->get();
+
         $callendar_reservation_list = [];
+        // dd($reservations);
 
         foreach ($reservations as $key => $reservation) {
             if($reservation->reservation_status == "pending"){
                 if(strtotime($reservation->check_in) < strtotime(date("Y-m-d"))){
-                    $color = ['color' => '#FF0000','textColor' => '#fff','url' => route('reservations-show',$reservation->id)];
+                    $color = ['color' => '#FF0000','textColor' => '#fff','url' => (auth()->user()->can('view reservations') ? route('reservations-show',$reservation->id) : '#')];
                 }else{
-                    $color = ['color' => '#f3b760','textColor' => '#FF0000','url' => route('reservations-view-request',$reservation->id)];
+                    $color = ['color' => '#f3b760','textColor' => '#FF0000','url' => (auth()->user()->can('respond to reservation requests') ? route('reservations-view-request',$reservation->id) : route('reservations-show',$reservation->id))];
                 }
             }else if($reservation->reservation_status == "confirmed"){
-                $color = ['color' => '#46c37b','textColor' => '#ffffff','url' => route('reservations-show',$reservation->id)];
+                $color = ['color' => '#46c37b','textColor' => '#ffffff','url' => (auth()->user()->can('view reservations') ? route('reservations-show',$reservation->id) : '#')];
             }else{
-                $color = ['color' => '#d26a5c','textColor' => '#ffffff','url' => route('reservations-show',$reservation->id)];
+                $color = ['color' => '#d26a5c','textColor' => '#ffffff','url' => (auth()->user()->can('view reservations') ? route('reservations-show',$reservation->id) : '#')];
             }
             $callendar_reservation_list[] = Calendar::event(
-                ($reservation->reservation_status == "pending" ? (strtotime($reservation->check_in) < strtotime(date("Y-m-d")) ? 'Expired Reservation Request: ' : 'Reservation Request: ') :'Reservation: ').$reservation->roomtype->name.' - '.($reservation->room->name ?? 'Unassigned Room Number').' ('.$reservation->guest->full_name.')',
+                ($reservation->reservation_status == "pending" ? (strtotime($reservation->check_in) < strtotime(date("Y-m-d")) ? 'Expired Reservation Request: ' : 'Reservation Request: ') :'Reservation: ').'Room - '.($reservation->roomname ?? 'Unassigned Room Number').' ('.$reservation->full_name.')',
                 true,
                 new \DateTime($reservation->check_in),
                 new \DateTime($reservation->check_out.' +1 day'),
@@ -82,17 +88,6 @@ class DashboardController extends CommonController
         }
 
         $reservations_data = [
-            // 'recent_reservations' => $recent_reservations,
-            // 'today'=> $today,
-            // // 'sevenday' => $sevenday,
-            // // 'monthly' => $monthly,
-            // 'sum_today' => $sum_today,
-            // 'count_sevenday' => $count_sevenday,
-            // 'sum_sevenday' => $sum_sevenday,
-
-            // 'sum_monthly' => $sum_monthly,
-            // 'count_monthly' => $count_monthly,
-
             'count_today' => $count_today,
             'count_requests' => $requestscount,
             'count_confirmed' => $confirmedcount,

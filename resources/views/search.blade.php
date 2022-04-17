@@ -68,7 +68,7 @@
                                         <a href="javascript:void(0)">{{$reservation->guest->full_name}}</a>
                                     </h4>
                                     <p class="d-none d-sm-block text-muted">
-                                        Room: {{$reservation->room->name ?? 'Unassigned Room'}} ({{$reservation->roomtype->name}})
+                                        Room: {{$reservation->room->name ?? 'Unassigned Room'}} ({{$reservation->roomtype->name ?? 'No Room Type'}})
                                     </p>
                                 </td>
                                 <td class="d-none d-lg-table-cell text-center">
@@ -110,7 +110,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <?php $count=1; ?>
+                        @php $count=1; @endphp
                         @foreach($search_guests as $guest)
                             <tr>
                                 <td class="d-none d-sm-table-cell text-center">
@@ -152,14 +152,14 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <?php $count=1; ?>
+                        @php $count=1; @endphp
                         @foreach($search_rooms as $room)
                             <tr>
                                 <td class="d-none d-sm-table-cell text-center">
                                     <span class="badge badge-pill badge-primary">{{$count}}</span>
                                 </td>
                                 <td class="font-w600">{{$room->name}}</td>
-                                <td class="hidden-sm">{{$room->roomtype->name}}</td>
+                                <td class="hidden-sm">{{$room->roomtype->name ?? 'Undefined Room Type'}}</td>
                                 <td class="hidden-sm">@if($room->status == 1) <span class="badge badge-success">Available</span>  @else <span class="badge badge-danger">Inactive</span> @endif</td>
                                 <td class="text-center">
                                     {{-- <div class="btn-group">
@@ -197,7 +197,7 @@
                             <tr>
                                 <td>
                                     <h4 class="h5 mt-3 mb-2">
-                                        <a href="javascript:void(0)">{{$roomtype->name}}</a>
+                                        <a href="javascript:void(0)">{{$roomtype->name ?? 'Undefined Room Type'}}</a>
                                     </h4>
                                     <p class="d-none d-sm-block text-muted">
                                         {{$roomtype->description}}

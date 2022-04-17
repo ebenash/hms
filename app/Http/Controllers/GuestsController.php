@@ -22,10 +22,12 @@ class GuestsController extends CommonController
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
         //
-        $data = ['all_guests' => Guests::where('company_id',auth()->user()->company->id)->get()];
+        $data = [
+            'all_guests' => Guests::where('company_id',auth()->user()->company->id)->paginate(50)
+        ];
         return view('guests.list',$data);
     }
 

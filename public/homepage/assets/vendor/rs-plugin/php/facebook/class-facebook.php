@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 /**
  * Facebook
@@ -66,7 +66,7 @@ class TP_facebook {
 	public function get_post_feed($user,$app_id,$app_secret,$item_count=10){
 		$oauth = file_get_contents("https://graph.facebook.com/oauth/access_token?type=client_cred&client_id=".$app_id."&client_secret=".$app_secret);
 		$url = "https://graph.facebook.com/$user/feed?".$oauth."&fields=id,from,message,picture,link,name,icon,privacy,type,status_type,object_id,application,created_time,updated_time,is_hidden,is_expired,likes,comments";
-		$feed = json_decode(file_get_contents($url));
+		$feed = json_decode(file_get_contents(filter_var($url, FILTER_SANITIZE_URL)));
 		return $feed->data;
 	}
 

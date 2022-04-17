@@ -1,7 +1,7 @@
 <!-- OneUI Core JS -->
-<script src="{{ mix('js/oneui.app.js') }}"></script>
+<script src="{{ mix('js/oneui.min.js') }}"></script>
 
-<script src="{{ asset('js/plugins/sweetalert2/sweetalert2.min.js') }}"></script>
+{{-- <script src="{{ asset('js/plugins/sweetalert2/sweetalert2.min.js') }}"></script> --}}
 
 <!-- Laravel Scaffolding JS -->
 {{-- <script src="{{ mix('/js/laravel.app.js') }}"></script> --}}

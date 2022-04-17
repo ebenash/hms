@@ -1,7 +1,6 @@
 //
 // Tables
 // --------------------------------------------------
-
 .table {
     thead th {
         font-size: $font-size-sm;
@@ -19,25 +18,22 @@
 
 // Table tools
 .js-table-checkable tbody tr,
-.js-table-sections-header > tr {
+.js-table-sections-header>tr {
     cursor: pointer;
 }
 
 .js-table-sections-header {
-    > tr > td:first-child > i {
+    >tr>td:first-child>i {
         transition: transform .15s ease-out;
     }
-
-    + tbody {
+    +tbody {
         display: none;
     }
-
     &.show {
-        > tr > td:first-child > i {
+        >tr>td:first-child>i {
             transform: rotate(90deg);
         }
-
-        + tbody {
+        +tbody {
             display: table-row-group;
         }
     }

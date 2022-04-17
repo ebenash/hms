@@ -63,27 +63,29 @@ class Helper
     public function get_calendar($list) {
         $calendar = new Calendar();
         $calendar->addEvents($list);
-        $calendar->setOptions([
-            'locales' => 'FullCalendar.globalLocales',
-            'locale' => 'en-gb',
-            'firstDay' => 0,
-            'displayEventTime' => false,
-            'selectable' => true,
-            'initialView' => 'dayGridMonth',
-            'headerToolbar' => [
-                'center' => 'prev,next today myCustomButton',
-                'left' => 'title',
-                'right' => 'dayGridMonth,dayGridWeek,dayGridDay,listMonth'
-            ],
-            'customButtons' => [
-                'myCustomButton' => [
-                    'text'=> ' Add New Reservation',
-                    'click' => 'function() {
-                        window.location.href = "/admin/reservations/create";
-                    }'
+        if(auth()->user()->can('add reservations')){
+            $calendar->setOptions([
+                'locales' => 'FullCalendar.globalLocales',
+                'locale' => 'en-gb',
+                'firstDay' => 0,
+                'displayEventTime' => false,
+                'selectable' => true,
+                'initialView' => 'dayGridMonth',
+                'headerToolbar' => [
+                    'left' => 'prev,next today myCustomButton',
+                    'center' => 'title',
+                    'right' => 'dayGridMonth,dayGridWeek,dayGridDay,listMonth'
+                ],
+                'customButtons' => [
+                    'myCustomButton' => [
+                        'text'=> ' Add New Reservation',
+                        'click' => 'function() {
+                            window.location.href = "/admin/reservations/create";
+                        }'
+                    ]
                 ]
-            ]
-        ]);
+            ]);
+        }
         return $calendar;
     }
 }

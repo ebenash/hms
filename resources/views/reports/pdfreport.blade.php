@@ -69,7 +69,7 @@
 				</tr>
 			</thead>
 			<tbody>
-				<?php $count=1; ?>
+				@php $count=1; @endphp
 				@foreach($filter['data'] as $guest)
 				<tr>
 					<td>{{$count++}}</td>
@@ -103,7 +103,7 @@
 				</tr>
 			</thead>
 			<tbody>
-				<?php $count=1; ?>
+				@php $count=1; @endphp
 				@foreach($filter['data'] as $reservation)
 				<tr>
 					<td>{{$count++}}</td>
@@ -137,12 +137,12 @@
 				</tr>
 			</thead>
 			<tbody>
-				<?php $count=1; ?>
+				@php $count=1; @endphp
 				@foreach($filter['data'] as $room)
 				<tr>
 					<td>{{$count++}}</td>
 					<td>{{$room->name}}</td>
-					<td>{{$room->roomtype->name}}</td>
+					<td>{{$room->roomtype->name ?? 'Undefined Room Type'}}</td>
 					<td>{{$room->price}}</td>
 					<td>{{$room->max_persons}}</td>
 					<td>@if($room->status == 0) <span class="label label-success">Available</span>  @else <span class="label label-danger">Inactive</span> @endif</td>
@@ -170,7 +170,7 @@
 				</tr>
 			</thead>
 			<tbody>
-				<?php $count=1; ?>
+				@php $count=1; @endphp
 				@foreach($filter['data'] as $reservation)
 				<tr>
 					<td>{{$count++}}</td>

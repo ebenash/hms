@@ -14,7 +14,7 @@
 
             <!-- Toggle Mini Sidebar -->
             <!-- Layout API, functionality initialized in Template._uiApiLayout()-->
-            <button type="button" class="btn btn-sm btn-dual mr-2 d-none d-lg-inline-block" data-toggle="layout" data-action="sidebar_mini_toggle">
+            <button type="button" class="btn btn-sm btn-dual mr-2 d-none d-lg-inline-block" data-toggle="layout" data-action="sidebar_mini_toggle" onclick="changeTheme('minimize','sidebar-mini')">
                 <i class="fa fa-fw fa-ellipsis-v"></i>
             </button>
             <!-- END Toggle Mini Sidebar -->
@@ -155,62 +155,63 @@
                 </div>
             </div>
             <!-- END User Dropdown -->
-
-            <!-- Notifications Dropdown -->
-            <div class="dropdown d-inline-block ml-2">
-                <button type="button" class="btn btn-sm btn-dual" id="page-header-notifications-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <i class="fa fa-fw fa-bell"></i>
-                    @if (count($notifications) > 0)<span class="badge badge-pill badge-danger ml-2">{{count($notifications)}}</span>@endif
-                </button>
-                <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right p-0 border-0 font-size-sm" aria-labelledby="page-header-notifications-dropdown">
-                    <div class="p-2 bg-primary-dark text-center rounded-top">
-                        <h5 class="dropdown-header text-uppercase text-white">Notifications</h5>
-                    </div>
-                    <ul class="nav-items mb-0">
-                        @foreach ($notifications as $notification)
-                            <li>
-                                <form id="readnotification{{$notification->id}}" action="{{route('handle-notification',$notification->id)}}" method="post">
+            @can('respond to reservation requests')
+                <!-- Notifications Dropdown -->
+                <div class="dropdown d-inline-block ml-2">
+                    <button type="button" class="btn btn-sm btn-dual" id="page-header-notifications-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fa fa-fw fa-bell"></i>
+                        @if (count($notifications) > 0)<span class="badge badge-pill badge-danger ml-2">{{count($notifications)}}</span>@endif
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right p-0 border-0 font-size-sm" aria-labelledby="page-header-notifications-dropdown">
+                        <div class="p-2 bg-primary-dark text-center rounded-top">
+                            <h5 class="dropdown-header text-uppercase text-white">Notifications</h5>
+                        </div>
+                        <ul class="nav-items mb-0">
+                            @foreach ($notifications as $notification)
+                                <li>
+                                    <form id="readnotification{{$notification->id}}" action="{{route('handle-notification',$notification->id)}}" method="post">
+                                        @csrf
+                                        <input type="hidden" name="url" value="{{$notification->url}}">
+                                        <a class="text-dark media py-2" href="javascript:void(0)" onclick="submitForm({{$notification->id}})">
+                                            <div class="mr-2 ml-3">
+                                                <i class="fa fa-fw fa-envelope text-{{$notification->type}}"></i>
+                                            </div>
+                                            <div class="media-body pr-2">
+                                                <div class="font-w600">{{$notification->message}}</div>
+                                                <span class="font-w500 text-muted">{{$notification->created_at}}</span>
+                                            </div>
+                                        </a>
+                                    </form>
+                                </li>
+                            @endforeach
+                        </ul>
+                        @if (count($notifications) > 0)
+                            <div class="p-2 border-top">
+                                <form action="{{route('notifications-unread')}}" method="POST">
                                     @csrf
-                                    <input type="hidden" name="url" value="{{$notification->url}}">
-                                    <a class="text-dark media py-2" href="javascript:void(0)" onclick="submitForm({{$notification->id}})">
+                                    <button class="btn btn-sm btn-light btn-block text-center" type="submit">
+                                        <i class="fa fa-fw fa-envelope-open mr-1"></i> Mark All As Read
+                                    </button>
+                                </form>
+                            </div>
+                        @else
+                            <ul class="nav-items mb-0">
+                                <li>
+                                    <a class="text-dark media py-2" href="javascript:void(0)">
                                         <div class="mr-2 ml-3">
-                                            <i class="fa fa-fw fa-envelope text-{{$notification->type}}"></i>
+                                            <i class="fa fa-fw fa-times-circle text-danger"></i>
                                         </div>
                                         <div class="media-body pr-2">
-                                            <div class="font-w600">{{$notification->message}}</div>
-                                            <span class="font-w500 text-muted">{{$notification->created_at}}</span>
+                                            No Notifications
                                         </div>
                                     </a>
-                                </form>
-                            </li>
-                        @endforeach
-                    </ul>
-                    @if (count($notifications) > 0)
-                        <div class="p-2 border-top">
-                            <form action="{{route('notifications-unread')}}" method="POST">
-                                @csrf
-                                <button class="btn btn-sm btn-light btn-block text-center" type="submit">
-                                    <i class="fa fa-fw fa-envelope-open mr-1"></i> Mark All As Read
-                                </button>
-                            </form>
-                        </div>
-                    @else
-                        <ul class="nav-items mb-0">
-                            <li>
-                                <a class="text-dark media py-2" href="javascript:void(0)">
-                                    <div class="mr-2 ml-3">
-                                        <i class="fa fa-fw fa-times-circle text-danger"></i>
-                                    </div>
-                                    <div class="media-body pr-2">
-                                        No Notifications
-                                    </div>
-                                </a>
-                            </li>
-                        </ul>
-                    @endif
+                                </li>
+                            </ul>
+                        @endif
+                    </div>
                 </div>
-            </div>
-            <!-- END Notifications Dropdown -->
+                <!-- END Notifications Dropdown -->
+            @endcan
 
             <!-- Toggle Side Overlay -->
             <!-- Layout API, functionality initialized in Template._uiApiLayout() -->

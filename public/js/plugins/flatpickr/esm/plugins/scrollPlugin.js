@@ -1,18 +1,18 @@
 import { getEventTarget } from "../utils/dom";
-if (typeof window.CustomEvent !== "function") {
-    function CustomEvent(typeArg, eventInitDict) {
-        eventInitDict = eventInitDict || {
-            bubbles: false,
-            cancelable: false,
-            detail: undefined,
-        };
-        const evt = document.createEvent("CustomEvent");
-        evt.initCustomEvent(typeArg, eventInitDict.bubbles, eventInitDict.cancelable, eventInitDict.detail);
-        return evt;
-    }
-    CustomEvent.prototype = window.Event.prototype;
-    window.CustomEvent = CustomEvent;
+
+function CustomEvent(typeArg, eventInitDict) {
+    eventInitDict = eventInitDict || {
+        bubbles: false,
+        cancelable: false,
+        detail: undefined,
+    };
+    const evt = document.createEvent("CustomEvent");
+    evt.initCustomEvent(typeArg, eventInitDict.bubbles, eventInitDict.cancelable, eventInitDict.detail);
+    return evt;
 }
+CustomEvent.prototype = window.Event.prototype;
+window.CustomEvent = CustomEvent;
+
 function delta(e) {
     return Math.max(-1, Math.min(1, e.wheelDelta || -e.deltaY));
 }
@@ -24,6 +24,7 @@ const scroll = (e) => {
     ev.delta = delta(e);
     getEventTarget(e).dispatchEvent(ev);
 };
+
 function scrollMonth(fp) {
     return (e) => {
         e.preventDefault();
@@ -31,8 +32,9 @@ function scrollMonth(fp) {
         fp.changeMonth(mDelta);
     };
 }
+
 function scrollPlugin() {
-    return function (fp) {
+    return function(fp) {
         const monthScroller = scrollMonth(fp);
         return {
             onReady() {

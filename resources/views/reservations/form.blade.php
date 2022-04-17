@@ -49,13 +49,13 @@
                                 <select class="{{isset($request) ? '': 'js-select2' }} form-control" id="room_type" data-placeholder="Select Room Type.." name="room_type" onchange="getRooms()" {{isset($show) ? 'disabled':(isset($request) ? 'disabled':'') }}>
                                     <option>Select Room Type</option>
                                     @foreach($all_roomtypes->where('status',0) as $roomtype)
-                                        <option value="{{$roomtype->id}}" @if(($reservation->roomtype->id ?? null) == $roomtype->id) selected="selected" @endif >{{$roomtype->name}}</option>
+                                        <option value="{{$roomtype->id}}" @if(($reservation->roomtype->id ?? null) == $roomtype->id) selected="selected" @endif >{{$roomtype->name ?? 'Undefined Room Type'}}</option>
                                     @endforeach
                                 </select>
                             </div>
                             <div class="form-row col-lg-12 mb-3">
                                 <label for="room">Room</label>
-                                <select class="js-select2 form-control" data-placeholder="Select Room Type First" name="{{isset($create) ? 'room[]': 'room' }}" id="room" {{isset($create) ? 'multiple required': (isset($show) ? 'disabled': 'required') }} style="{{(isset($request) ? "border: 1px solid red !important;":'')}}">
+                                <select class="js-select2 form-control" data-placeholder="Select Room Type First" name="{{isset($create) ? 'room[]': 'room' }}" id="room" {{isset($create) ? 'multiple required': (isset($show) ? 'disabled': (strtotime($reservation->check_in) >= strtotime(date('Y-m-d')) ? 'required':'disabled')) }} style="{{(isset($request) ? "border: 1px solid red !important;":'')}}">
 
                                     @if(isset($create))
                                     @elseif(isset($request))
@@ -111,7 +111,7 @@
                                                 <tr>
                                                     <td class="d-none d-sm-table-cell text-center">
                                                         <div class="custom-control custom-radio custom-control-primary custom-control-lg mb-1">
-                                                            <input type="radio" class="custom-control-input" name="guest_id" id="guest_id" value="{{$reservation->guest->id}}" checked>
+                                                            <input type="radio" class="custom-control-input" name="guest_id" id="guest_id" value="{{$reservation->guest_id}}" checked>
                                                             <label class="custom-control-label" for="guest_id"></label>
                                                         </div>
                                                     </td>
@@ -214,7 +214,7 @@
                                             {{$current_user->company->currency}}
                                         </span>
                                     </div>
-                                    <input type="number" id="price_per_day" name="price_per_day" class="form-control text-center" value="{{isset($reservation->price) ? ($reservation->price/$reservation->days) : ''}}" {{isset($show) ? 'disabled':'required' }}  style="{{(isset($request) ? "border: 1px solid red !important;":'')}}" placeholder="Room Price Per Day">
+                                    <input type="number" id="price_per_day" name="price_per_day" class="form-control text-center" value="{{isset($reservation->price) ? ($reservation->price/$reservation->days) : ''}}" {{isset($show) ? 'disabled':(isset($request) ? (strtotime($reservation->check_in) >= strtotime(date('Y-m-d')) ? 'required':'disabled') : 'required') }}  style="{{(isset($request) ? "border: 1px solid red !important;":'')}}" placeholder="Room Price Per Day">
                                 </div>
                             </div>
                             <div class="form-row mb-2 col-lg-12">
@@ -266,9 +266,12 @@
                                 </select>
                             </div>
                             @if(!isset($show))
-                                <div class="form-row mt-2 col-lg-12 pull-right">
-                                    <button class="btn btn-primary" type="submit">{{isset($request) ? 'Send Request Reply' : (isset($update) ? 'Update Reservation' : 'Save Reservation')}}</button>
-                                </div>
+                                @if(isset($reservation) && (strtotime($reservation->check_in) < strtotime(date('Y-m-d'))))
+                                @else
+                                    <div class="form-row mt-2 col-lg-12 pull-right">
+                                        <button class="btn btn-primary" type="submit">{{isset($request) ? 'Send Request Reply' : (isset($update) ? 'Update Reservation' : 'Save Reservation')}}</button>
+                                    </div>
+                                @endif
                             @endif
                         </div>
                     </div>

@@ -15,6 +15,7 @@ use App\Models\Reservations;
 use App\Models\HotelNotifications;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Pagination\Paginator;
 // use MaddHatter\LaravelFullcalendar\Calendar;
 
 class AppServiceProvider extends ServiceProvider
@@ -38,6 +39,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         Schema::defaultStringLength(191);
+        Paginator::useBootstrap();
 
 
         view()->composer('*', function($view) {

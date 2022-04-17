@@ -19,15 +19,17 @@
     <!-- Fonts and Styles -->
     @yield('css_before')
     {{-- <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"> --}}
-    <link rel="stylesheet" id="css-main" href="{{ mix('/css/oneui.css') }}">
+    <link rel="stylesheet" id="css-main" href="{{ mix('/css/oneui.min.css') }}">
 
     {{-- {{dd(auth()->user()->settings)}} --}}
     <!-- You can include a specific file from public/css/themes/ folder to alter the default color theme of the template. eg: -->
     @if (isset(auth()->user()->settings->theme))
         <link rel="stylesheet" id="css-theme" href="{{ mix('/css/themes/'.(auth()->user()->settings->theme).'.css') }}">
+    {{-- @else
+        <link rel="stylesheet" id="css-theme" href="{{ mix('/css/themes/default-extra.css') }}"> --}}
     @endif
 
-    <link rel="stylesheet" href="{{ asset('js/plugins/sweetalert2/sweetalert2.min.css') }}">
+    {{-- <link rel="stylesheet" href="{{ asset('js/plugins/sweetalert2/sweetalert2.min.css') }}"> --}}
 
     @yield('css_after')
 
@@ -46,5 +48,9 @@
                 width: 80%;
             }
         }
+        div.dt-button-collection{
+            padding-top: 5px;
+        }
+
     </style>
 </head>

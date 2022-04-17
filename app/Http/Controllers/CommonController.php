@@ -144,6 +144,15 @@ class CommonController extends Controller
         }
     }
 
+    public function takeActionHandler($notice)
+    {
+        $postcontents = @file_get_contents('php://input');
+        $actiondata = $notice.PHP_EOL;
+        $actiondata.= 'Post Request Details:=> '.PHP_EOL.$postcontents;
+
+        $this->writelog($actiondata);
+    }
+
     public function ExceptionHandler($ex)
     {
         $postcontents = @file_get_contents('php://input');
@@ -274,13 +283,14 @@ class CommonController extends Controller
         //
         $reservations = Reservations::orderBy('created_at','desc')->where('company_id',auth()->user()->company->id);
         $no_filter = true;
+        $limit = 5000;
 
         if(isset($request->keyword)){
             $keyword = $request->keyword;
 
-            $guests = Guests::where("full_name","like","%".$keyword."%")->orWhere("phone","like","%".$keyword."%")->orWhere("email","like","%".$keyword."%")->where('company_id',auth()->user()->company->id)->get();
-            $rooms = Rooms::where("name","like","%".$keyword."%")->where('company_id',auth()->user()->company->id)->get();
-            $roomtypes = RoomTypes::where("name","like","%".$keyword."%")->where('company_id',auth()->user()->company->id)->get();
+            $guests = Guests::where("full_name","like","%".$keyword."%")->orWhere("phone","like","%".$keyword."%")->orWhere("email","like","%".$keyword."%")->where('company_id',auth()->user()->company->id)->limit($limit)->get();
+            $rooms = Rooms::where("name","like","%".$keyword."%")->where('company_id',auth()->user()->company->id)->limit($limit)->get();
+            $roomtypes = RoomTypes::where("name","like","%".$keyword."%")->where('company_id',auth()->user()->company->id)->limit($limit)->get();
 
             $first = true;
 
@@ -323,7 +333,7 @@ class CommonController extends Controller
             'search_guests' => $guests ?? [],
             'search_rooms' => $rooms ?? [],
             'search_roomtypes' => $roomtypes ?? [],
-            'search_reservations' => $reservations->get() ?? [],
+            'search_reservations' => $reservations->limit($limit)->get() ?? [],
             'keyword' => $request->keyword ?? ''
         ];
         // dd($data);
@@ -367,8 +377,9 @@ class CommonController extends Controller
         return $phone;
     }
 
-    public function payStackPaymentApi($reservation_id){
+    public function payStackPaymentApi(Request $request,$reservation_id){
         $reservation = Reservations::find($reservation_id);
+        $roomtype = RoomTypes::find($reservation->room_type);
         if($reservation){
             $oldpayment = Payments::where('reservation_id',$reservation_id)->where('created_at','>=',date('Y-m-d H:i:s', strtotime('-1 days')))->first();
             if($oldpayment){
@@ -400,7 +411,7 @@ class CommonController extends Controller
                 //execute post
                 $result = json_decode(curl_exec($ch));
 
-                $this->writelog("Paystack Callback Payload: ".json_encode($result)."\n",1);
+                $this->writelog("Paystack Transaction API Response: ".json_encode($result)."\n",1);
                 // dd($result);
                 if ($result) {
                     if ($result->status) {
@@ -421,16 +432,19 @@ class CommonController extends Controller
                         } catch (\Exception $e) {
                             DB::rollBack();
                             $this->ExceptionHandler($e);
-                            return redirect()->route('home.roomdetails',$reservation->room_type)->with('error','There was an error redirecting to the payment page. Please try again.');
+                            return redirect()->route('home.roomdetails',$roomtype->name)->with('error','There was an error redirecting to the payment page. Please try again.');
                         }
-
                         return redirect($result->data->authorization_url);
                     }
-                    return redirect()->route('home.roomdetails',$reservation->room_type)->with('error','There was an error redirecting to the payment page. Please try again.');
+                    $this->takeActionHandler("PayStack Response Error: ".json_encode($result));
+                    // session()->put('success','There was an error redirecting to the payment page. Please try again.');
+                    return redirect()->route('home.roomdetails',$roomtype->name)->with('success','There was an error redirecting to the payment page. Please try again.');
                 }
-                return redirect()->route('home.roomdetails',$reservation->room_type)->with('error','There was an error redirecting to the payment page. Please try again.');
+                $this->takeActionHandler("PayStack Response Error: ".json_encode($result));
+                return redirect()->route('home.roomdetails',$roomtype->name)->with('error','There was an error redirecting to the payment page. Please try again.');
             }
         }
+        $this->takeActionHandler("PayStack Response Error: Reservation ID: ".$reservation_id." does not exist");
         return redirect()->route('home.rooms')->with('error','There was an error redirecting to the payment page. Please try again.');
     }
 

@@ -41,7 +41,7 @@
 				</tr>
 			</thead>
 			<tbody>
-				<?php $count=1; ?>
+				@php $count=1; @endphp
 				@foreach($all_users as $user)
 				<tr>
 					<td class="text-center">{{$count++}}</td>

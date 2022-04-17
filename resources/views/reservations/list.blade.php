@@ -16,8 +16,7 @@
 @endsection
 @section('content')
 
-
-<!-- Inline -->
+<!-- Search -->
 <div class="block block-rounded">
     <form action="{{route('reservations-filter')}}" method="POST">
         @csrf
@@ -28,7 +27,7 @@
             </div>
         </div>
         <div class="block-content block-content-full form-inline"">
-            <!-- Form Inline - Alternative Style -->
+            <!-- Form Search - Alternative Style -->
             <div class="row">
                 <div class="col-lg-12">
                     <select name="filter_type" id="filter_type" class="form-control form-control-alt mb-2 mr-sm-2 mb-sm-2 col-lg-3" onchange="hideTodayDates(this)">
@@ -51,14 +50,14 @@
                             <option value="{{$roomtype->id}}" {{isset($filter['room_type']) ? ($filter['room_type'] == $roomtype->id ? 'selected' : '') : ''}}>{{$roomtype->name}}</option>
                         @endforeach
                     </select>
-                    <input type="text" class="js-flatpickr form-control form-control-alt mb-2 mr-sm-2 mb-sm-2 col-lg-3" id="daterange" name="daterange" value="{{isset($filter['daterange']) ? $filter['daterange'] : ''}}" placeholder="Select Date Range" data-mode="range">
+                    <input type="text" class="js-flatpickr form-control form-control-alt mb-2 mr-sm-2 mb-sm-2 col-lg-2" id="daterange" name="daterange" value="{{isset($filter['daterange']) ? $filter['daterange'] : ''}}" placeholder="Select Date Range" data-mode="range">
                      {{-- data-min-date="today"> --}}
                 </div>
             </div>
         </div>
     </form>
 </div>
-<!-- END Inline -->
+<!-- END Search -->
 <!-- Dynamic Table Full -->
 <div class="block block-rounded">
     <div class="block-header">
@@ -77,9 +76,12 @@
         </h3>
 
 		<div class="pull-right">
-			<a href="{{route('reservations-create')}}" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> Add New Reservation</a>
+			@can('add reservations')<a href="{{route('reservations-create')}}" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> Add New Reservation</a>@endcan
 			@if(isset($today))
 			    <a href="{{route('reservations-tomorrow')}}" class="btn btn-sm btn-primary"><i class="fa fa-calendar-check"></i> View Tomorrow's Check-Ins</a>
+			@endif
+			@if(isset($tomorrow))
+			    <a href="{{route('reservations-today')}}" class="btn btn-sm btn-primary"><i class="fa fa-calendar-check"></i> View Today's Check-Ins</a>
 			@endif
 		</div>
     </div>
@@ -99,85 +101,29 @@
 				</tr>
 			</thead>
 			<tbody>
-				<?php $count=1; ?>
-				@if(isset($today))
-					<?php $reservations = $all_reservations->where('check_in',date('Y-m-d')); ?>
-				@else
-					<?php $reservations = $all_reservations; ?>
-				@endif
-				@foreach($reservations as $reservation)
-				<tr>
-					<td class="text-center">{{$count++}}</td>
-					<td class="font-w600">{{$reservation->guest->full_name}}</td>
-					<td class="hidden-sm">{{$reservation->room->name ?? ''}}</td>
-					<td class="hidden-sm">{{date_format(new DateTime($reservation->check_in), 'l jS F, Y')}}</td>
-					<td class="hidden-sm">{{date_format(new DateTime($reservation->check_out), 'l jS F Y')}}</td>
-					<td class="hidden-sm">@if($reservation->reservation_status == 'confirmed') <span class="badge badge-success">Confirmed</span>  @elseif($reservation->reservation_status == 'pending') {!! strtotime($reservation->check_in) < strtotime(date('Y-m-d')) ? '<span class="badge badge-danger">Overdue</span>':'<span class="badge badge-warning">Pending</span>' !!} @else <span class="badge badge-danger">Cancelled</span> @endif</td>
-					<td class="text-center">
-						<div class="btn-group">
-                            @php
-                                $deleteurl = route('reservations-destroy',$reservation->id);
-                                // $successurl = route('settings-tab','users');
-                            @endphp
-							<div style="display: inline-block;"><a href="{{route('reservations-show',$reservation->id)}}" class="btn btn-sm btn-primary" data-toggle="tooltip" title="View Reservation"> <i class="fa fa-eye"> </i></a></div>
-							<div style="display: inline-block;"><a href="{{route($reservation->reservation_status=='pending' ? 'reservations-view-request':'reservations-edit',$reservation->id)}}" class="btn btn-sm btn-warning" data-toggle="tooltip" title="{{$reservation->reservation_status=='pending' ? 'Respond To Reservation Request':'Edit Reservation'}}"> <i class="fa fa-edit"></i> </a></div>
-							<div style="display: inline-block;"><button class="btn btn-sm btn-danger" type="button" data-toggle="tooltip" title="Remove Reservation" onclick="confimdelete('{{$deleteurl}}')"><i class="fa fa-times"> </i></button></div>
-						</div>
-					</td>
-				</tr>
-			<div class="modal fade" id="modal-view{{$reservation->id}}" tabindex="-1" role="dialog" aria-hidden="true">
-					<div class="modal-dialog  modal-dialog-popout">
-						<div class="modal-content">
-							<div class="block block-themed block-transparent remove-margin-b">
-								<div class="block-header bg-primary-dark">
-									<ul class="block-options">
-										<li>
-											<button data-dismiss="modal" type="button"><i class="si si-close"></i></button>
-										</li>
-									</ul>
-									<h3 class="block-title">Reservation Info</h3>
-								</div>
-								<div class="block-content">
-									<div>
-										<div class="form-group">
-											<div class="">Guest Name: <b>{{$reservation->guest->full_name}}</b></div>
-										</div>
-										<div class="form-group">
-											<div class="">Reservation Room: <b>{{$reservation->room->name ?? ''}}</b></div>
-										</div>
-										<div class="form-group">
-											<div class="">Check In Date: <b>{{date_format(new DateTime($reservation->check_in), 'l jS F Y')}}</b></div>
-										</div>
-										<div class="form-group">
-											<div class="">Check Out Date: <b>{{date_format(new DateTime($reservation->check_out), 'l jS F Y')}}</b></div>
-										</div>
-										<div class="form-group">
-											<div class="">Adults: <b>{{$reservation->adults}}</b></div>
-										</div>
-										<div class="form-group">
-											<div class="">Children: <b>{{$reservation->children}}</b></div>
-										</div>
-										<div class="form-group">
-											<div class="">Reservation Status: <b> @if($reservation->reservation_status == 1) <span class="label label-success">Confirmed</span>  @elseif($reservation->reservation_status == 0) <span class="label label-warning">Pending</span> @else <span class="label label-danger">Cancelled</span> @endif </b></div>
-										</div>
-										<div class="form-group">
-											<div class="">Room Price: <b>{{number_format($reservation->room->price ?? 0,2)}}</b></div>
-										</div>
-										<div class="form-group">
-											<div class="">Discount Applied: <b>{{$reservation->discount}} %</b></div>
-										</div>
-										<div class="form-group">
-											<div class="">Total Amount: <b>GHS {{number_format($reservation->price,2)}}</b></div>
-										</div>
-									</div>
-								</div>
-							</div>
-							<div class="modal-footer">
-								<button class="btn btn-sm btn-default" type="button" data-dismiss="modal">Close</button>
-							</div>
-						</div>
-					</div>
-				</div>
+				@php
+                    $count=($all_reservations->perPage()*($all_reservations->currentPage() -1))+1;
+                @endphp
+				@foreach($all_reservations as $reservation)
+                    <tr>
+                        <td class="text-center">{{$count++}}</td>
+                        <td class="font-w600">{{$reservation->full_name}}</td>
+                        <td class="hidden-sm">{{$reservation->roomname ?? 'Unassigned'}}</td>
+                        <td class="hidden-sm">{{date_format(new DateTime($reservation->check_in), 'l jS F, Y')}}</td>
+                        <td class="hidden-sm">{{date_format(new DateTime($reservation->check_out), 'l jS F Y')}}</td>
+                        <td class="hidden-sm">@if($reservation->reservation_status == 'confirmed') <span class="badge badge-success">Confirmed</span>  @elseif($reservation->reservation_status == 'pending') {!! strtotime($reservation->check_in) < strtotime(date('Y-m-d')) ? '<span class="badge badge-danger">Overdue</span>':'<span class="badge badge-warning">Pending</span>' !!} @else <span class="badge badge-danger">Cancelled</span> @endif</td>
+                        <td class="text-center">
+                            <div class="btn-group">
+                                @php
+                                    $deleteurl = route('reservations-destroy',$reservation->id);
+                                    // $successurl = route('settings-tab','users');
+                                @endphp
+                                @can('view reservations')<div style="display: inline-block;"><a href="{{route('reservations-show',$reservation->id)}}" class="btn btn-sm btn-alt-primary" data-toggle="tooltip" title="View Reservation"> <i class="fa fa-eye"> </i></a></div>@endcan
+                                @can('edit reservations')<div style="display: inline-block;"><a href="{{route($reservation->reservation_status=='pending' ? 'reservations-view-request':'reservations-edit',$reservation->id)}}" class="btn btn-sm btn-primary" data-toggle="tooltip" title="{{$reservation->reservation_status=='pending' ? 'Respond To Reservation Request':'Edit Reservation'}}"> <i class="fa fa-edit"></i> </a></div>@endcan
+                                @can('remove reservations')<div style="display: inline-block;"><button class="btn btn-sm btn-danger" type="button" data-toggle="tooltip" title="Remove Reservation" onclick="confimdelete('{{$deleteurl}}')"><i class="fa fa-times"> </i></button></div>@endcan
+                            </div>
+                        </td>
+                    </tr>
 				@endforeach
 			</tbody>
 		</table>
@@ -217,6 +163,23 @@
                 $("#daterange").show();
             }
         }
+    </script>
+
+    <script id="blockOfStuff" type="text/html">
+        <div class="paginate" style="margin-left: auto;">
+            {{$all_reservations->onEachSide(1)->links()}}
+        </div>
+    </script>
+
+    <script type="text/javascript">
+        $(function () {
+            $('#DataTables_Table_0_info').html("Page {{$all_reservations->currentPage()}} of {{$all_reservations->lastPage()}}");
+            $('#DataTables_Table_0_paginate').html("");
+            var div = document.createElement('div');
+            // div.setAttribute('class', 'someClass');
+            div.innerHTML = document.getElementById('blockOfStuff').innerHTML;
+            document.getElementById('DataTables_Table_0_paginate').appendChild(div);
+        });
     </script>
 
 @endsection

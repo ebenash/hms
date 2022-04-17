@@ -11,15 +11,11 @@ class pageTablesDatatables {
      *
      */
     static initDataTables() {
-        // Override a few default classes
         jQuery.extend(jQuery.fn.dataTable.ext.classes, {
             sWrapper: "dataTables_wrapper dt-bootstrap4",
             sFilterInput: "form-control form-control-sm",
             sLengthSelect: "form-control form-control-sm"
-        });
-
-        // Override a few defaults
-        jQuery.extend(true, jQuery.fn.dataTable.defaults, {
+        }), jQuery.extend(!0, jQuery.fn.dataTable.defaults, {
             language: {
                 lengthMenu: "_MENU_",
                 search: "_INPUT_",
@@ -32,34 +28,54 @@ class pageTablesDatatables {
                     last: '<i class="fa fa-angle-double-right"></i>'
                 }
             }
-        });
-
-        // Init full DataTable
-        jQuery('.js-dataTable-full').dataTable({
+        }), jQuery(".js-dataTable-full").dataTable({
             pageLength: 50,
             lengthMenu: [
                 [10, 50, 100, 200],
                 [10, 50, 100, 200]
             ],
-            autoWidth: false
-        });
-
-        // Init DataTable with Buttons
-        jQuery('.js-dataTable-buttons').dataTable({
+            searching: false,
+            buttons: [{ extend: "colvis", className: "btn btn-sm btn-alt-primary" }],
+            autoWidth: !1,
+            dom: "<'row'<'col-sm-12'<'text-left py-2 mb-2'B>>><'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>><'row'<'col-sm-12'tr>><'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>"
+        }), jQuery(".js-dataTable-full-pagination").dataTable({
+            pagingType: "full_numbers",
             pageLength: 50,
             lengthMenu: [
                 [10, 50, 100, 200],
                 [10, 50, 100, 200]
             ],
-            autoWidth: false,
-            buttons: [
-                { extend: 'copy', className: 'btn btn-sm btn-primary' },
-                { extend: 'csv', className: 'btn btn-sm btn-primary' },
-                { extend: 'print', className: 'btn btn-sm btn-primary' }
+            autoWidth: !1
+        }), jQuery(".js-dataTable-simple").dataTable({
+            pageLength: 50,
+            lengthMenu: !1,
+            searching: !1,
+            autoWidth: !1,
+            dom: "<'row'<'col-sm-12'tr>><'row'<'col-sm-6'i><'col-sm-6'p>>"
+        }), jQuery(".js-dataTable-buttons").dataTable({
+            pageLength: 50,
+            lengthMenu: [
+                [10, 50, 100, 200],
+                [10, 50, 100, 200]
             ],
-            dom: "<'row'<'col-sm-12'<'text-center bg-body-light py-2 mb-2'B>>>" +
-                "<'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>><'row'<'col-sm-12'tr>><'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>"
-        });
+            autoWidth: !1,
+            buttons: [{ extend: "colvis", className: "btn btn-sm btn-alt-primary" }, { extend: "copy", className: "btn btn-sm btn-alt-primary" }, { extend: "csv", className: "btn btn-sm btn-alt-primary" }, { extend: "print", className: "btn btn-sm btn-alt-primary" }],
+            dom: "<'row'<'col-sm-12'<'text-left py-2 mb-2'B>>><'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>><'row'<'col-sm-12'tr>><'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>"
+        }), jQuery(".js-dataTable-report").dataTable({
+            pageLength: 100,
+            lengthMenu: [
+                [10, 50, 100, 200],
+                [10, 50, 100, 200]
+            ],
+            columnDefs: [
+                // { targets: [0, 1], visible: false },
+            ],
+            searching: false,
+            autoWidth: !1,
+            buttons: [{ extend: "colvis", className: "btn btn-sm btn-alt-primary" }],
+            //, { extend: "copy", className: "btn btn-sm btn-alt-primary" }, { extend: "csv", className: "btn btn-sm btn-alt-primary" }, { extend: "print", className: "btn btn-sm btn-alt-primary" }],
+            dom: "<'row'<'col-sm-12'<'text-left py-2 mb-2'B>>><'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>><'row'<'col-sm-12'tr>><'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>"
+        })
     }
 
     /*

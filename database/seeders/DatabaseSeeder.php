@@ -39,6 +39,9 @@ class DatabaseSeeder extends Seeder
                     'image_one' => 'homepage/assets/img/reh/MG_8301.jpg',
                     'image_two' => '',
                     'image_three' => '',
+                    'company_id' => 1,
+                    'created_by' => 1,
+
                 ],[
                     'name' => 'Standard Double Occupancy',
                     'price_from' => 450,
@@ -50,6 +53,8 @@ class DatabaseSeeder extends Seeder
                     'image_one' => 'homepage/assets/img/reh/MG_8179.jpg',
                     'image_two' => null,
                     'image_three' => null,
+                    'company_id' => 1,
+                    'created_by' => 1,
                 ],[
                     'name' => 'Junior Deluxe Room',
                     'price_from' => 550,
@@ -61,6 +66,8 @@ class DatabaseSeeder extends Seeder
                     'image_one' => 'homepage/assets/img/reh/MG_8417.jpg',
                     'image_two' => null,
                     'image_three' => null,
+                    'company_id' => 1,
+                    'created_by' => 1,
                 ],[
                     'name' => 'Superior Deluxe Room',
                     'price_from' => 700,
@@ -72,6 +79,8 @@ class DatabaseSeeder extends Seeder
                     'image_one' => 'homepage/assets/img/reh/MG_8444.jpg',
                     'image_two' => null,
                     'image_three' => null,
+                    'company_id' => 1,
+                    'created_by' => 1,
                 ],[
                     'name' => 'Family Unit',
                     'price_from' => 1200,
@@ -83,6 +92,8 @@ class DatabaseSeeder extends Seeder
                     'image_one' => 'homepage/assets/img/reh/MG_8244.jpg',
                     'image_two' => 'homepage/assets/img/reh/MG_8556.jpg',
                     'image_three' => 'homepage/assets/img/reh/MG_8253.jpg',
+                    'company_id' => 1,
+                    'created_by' => 1,
                 ],[
                     'name' => 'Executive Suite',
                     'price_from' => 1000,
@@ -94,6 +105,8 @@ class DatabaseSeeder extends Seeder
                     'image_one' => 'homepage/assets/img/reh/MG_8573.jpg',
                     'image_two' => 'homepage/assets/img/reh/DSC1711.jpg',
                     'image_three' => 'homepage/assets/img/reh/MG_8586.jpg',
+                    'company_id' => 1,
+                    'created_by' => 1,
                 ]
             ]);
         }

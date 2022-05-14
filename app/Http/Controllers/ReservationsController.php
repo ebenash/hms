@@ -619,13 +619,17 @@ class ReservationsController extends CommonController
 
             DB::commit();
 
-            $this->hotel_notification( "New Reservation From ".$request->input('bookNowFullName'), 'success', route('reservations-view-request',$reservation_id) );
-            $this->send_admin_notification();
-
         }catch(\Exception $e){
             $this->ExceptionHandler($e);
             DB::rollback();
             return back()->with('error','Could Not Record Reservation Request. Please Contact The Hotel Directly.');
+        }
+
+        try{
+            $this->hotel_notification( "New Reservation From ".$request->input('bookNowFullName'), 'success', route('reservations-view-request',$reservation_id) );
+            $this->send_admin_notification();
+        }catch(\Exception $e){
+            $this->ExceptionHandler($e);
         }
 
          return back()->with('success','Reservation Request Recorded Successfully');

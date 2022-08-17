@@ -29,7 +29,7 @@
                 </nav>
             </div>
             <div class="col-lg-6 text-right">
-                <p style="opacity: 1;">© Copyright 2017. All Rights Reserved. Forged in <a class="font-w600 text-color-primary" href="#" target="_blank">  <span class="fa fa-chevron-right"></span><strong>ASH</strong><span class="fa fa-window-minimize"></span></a></p>
+                <p style="opacity: 1;">© Copyright <script>document.write(new Date().getFullYear())</script>. All Rights Reserved. Forged in <a class="font-w600 text-color-primary" href="#" target="_blank">  <span class="fa fa-chevron-right"></span><strong>ASH</strong><span class="fa fa-window-minimize"></span></a></p>
             </div>
         </div>
     </div>

@@ -49,7 +49,8 @@ class AppServiceProvider extends ServiceProvider
                 // $view->with('all_companies', Company::all());
                 // $view->with('all_guests', Guests::where('company_id',auth()->user()->company->id)->get());
                 $view->with('all_accesslevels', AccessLevels::all());
-                $view->with('notifications', HotelNotifications::where('status','unread')->get());
+                $view->with('notifications', HotelNotifications::where('status','unread')->orderBy('created_at','desc')->limit(10)->get());
+                $view->with('notifications_count', HotelNotifications::where('status','unread')->get()->count());
             }
             // }else{
             //     $view->with('current_user', -1);

@@ -184,7 +184,7 @@
                             <div class="form-row mb-2 col-lg-12">
                                 <label for="adults">Adults</label>
                                 <select class="form-control" id="adults" data-placeholder="Select Number of Adults.." name="adults" {{isset($show) ? 'disabled':(isset($request) ? 'disabled':'required') }} >
-                                    <option>Select Number of Adults</option>
+                                    <option value="">Select Number of Adults</option>
                                     <option value="1" @if(isset($reservation)) {{$reservation->adults == '1' ?  'selected="selected"' : ''}} @endif>1</option>
                                     <option value="2" @if(isset($reservation)) {{$reservation->adults == '2' ?  'selected="selected"' : ''}} @endif>2</option>
                                     <option value="3" @if(isset($reservation)) {{$reservation->adults == '3' ?  'selected="selected"' : ''}} @endif>3</option>
@@ -195,7 +195,7 @@
                             <div class="form-row mb-2 col-lg-12">
                                 <label for="children">Children</label>
                                 <select class="form-control" id="children" data-placeholder="Select Number of Children.." name="children" {{isset($show) ? 'disabled':(isset($request) ? 'disabled':'required') }} >
-                                    <option>Select Number of Children</option>
+                                    <option value="">Select Number of Children</option>
                                     <option value="0" @if(isset($reservation)) {{$reservation->children == '0' ? 'selected="selected"' : '' }} @endif>0</option>
                                     <option value="1" @if(isset($reservation)) {{$reservation->children == '1' ? 'selected="selected"' : '' }} @endif>1</option>
                                     <option value="2" @if(isset($reservation)) {{$reservation->children == '2' ? 'selected="selected"' : '' }} @endif>2</option>
@@ -249,27 +249,41 @@
                             <div class="form-row mb-2 col-lg-12">
                                 <label for="payment_type">Payment Method</label>
                                 <select name="payment_type" class="form-control" {{isset($show) ? 'disabled':(isset($request) ? 'disabled':'required') }}>
-                                    <option>Select Payment Method</option>
+                                    <option value="">Select Payment Method</option>
+                                    <option value="paystack" @if(isset($reservation)) {{$reservation->payment_method == 'paystack' ? 'selected="selected"' : ''}} @endif>Send Paystack Invoice</option>
                                     <option value="cash" @if(isset($reservation)) {{$reservation->payment_method == 'cash' ? 'selected="selected"' : ''}} @endif>Cash Payment</option>
                                     <option value="momo" @if(isset($reservation)) {{$reservation->payment_method == 'momo' ? 'selected="selected"' : ''}} @endif>Mobile Money</option>
                                     <option value="pos" @if(isset($reservation)) {{$reservation->payment_method == 'pos' ? 'selected="selected"' : ''}} @endif>Card POS</option>
-                                    <option value="electronic" @if(isset($reservation)) {{$reservation->payment_method == 'electronic' ? 'selected="selected"' : ''}} @endif>Electronic Payment (Momo/Card)</option>
+                                    <option value="expedia" @if(isset($reservation)) {{$reservation->payment_method == 'expedia' ? 'selected="selected"' : ''}} @endif>Expedia</option>
                                 </select>
                             </div>
                             <div class="form-row mb-2 col-lg-12">
                                 <label for="status">Reservation Status</label>
                                 <select name="status" class="form-control" {{isset($show) ? 'disabled':(isset($request) ? 'disabled':'required') }}>
-                                    <option>Select Status</option>
+                                    <option value="">Select Status</option>
                                     <option value="pending" @if(isset($reservation)) {{$reservation->reservation_status == 'pending' ? 'selected="selected"' : ''}} @endif>Pending Approval</option>
                                     <option value="confirmed" @if(isset($reservation)) {{$reservation->reservation_status == 'confirmed' ? 'selected="selected"' : ''}} @endif>Reservation Confirmed</option>
-                                    <option value="cancelled" @if(isset($reservation)) {{$reservation->reservation_status == 'cancelled' ? 'selected="selected"' : ''}} @endif>Reservation Cancelled</option>
+                                    @if (!isset($create))
+                                        <option value="cancelled" @if(isset($reservation)) {{$reservation->reservation_status == 'cancelled' ? 'selected="selected"' : ''}} @endif>Reservation Cancelled</option>
+                                        <option value="rejected" @if(isset($reservation)) {{$reservation->reservation_status == 'rejected' ? 'selected="selected"' : ''}} @endif>Reservation Rejected</option>
+                                    @endif
                                 </select>
                             </div>
+                            @if (isset($request) && $reservation->invoice_sent == false)
+                                <div class="form-row mb-2 col-lg-12">
+                                    <label for="hotelresponse">Hotel Response</label>
+                                    <select name="hotelresponse" class="form-control" required style="border: 1px solid red !important;">
+                                        <option value="">Select Hotel Response</option>
+                                        <option value="approve">Approve And Send Invoice To Guest</option>
+                                        <option value="reject">Reject Reservation Request</option>
+                                    </select>
+                                </div>
+                            @endif
                             @if(!isset($show))
                                 @if(isset($reservation) && (strtotime($reservation->check_in) < strtotime(date('Y-m-d'))))
                                 @else
                                     <div class="form-row mt-2 col-lg-12 pull-right">
-                                        <button class="btn btn-primary" type="submit">{{isset($request) ? 'Send Request Reply' : (isset($update) ? 'Update Reservation' : 'Save Reservation')}}</button>
+                                        <button class="btn btn-primary" type="submit">{{isset($request) ? ($reservation->invoice_sent ? 'Update Request' : 'Send Request Invoice To Guest') : (isset($update) ? 'Update Reservation' : 'Save Reservation')}}</button>
                                     </div>
                                 @endif
                             @endif

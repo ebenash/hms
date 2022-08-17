@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\HotelNotifications;
 use App\Models\Payments;
+use App\Models\PaystackInvoices;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Notification;
@@ -179,20 +180,26 @@ class CommonController extends Controller
     }
 
 
-    public function send_to_frog($recipient,$message,$type)
+    public function send_to_frog($recipients,$message,$type)
     {
+        $contacts = explode(',',$recipients);
+        $recipients = [];
+        // dd($guest);
+        foreach ($contacts as $key => $recipient) {
+            $recipients[]=[
+                'destination' => $recipient,
+                'msgid' => date('YmdHis')
+            ];
+        }
+
+
         $postdata = [
             'username' => env("FROG_USER", "username"),
             'password' => env("FROG_PASSWORD", "passsword"),
             'senderid' => env("FROG_SENDERID", "SENDER"),
             'message' => $message,
             'service' => $type,
-            'destinations' => [
-                [
-                    'destination' => $recipient,
-                    'msgid' => date('YmdHis')
-                ]
-            ]
+            'destinations' => $recipients,
         ];
         // dd($postdata);
 
@@ -243,13 +250,12 @@ class CommonController extends Controller
         // foreach ($all_users as $key => $user) {
             # code...
             // $main_company = Company::find(1);
-            Notification::route('mail', env('HOTEL_MAIN_EMAIL'))->notify(new NewRequestNotification());
             $this->send_to_frog(
-                // $user->phone,
-                env('HOTEL_MAIN_PHONE'),
-                "Hello Admin!\n\nA New Reservation Request has been submitted on ".env('APP_NAME')."!\nPlease verify and approve/reject. \n\nAutomated message from ".env('APP_NAME').".",
+                env('HOTEL_PHONES'),
+                "A New Reservation Request has been submitted on the ".env('APP_NAME')." website! Please verify and respond.",
                 'SMS'
             );
+            Notification::route('mail', env('HOTEL_MAIN_EMAIL'))->notify(new NewRequestNotification());
         // }
     }
 
@@ -377,6 +383,186 @@ class CommonController extends Controller
         return $phone;
     }
 
+    public function createNewPaystackCustomer($guest){
+        $url = "https://api.paystack.co/customer";
+
+        $guestname = explode(' ',$guest->full_name);
+        // dd($guest);
+        $fields = [
+            "email" => $guest->email,
+            "first_name" => $guestname[0],
+            "last_name" => $guestname[1],
+        ];
+        // dd(json_encode($fields));
+        $fields_string = http_build_query($fields);
+        //open connection
+        $ch = curl_init();
+
+        //set the url, number of POST vars, POST data
+        curl_setopt($ch,CURLOPT_URL, $url);
+        curl_setopt($ch,CURLOPT_POST, true);
+        curl_setopt($ch,CURLOPT_POSTFIELDS, $fields_string);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+        "Authorization: Bearer ".env('PAYSTACK_SK'),
+        "Cache-Control: no-cache",
+        ));
+
+        //So that curl_exec returns the contents of the cURL; rather than echoing it
+        curl_setopt($ch,CURLOPT_RETURNTRANSFER, true);
+        //execute post
+        $result = json_decode(curl_exec($ch));
+        $err = curl_error($ch);
+        curl_close($ch);
+
+        $this->writelog("Paystack Customer Create API Response: ".json_encode($result)."\n",1);
+        // dd($result);
+        if ($err) {
+            $this->writelog("cURL Error #:"."\n",1);
+        }
+
+        if ($result) {
+            if ($result->status) {
+                $guest->paystack_identifier = $result->data->id;
+                $guest->update();
+                return $result->data->id;
+            }
+            return false;
+        }
+        return false;
+    }
+    public function getNewPaystackCustomerCode($guest){
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => "https://api.paystack.co/customer/".$guest->email,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => "",
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 30,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => "GET",
+            CURLOPT_HTTPHEADER => array(
+                "Authorization: Bearer ".env('PAYSTACK_SK'),
+                "Cache-Control: no-cache",
+            ),
+        ));
+
+
+
+        //execute post
+        $result = json_decode(curl_exec($curl));
+        $err = curl_error($curl);
+        curl_close($curl);
+
+        $this->writelog("Paystack Customer Create API Response: ".json_encode($result)."\n",1);
+        // dd($result);
+        if ($err) {
+            $this->writelog("cURL Error #:"."\n",1);
+        }
+
+        if ($result) {
+            if ($result->status) {
+                $guest->paystack_identifier = $result->data->id;
+                $guest->update();
+                return $result->data->id;
+            }else{
+                if ($result->message = "Customer not found"){
+                    $customersaved = $this->createNewPaystackCustomer($guest);
+                    return $customersaved;
+                }
+            }
+            return false;
+        }
+        return false;
+
+    }
+
+    public function sendPayStackInvoiceApi($customer,$note, $item_description,$amount,$quantity,$tax,$due_date,$reservation_id=null){
+
+        $url = "https://api.paystack.co/paymentrequest";
+
+        $fields = [
+            'description' => $note,
+            'line_items' => [
+                [
+                    'name' => $item_description,
+                    'amount' => number_format(($amount*100),0,'.',''),
+                    "quantity"=> $quantity,
+                ]
+            ],
+            'tax' => $tax = [
+                [
+                    'name' => "VAT",
+                    'amount' => number_format((($tax ?? 0)*100),0,'.',''),
+                ]
+            ],
+            'currency' => "GHS",
+            'customer' => $customer,
+            'due_date' => $due_date,
+        ];
+        // dd(json_encode($fields));
+        $fields_string = http_build_query($fields);
+        //open connection
+        $ch = curl_init();
+
+        //set the url, number of POST vars, POST data
+        curl_setopt($ch,CURLOPT_URL, $url);
+        curl_setopt($ch,CURLOPT_POST, true);
+        curl_setopt($ch,CURLOPT_POSTFIELDS, $fields_string);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+        "Authorization: Bearer ".env('PAYSTACK_SK'),
+        "Cache-Control: no-cache",
+        ));
+
+        //So that curl_exec returns the contents of the cURL; rather than echoing it
+        curl_setopt($ch,CURLOPT_RETURNTRANSFER, true);
+
+        //execute post
+        $result = json_decode(curl_exec($ch));
+
+        $this->writelog("Paystack Invoice API Response: ".json_encode($result)."\n",1);
+        // dd($result);
+        if ($result) {
+            if ($result->status) {
+                try {
+                    DB::beginTransaction();
+                    DB::table('paystack_invoices')->insert([
+                        'currency' => $result->data->currency,
+                        'status' =>  $result->data->status,
+                        'paid' =>  $result->data->paid,
+                        'reservation_id' => $reservation_id ?? null,
+                        'amount' => $amount*100,
+                        'line_items' => json_encode($result->data->line_items),
+                        'tax' => json_encode($result->data->tax),
+                        'customer' => $customer,
+                        'due_date' => $due_date,
+                        'invoice_id' => $result->data->id,
+                        'invoice_number' => $result->data->invoice_number,
+                        'discount' => $result->data->discount,
+                        'request_code' => $result->data->request_code,
+                        'offline_reference' => $result->data->offline_reference,
+                        'metadata' => $result->data->metadata,
+                        'split_code' => $result->data->split_code,
+                        'domain' => $result->data->domain,
+                        'integration' => $result->data->integration,
+                        'created_at' => $this->todaydatetime(),
+                    ]);
+                    if($reservation_id){
+                        DB::table('reservations')->where('id',$reservation_id)->update(['invoice_sent'=> true]);
+                    }
+                    DB::commit();
+                } catch (\Exception $e) {
+                    DB::rollBack();
+                    $this->ExceptionHandler($e);
+                    return false;
+                }
+                return true;
+            }else{
+                return false;
+            }
+        }
+    }
+
     public function payStackPaymentApi(Request $request,$reservation_id){
         $reservation = Reservations::find($reservation_id);
         $roomtype = RoomTypes::find($reservation->room_type);
@@ -426,7 +612,7 @@ class CommonController extends Controller
                                 'authorization_url' => $result->data->authorization_url,
                                 'access_code' => $result->data->access_code,
                                 'reference' => $result->data->reference,
-                                'created_at' => date('Y-m-d H:i:s'),
+                                'created_at' => $this->todaydatetime(),
                             ]);
                             DB::commit();
                         } catch (\Exception $e) {
@@ -448,10 +634,69 @@ class CommonController extends Controller
         return redirect()->route('home.rooms')->with('error','There was an error redirecting to the payment page. Please try again.');
     }
 
+    public function verifyPaystackInvoicesPaid($invoice){
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => "https://api.paystack.co/paymentrequest/".$invoice->request_code,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => "",
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 30,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => "GET",
+            CURLOPT_HTTPHEADER => array(
+                "Authorization: Bearer ".env('PAYSTACK_SK'),
+                "Cache-Control: no-cache",
+            ),
+        ));
+
+
+
+        //execute post
+        $result = json_decode(curl_exec($curl));
+        $err = curl_error($curl);
+        curl_close($curl);
+
+        $this->writelog("Paystack Verify Invoice API Response: ".json_encode($result)."\n",1);
+        // dd($result);
+        if ($err) {
+            $this->writelog("cURL Error #:"."\n",1);
+        }
+
+        if ($result) {
+            if ($result->status) {
+                $invoice->status =  $result->data->status;
+                $invoice->paid =  $result->data->paid;
+                $invoice->paid_at =  $result->data->paid_at;
+                $invoice->updated_at = $this->todaydatetime();
+                $invoice->update();
+
+                if ($result->data->paid) {
+                    DB::table('reservations')->where('id',$invoice->reservation_id)->update([
+                        'reservation_status' => 'confirmed'
+                    ]);
+                }
+                return true;
+            }
+            return false;
+        }
+        return false;
+
+    }
+
     public function payStackCallback(Request $request)
     {
         //
         $this->writelog("Paystack Callback Payload: ".json_encode($request->all())."\n",1);
+
+        //Delete Later
+        $this->send_to_frog(
+            env('HOTEL_PHONES'),
+            "A New Callback Alert!",
+            'SMS'
+        );
+
         try{
             $callback_results = $this->objectify($request->all());
 
@@ -476,7 +721,7 @@ class CommonController extends Controller
                         'fees' => $callback_results->data->fees,
                         'plan' => $callback_results->data->plan,
                         'requested_amount' => $callback_results->data->requested_amount,
-                        'updated_at' => date('Y-m-d H:i:s'),
+                        'updated_at' => $this->todaydatetime(),
                     ]);
 
                     if ($callback_results->data->status == "success") {
@@ -494,6 +739,108 @@ class CommonController extends Controller
             DB::rollBack();
             $this->ExceptionHandler($e);
             return array("code" => 400, "message"=> "MESSAGE REJECTED", "result"=> []);
+        }
+    }
+
+    public function payStackWebhook(Request $request)
+    {
+        //
+        // $this->writelog("Paystack Webhook Payload: ".json_encode($request->all())."\n",1);
+        //Delete Later
+        $this->send_to_frog(
+            env('HOTEL_PHONES'),
+            "A New Webhook Alert: ".$request->event,
+            'SMS'
+        );
+        try{
+            // only a post with paystack signature header gets our attention
+
+            if ((strtoupper($_SERVER['REQUEST_METHOD']) != 'POST' ) || !array_key_exists('HTTP_X_PAYSTACK_SIGNATURE', $_SERVER) )
+
+            exit();
+
+            // Retrieve the request's body
+
+            $input = @file_get_contents("php://input");
+            $this->writelog("Paystack Webhook Payload: ".($input)."\n",1);
+
+            define('PAYSTACK_SECRET_KEY',env('PAYSTACK_SK'));
+
+            // validate event do all at once to avoid timing attack
+
+            if($_SERVER['HTTP_X_PAYSTACK_SIGNATURE'] !== hash_hmac('sha512', $input, PAYSTACK_SECRET_KEY))
+
+            exit();
+
+            http_response_code(200);
+
+            // parse event (which is json string) as object
+
+            // Do something - that will not take long - with $event
+
+            $event = json_decode($input);
+
+
+            if($event->event == "paymentrequest.success"){
+                $invoice = PaystackInvoices::where('request_code',$event->data->request_code)->first();
+                // dd($invoice);
+                if ($invoice) {
+                    $invoice->status =  $event->data->status;
+                    $invoice->paid =  $event->data->paid;
+                    $invoice->paid_at =  $event->data->paid_at;
+                    $invoice->updated_at = $this->todaydatetime();
+                    $invoice->update();
+
+                    if ($event->data->paid) {
+                        DB::table('reservations')->where('id',$invoice->reservation_id)->update([
+                            'reservation_status' => 'confirmed'
+                        ]);
+                    }
+                }
+            }
+
+            return array("code" => 200, "message"=> "MESSAGE ACCEPTED", "result"=> []);
+        }catch(\Exception $e){
+            DB::rollBack();
+            $this->ExceptionHandler($e);
+            return array("code" => 400, "message"=> "MESSAGE REJECTED", "result"=> []);
+        }
+    }
+
+    public function todaydatetime()
+    {
+        return date('Y-m-d H:i:s');
+    }
+
+
+    public function checkIfInvoicesArePaid()
+    {
+        $lastchecklog = storage_path('logs/invoicelastcheck.log');
+        // file_exists($lastchecklog);
+        if(file_exists($lastchecklog)){
+            $lastcheck = file_get_contents($lastchecklog);
+            // dd($lastcheck);
+            //5 minutes = 300
+
+            $preferred_gap = 300;
+            $time_gap = strtotime($this->todaydatetime()) - strtotime($lastcheck);
+            // dd($time_gap);
+            if ($time_gap > $preferred_gap) {
+                $runcheck = true;
+            }else{
+                $runcheck = false;
+            }
+        }else{
+            $runcheck = true;
+        }
+        // dd($runcheck);
+        if($runcheck){
+            $invoices = PaystackInvoices::where('paid',false)->where('status','pending')->whereNotNull('reservation_id')->where('due_date','>=',date("Y-m-d"))->get();
+            // dd($invoices);
+            foreach ($invoices as $key => $invoice) {
+                $this->verifyPaystackInvoicesPaid($invoice);
+            }
+            file_put_contents($lastchecklog, $this->todaydatetime());
         }
     }
 

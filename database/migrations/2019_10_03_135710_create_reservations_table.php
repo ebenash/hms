@@ -28,6 +28,7 @@ class CreateReservationsTable extends Migration
             $table->string('currency',5)->nullable();
             $table->decimal('price',15,2)->nullable();
             $table->string('payment_method',50)->nullable();
+            $table->string('invoice_sent',5)->default(false);
             $table->integer('company_id');
             $table->integer('created_by');
             $table->timestamps();

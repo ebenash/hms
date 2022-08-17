@@ -30,7 +30,7 @@ class DatabaseSeeder extends Seeder
             RoomTypes::insert([
                 [
                     'name' => 'Standard Room',
-                    'price_from' => 400,
+                    'price_from' => 650,
                     'max_persons' => 2,
                     'bed_type' => '1 Queen Bed OR 2 Twin Beds',
                     'category' => 'room',
@@ -44,7 +44,7 @@ class DatabaseSeeder extends Seeder
 
                 ],[
                     'name' => 'Standard Double Occupancy',
-                    'price_from' => 450,
+                    'price_from' => 700,
                     'max_persons' => 2,
                     'bed_type' => '2 Twin Beds',
                     'category' => 'room',
@@ -57,7 +57,7 @@ class DatabaseSeeder extends Seeder
                     'created_by' => 1,
                 ],[
                     'name' => 'Junior Deluxe Room',
-                    'price_from' => 550,
+                    'price_from' => 800,
                     'max_persons' => 2,
                     'bed_type' => '1 Queen Bed',
                     'category' => 'room',
@@ -70,7 +70,7 @@ class DatabaseSeeder extends Seeder
                     'created_by' => 1,
                 ],[
                     'name' => 'Superior Deluxe Room',
-                    'price_from' => 700,
+                    'price_from' => 1000,
                     'max_persons' => 4,
                     'bed_type' => '2 Full-sized Beds',
                     'category' => 'room',
@@ -83,7 +83,7 @@ class DatabaseSeeder extends Seeder
                     'created_by' => 1,
                 ],[
                     'name' => 'Family Unit',
-                    'price_from' => 1200,
+                    'price_from' => 1500,
                     'max_persons' => 4,
                     'bed_type' => '1 Queen Bed and 2 Twin Beds',
                     'category' => 'suite',
@@ -96,7 +96,7 @@ class DatabaseSeeder extends Seeder
                     'created_by' => 1,
                 ],[
                     'name' => 'Executive Suite',
-                    'price_from' => 1000,
+                    'price_from' => 1200,
                     'max_persons' => 2,
                     'bed_type' => '1 King Bed',
                     'category' => 'suite',

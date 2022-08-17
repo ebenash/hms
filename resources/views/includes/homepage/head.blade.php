@@ -14,7 +14,7 @@
     <meta name="description" content="Royal Elmount Hotel">
     <meta name="author" content="ebenash">
 
-    <meta name="robots" content="noindex, nofollow">
+    {{-- <meta name="robots" content="noindex, nofollow"> --}}
 
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">

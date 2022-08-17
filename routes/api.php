@@ -19,4 +19,5 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 Route::post('/reservation/callback', 'CommonController@payStackCallback')->name('api-paystack-callback');
+Route::post('/reservation/webhook', 'CommonController@payStackWebhook')->name('api-paystack-webhook');
 

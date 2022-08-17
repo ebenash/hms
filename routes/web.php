@@ -52,8 +52,10 @@ Route::prefix('admin')->group(function(){
     Route::get('/reservations/today', 'ReservationsController@today')->name('reservations-today');
     Route::get('/reservations/tomorrow', 'ReservationsController@tomorrow')->name('reservations-tomorrow');
     Route::get('/reservations/requests', 'ReservationsController@requests')->name('reservations-requests');
+    Route::get('/reservations/pending', 'ReservationsController@pending')->name('reservations-pending');
     Route::get('/reservations/confirmed', 'ReservationsController@confirmed')->name('reservations-confirmed');
     Route::get('/reservations/cancelled', 'ReservationsController@cancelled')->name('reservations-cancelled');
+    Route::get('/reservations/rejected', 'ReservationsController@rejected')->name('reservations-rejected');
     Route::post('/reservations/filter', 'ReservationsController@filter')->name('reservations-filter');
     Route::get('/reservations/create/guest/{id}', 'ReservationsController@create_with_guest')->name('reservations-create-guest');
     Route::get('/reservations/request/{id}', 'ReservationsController@view_request')->name('reservations-view-request');

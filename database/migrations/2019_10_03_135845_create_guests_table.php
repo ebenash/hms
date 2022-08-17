@@ -20,10 +20,10 @@ class CreateGuestsTable extends Migration
             $table->string('phone');
             $table->string('city');
             $table->string('country');
+            $table->integer('paystack_identifier')->nullable();
             $table->integer('company_id');
             $table->integer('created_by');
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 

@@ -35,6 +35,7 @@
                         <option value="pending" {{isset($filter) ? ($filter->reservation_status == 'pending' ? 'selected' : '') : ''}}>Pending Confirmation/Requests</option>
                         <option value="confirmed" {{isset($filter) ? ($filter->reservation_status == 'confirmed' ? 'selected' : '') : ''}}>Confirmed Reservations</option>
                         <option value="cancelled" {{isset($filter) ? ($filter->reservation_status == 'cancelled' ? 'selected' : '') : ''}}>Cancelled Reservations</option>
+                        <option value="rejected" {{isset($filter) ? ($filter->reservation_status == 'rejected' ? 'selected' : '') : ''}}>Rejected Reservations</option>
                     </select>
                 </div>
                     {{-- <select name="room_type" id="room_type" class="form-control form-control-alt mb-2 mr-sm-2 mb-sm-2 col-lg-2">
@@ -63,8 +64,8 @@
             </h3>
 
             <div class="pull-right">
-                <div style="display: inline-block;"><form method="post" action="{{route('reports-pdf')}}" target="_blank">{{ csrf_field() }} <input type="hidden" name="reservation_status" value="{{$filter->reservation_status}}"/><input type="hidden" name="daterange" value="{{$filter->daterange}}"/><button type="submit" data-toggle="tooltip" title="Export Data to PDF" class="btn btn-sm btn-danger"><i class="fa fa-file-pdf-o"></i> Export PDF </i></button></form></div>
-                <div style="display: inline-block;"><form method="post" action="{{route('reports-excel')}}" target="_blank">{{ csrf_field() }} <input type="hidden" name="reservation_status" value="{{$filter->reservation_status}}"/><input type="hidden" name="daterange" value="{{$filter->daterange}}"/><button type="submit" data-toggle="tooltip" title="Export Data to Excel" class="btn btn-sm btn-success"><i class="fa fa-file-excel-o"></i> Export Excel </i></button></form></div>
+                {{-- <div style="display: inline-block;"><form method="post" action="{{route('reports-pdf')}}" target="_blank">{{ csrf_field() }} <input type="hidden" name="reservation_status" value="{{$filter->reservation_status}}"/><input type="hidden" name="daterange" value="{{$filter->daterange}}"/><button type="submit" data-toggle="tooltip" title="Export Data to PDF" class="btn btn-sm btn-danger"><i class="fa fa-file-pdf-o"></i> Export PDF </i></button></form></div>
+                <div style="display: inline-block;"><form method="post" action="{{route('reports-excel')}}" target="_blank">{{ csrf_field() }} <input type="hidden" name="reservation_status" value="{{$filter->reservation_status}}"/><input type="hidden" name="daterange" value="{{$filter->daterange}}"/><button type="submit" data-toggle="tooltip" title="Export Data to Excel" class="btn btn-sm btn-success"><i class="fa fa-file-excel-o"></i> Export Excel </i></button></form></div> --}}
             </div>
         </div>
         <div class="block-content block-content-full">

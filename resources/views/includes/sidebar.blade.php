@@ -84,18 +84,15 @@
                             <li class="nav-main-item">
                                 <a class="nav-main-link{{ request()->is('admin/reservations/today') ? ' active' : '' }}" href="{{route('reservations-today')}}"><i class="nav-main-link-icon fa fa-calendar-check"></i><span class="nav-main-link-name">Today's Check-Ins</span></a>
                             </li>
-                        @endcan
-                        @can('view reservations')
                             <li class="nav-main-item">
                                 <a class="nav-main-link{{ request()->is('admin/reservations/confirmed') ? ' active' : '' }}" href="{{route('reservations-confirmed')}}"><i class="nav-main-link-icon fa fa-list"></i><span class="nav-main-link-name">Confirmed Reservations</span></a>
                             </li>
-                        @endcan
-                        @can('view reservations')
                             <li class="nav-main-item">
                                 <a class="nav-main-link{{ request()->is('admin/reservations/requests') ? ' active' : '' }}" href="{{route('reservations-requests')}}"><i class="nav-main-link-icon fa fa-calendar-plus"></i><span class="nav-main-link-name">Reservation Requests</span></a>
                             </li>
-                        @endcan
-                        @can('view reservations')
+                            <li class="nav-main-item">
+                                <a class="nav-main-link{{ request()->is('admin/reservations/pending') ? ' active' : '' }}" href="{{route('reservations-pending')}}"><i class="nav-main-link-icon fa fa-calendar-minus"></i><span class="nav-main-link-name">Pending Reservations</span></a>
+                            </li>
                             <li class="nav-main-item">
                                 <a class="nav-main-link{{ request()->is('admin/reservations/calendar') ? ' active' : '' }}" href="{{url('/admin/reservations/calendar')}}"><i class="nav-main-link-icon fa fa-calendar"></i><span class="nav-main-link-name">Reservations Calendar</span></a>
                             </li>

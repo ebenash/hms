@@ -7,8 +7,12 @@
             Tomorrow's Confirmed Check-Ins<small></small>
         @elseif(isset($requests))
             Requested Reservations<small></small>
+        @elseif(isset($pending))
+            Pending Reservations<small></small>
         @elseif(isset($cancelled))
             Cancelled Reservations<small></small>
+        @elseif(isset($rejected))
+            Rejected Reservations<small></small>
         @else
             Confirmed Reservations<small></small>
         @endif
@@ -34,8 +38,10 @@
                         <option value="">Select Filter Type</option>
                         <option value="today" {{isset($today) ? 'selected' : ''}}>Today's Reservations</option>
                         <option value="requests" {{isset($requests) ? 'selected' : ''}}>Reservation Requests</option>
+                        <option value="pending" {{isset($pending) ? 'selected' : ''}}>Pending Reservation</option>
                         <option value="confirmed" {{isset($confirmed) ? 'selected' : ''}}>Confirmed Reservations</option>
                         <option value="cancelled" {{isset($cancelled) ? 'selected' : ''}}>Cancelled Reservations</option>
+                        <option value="rejected" {{isset($rejected) ? 'selected' : ''}}>Rejected Reservations</option>
                     </select>
                     <input type="text" class="form-control form-control-alt mb-2 mr-sm-2 mb-sm-2 col-lg-2" name="guest" value="{{isset($filter['guest']) ? $filter['guest'] : ''}}" placeholder="Guest">
                     <select name="room" class="form-control form-control-alt mb-2 mr-sm-2 mb-sm-2 col-lg-2">
@@ -50,7 +56,7 @@
                             <option value="{{$roomtype->id}}" {{isset($filter['room_type']) ? ($filter['room_type'] == $roomtype->id ? 'selected' : '') : ''}}>{{$roomtype->name}}</option>
                         @endforeach
                     </select>
-                    <input type="text" class="js-flatpickr form-control form-control-alt mb-2 mr-sm-2 mb-sm-2 col-lg-2" id="daterange" name="daterange" value="{{isset($filter['daterange']) ? $filter['daterange'] : ''}}" placeholder="Select Date Range" data-mode="range">
+                    <input type="text" class="today-flatpickr form-control form-control-alt mb-2 mr-sm-2 mb-sm-2 col-lg-2" id="daterange" name="daterange" value="{{isset($filter['daterange']) ? $filter['daterange'] : ''}}" placeholder="Select Date Range" data-mode="range">
                      {{-- data-min-date="today"> --}}
                 </div>
             </div>
@@ -68,8 +74,12 @@
                 Tomorrow's <small>Check-Ins</small>
             @elseif(isset($requests))
                 Reservation <small>Requests</small>
-            @elseif(isset($request))
+            @elseif(isset($pending))
+                Pending <small>Reservations</small>
+            @elseif(isset($cancelled))
                 Cancelled <small>Requests</small>
+            @elseif(isset($rejected))
+                Rejected <small>Requests</small>
             @else
                 Confirmed <small>Reservations</small>
             @endif
@@ -111,7 +121,7 @@
                         <td class="hidden-sm">{{$reservation->roomname ?? 'Unassigned'}}</td>
                         <td class="hidden-sm">{{date_format(new DateTime($reservation->check_in), 'l jS F, Y')}}</td>
                         <td class="hidden-sm">{{date_format(new DateTime($reservation->check_out), 'l jS F Y')}}</td>
-                        <td class="hidden-sm">@if($reservation->reservation_status == 'confirmed') <span class="badge badge-success">Confirmed</span>  @elseif($reservation->reservation_status == 'pending') {!! strtotime($reservation->check_in) < strtotime(date('Y-m-d')) ? '<span class="badge badge-danger">Overdue</span>':'<span class="badge badge-warning">Pending</span>' !!} @else <span class="badge badge-danger">Cancelled</span> @endif</td>
+                        <td class="hidden-sm">@if($reservation->reservation_status == 'confirmed') <span class="badge badge-success">Confirmed</span>  @elseif($reservation->reservation_status == 'pending') {!! strtotime($reservation->check_in) < strtotime(date('Y-m-d')) ? '<span class="badge badge-danger">Overdue</span>':'<span class="badge badge-warning">Pending</span>' !!} @elseif($reservation->reservation_status == 'rejected') <span class="badge badge-danger">Rejected</span> @else <span class="badge badge-danger">Cancelled</span> @endif</td>
                         <td class="text-center">
                             <div class="btn-group">
                                 @php
@@ -119,7 +129,7 @@
                                     // $successurl = route('settings-tab','users');
                                 @endphp
                                 @can('view reservations')<div style="display: inline-block;"><a href="{{route('reservations-show',$reservation->id)}}" class="btn btn-sm btn-alt-primary" data-toggle="tooltip" title="View Reservation"> <i class="fa fa-eye"> </i></a></div>@endcan
-                                @can('edit reservations')<div style="display: inline-block;"><a href="{{route($reservation->reservation_status=='pending' ? 'reservations-view-request':'reservations-edit',$reservation->id)}}" class="btn btn-sm btn-primary" data-toggle="tooltip" title="{{$reservation->reservation_status=='pending' ? 'Respond To Reservation Request':'Edit Reservation'}}"> <i class="fa fa-edit"></i> </a></div>@endcan
+                                @if($reservation->reservation_status =='pending') @can('edit reservations')<div style="display: inline-block;"><a href="{{route(($reservation->reservation_status=='pending' && $reservation->created_by==0) ? 'reservations-view-request':'reservations-edit',$reservation->id)}}" class="btn btn-sm btn-primary" data-toggle="tooltip" title="{{($reservation->reservation_status=='pending' && $reservation->created_by==0) ? 'Respond To Reservation Request':'Edit Reservation'}}"> <i class="fa fa-edit"></i> </a></div>@endcan @endif
                                 @can('remove reservations')<div style="display: inline-block;"><button class="btn btn-sm btn-danger" type="button" data-toggle="tooltip" title="Remove Reservation" onclick="confimdelete('{{$deleteurl}}')"><i class="fa fa-times"> </i></button></div>@endcan
                             </div>
                         </td>
@@ -180,6 +190,7 @@
             div.innerHTML = document.getElementById('blockOfStuff').innerHTML;
             document.getElementById('DataTables_Table_0_paginate').appendChild(div);
         });
+        $('.today-flatpickr').flatpickr({ minDate: "today" })
     </script>
 
 @endsection

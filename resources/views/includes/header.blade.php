@@ -160,7 +160,7 @@
                 <div class="dropdown d-inline-block ml-2">
                     <button type="button" class="btn btn-sm btn-dual" id="page-header-notifications-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <i class="fa fa-fw fa-bell"></i>
-                        @if (count($notifications) > 0)<span class="badge badge-pill badge-danger ml-2">{{count($notifications)}}</span>@endif
+                        @if (count($notifications) > 0)<span class="badge badge-pill badge-danger ml-2">{{$notifications_count}}</span>@endif
                     </button>
                     <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right p-0 border-0 font-size-sm" aria-labelledby="page-header-notifications-dropdown">
                         <div class="p-2 bg-primary-dark text-center rounded-top">

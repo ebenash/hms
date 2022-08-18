@@ -283,7 +283,7 @@
                                 @if(isset($reservation) && (strtotime($reservation->check_in) < strtotime(date('Y-m-d'))))
                                 @else
                                     <div class="form-row mt-2 col-lg-12 pull-right">
-                                        <button class="btn btn-primary" type="submit">{{isset($request) ? ($reservation->invoice_sent ? 'Update Request' : 'Send Request Invoice To Guest') : (isset($update) ? 'Update Reservation' : 'Save Reservation')}}</button>
+                                        <button class="btn btn-primary" type="submit">{{isset($request) ? ($reservation->invoice_sent ? 'Update Request' : 'Send Request Reply') : (isset($update) ? 'Update Reservation' : 'Save Reservation')}}</button>
                                     </div>
                                 @endif
                             @endif

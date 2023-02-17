@@ -17,6 +17,12 @@
                     Company Information
                 </a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link {{isset($tab) ? ($tab == 'phones' ? 'active' : '') : 'active'}}" href="#settings-phones">
+                    <i class="fa fa-fw fa-mobile mr-1"></i>
+                    SMS Notification Phones
+                </a>
+            </li>
         @endcan
         @can('view users')
             <li class="nav-item">
@@ -99,6 +105,97 @@
                 </form>
             </div>
             <!-- END Company Information -->
+            <!-- Phones -->
+            <div class="tab-pane {{isset($tab) ? ($tab == 'phones' ? 'show active' : '') : ''}}" id="settings-phones" role="tabpanel">
+                <div class="block-header">
+                    <h3 class="block-title">SMS Notification <small>Phones</small></h3>
+
+                    <div class="pull-right mb-3">
+                        <a href="#" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#modal-view-add-phone"><i class="fa fa-plus"></i> Add New Phone</a>
+                    </div>
+
+                </div>
+                <div class="block-content block-content-full">
+                    <!-- DataTables init on table by adding .js-dataTable-full-pagination class, functionality initialized in js/pages/base_tables_datatables.js -->
+                    <table class="table table-bordered table-striped table-vcenter js-dataTable-full">
+                        <thead>
+                            <tr>
+                                <th class="hidden-xs">#</th>
+                                <th>Phone Name</th>
+                                <th class="hidden-xs">Phone Number</th>
+                                <th class="hidden-xs">Status</th>
+                                <th class="hidden-xs">Date Added</th>
+                                <th class="text-center" style="width: 10%;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @php $count=1; @endphp
+                            @foreach($all_phones as $phone)
+                            <tr>
+                                <td class="text-center">{{$count++}}</td>
+                                <td class="font-w600">{{$phone->phone_name}}</td>
+                                <td class="hidden-xs">{{$phone->phone_number}}</td>
+                                <td class="hidden-xs">@if($phone->status == 1) <span class="badge badge-success">Active</span>  @else <span class="badge badge-danger">Inactive</span> @endif</td>
+                                <td class="hidden-xs">{{date_format(new DateTime($phone->date_created), 'l jS F, Y')}}</td>
+                                <td class="text-center">
+                                    @php
+                                        $deleteurl = route('phone-destroy',$phone->id);
+                                        $successurl = route('settings-tab','phones');
+                                    @endphp
+                                    <div class="btn-group">
+                                        <div style="display: inline-block;"><a href="#" class="btn btn-sm btn-primary"  data-toggle="modal" data-target="#modal-edit{{$phone->id}}" title="Edit Phone"> <i class="fa fa-edit"></i> </a></div>
+                                        <div style="display: inline-block;"><button class="btn btn-sm btn-danger" type="button" data-toggle="tooltip" title="Remove Phone" onclick="confimdelete('{{$deleteurl}}','{{$successurl}}')"><i class="fa fa-times"> </i></button></div>
+                                    </div>
+                                </td>
+                                <div class="modal fade" id="modal-edit{{$phone->id}}" tabindex="-1" role="dialog" aria-hidden="true">
+                                    <div class="modal-dialog  modal-dialog-popout">
+                                        <div class="modal-content">
+                                            <div class="block block-themed block-transparent remove-margin-b">
+                                                <div class="block-header bg-primary-dark">
+                                                    <h3 class="block-title">Update Phone</h3>
+                                                    <div class="block-options">
+                                                        <button type="button" class="btn-block-option" data-dismiss="modal" aria-label="Close">
+                                                            <i class="si si-close"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <div class="block-content">
+                                                    <form method="post" action="{{route('phone-update',$phone->id)}}" class="form-horizontal push-10-t">
+                                                        {{ csrf_field() }}
+                                                        <div class="form-group">
+                                                            <label for="material-text2">Phone Name <span class="text-danger" style="display: inline-block;">*</span></label>
+                                                            <input type="text" name="phone_name" class="form-control" value="{{$phone->phone_name}}">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="material-text2">Phone Number <span class="text-danger" style="display: inline-block;">*</span></label>
+                                                            <input type="text" name="phone_number" class="form-control" value="{{$phone->phone_number}}">
+                                                        </div>
+
+                                                        <div class="form-group">
+                                                            <label for="material-text2">Phone Status <span class="text-danger" style="display: inline-block;">*</span></label>
+                                                            <select name="status" class="form-control">
+                                                                <option value="1" {{$phone->status == 1 ? 'selected' : ''}}>Available</option>
+                                                                <option value="0" {{$phone->status == 0 ? 'selected' : ''}}>Inactive</option>
+                                                            </select>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button class="btn btn-lg btn-alt-primary" type="button" data-dismiss="modal">Close</button>
+                                                            <button class="btn btn-lg btn-primary" type="submit"><i class="fa fa-calendar-check-o"></i> Submit</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </tr>
+                            @endforeach
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- END Phones -->
         @endcan
         @can('view users')
             <!-- Users -->
@@ -142,7 +239,13 @@
                                         $successurl = route('settings-tab','users');
                                     @endphp
                                     <div class="btn-group">
-                                        @can('edit users')<div style="display: inline-block;"><a href="#" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#modal-update-user{{$user->id}}" title="View User"> <i class="fa fa-edit"> </i></a></div>@endcan
+                                        @can('edit users')
+                                            @if($user->hasRole('administrator') && auth()->user()->hasRole('administrator'))
+                                                <div style="display: inline-block;"><a href="#" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#modal-update-user{{$user->id}}" title="Update User"> <i class="fa fa-edit"> </i></a></div>
+                                            @elseif(!$user->hasRole('administrator'))
+                                                <div style="display: inline-block;"><a href="#" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#modal-update-user{{$user->id}}" title="Update User"> <i class="fa fa-edit"> </i></a></div>
+                                            @endif
+                                        @endcan
                                         @can('remove users')<div style="display: inline-block;"><button class="btn btn-sm btn-danger" type="button" data-toggle="tooltip" title="Remove User" onclick="confimdelete('{{$deleteurl}}','{{$successurl}}')"><i class="fa fa-times"> </i></button></div>@endcan
                                     </div>
                                 </td>
@@ -342,6 +445,51 @@
 
     </div>
 </div>
+
+@can('edit company')
+    <div class="modal fade" id="modal-view-add-phone" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog  modal-dialog-popout">
+            <div class="modal-content">
+                <div class="block block-themed block-transparent mb-0">
+                    <div class="block-header bg-primary-dark">
+                        <h3 class="block-title">Add Phone Info</h3>
+                        <div class="block-options">
+                            <button type="button" class="btn-block-option" data-dismiss="modal" aria-label="Close">
+                                <i class="si si-close"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="block-content block-content-narrow">
+                        <form method="post" action="{{route('phone-store')}}" class="form-horizontal push-10-t">
+                            {{ csrf_field() }}
+                            <div class="form-group">
+                                <label for="material-text2">Phone Name <span class="text-danger" style="display: inline-block;">*</span></label>
+                                <input type="text" name="phone_name" class="form-control">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="material-text2">Phone Number <span class="text-danger" style="display: inline-block;">*</span></label>
+                                <input type="text" name="phone_number" class="form-control">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="material-text2">Phone Status <span class="text-danger" style="display: inline-block;">*</span></label>
+                                <select name="status" class="form-control">
+                                    <option value="1">Available</option>
+                                    <option value="0">Inactive</option>
+                                </select>
+                            </div>
+                            <div class="modal-footer">
+                                <button class="btn btn-lg btn-alt-primary" type="button" data-dismiss="modal">Close</button>
+                                <button class="btn btn-lg btn-primary" type="submit"><i class="fa fa-calendar-check-o"></i> Submit</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+@endcan
 
 @can('add users')
     <div class="modal fade" id="modal-view-add-user" tabindex="-1" role="dialog" aria-hidden="true">

@@ -407,7 +407,7 @@
         });
 
         const infowindow = new google.maps.InfoWindow({
-            content: "Royal Elount Hotel",
+            content: "Royal Elmount Hotel",
         });
         // Map Markers
         var mapMarkers = {

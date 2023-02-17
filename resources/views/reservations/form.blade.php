@@ -55,7 +55,7 @@
                             </div>
                             <div class="form-row col-lg-12 mb-3">
                                 <label for="room">Room</label>
-                                <select class="js-select2 form-control" data-placeholder="Select Room Type First" name="{{isset($create) ? 'room[]': 'room' }}" id="room" {{isset($create) ? 'multiple required': (isset($show) ? 'disabled': (strtotime($reservation->check_in) >= strtotime(date('Y-m-d')) ? 'required':'disabled')) }} style="{{(isset($request) ? "border: 1px solid red !important;":'')}}">
+                                <select class="js-select2 form-control" data-placeholder="Select Room Type First" name="{{isset($create) ? 'room[]': 'room' }}" id="room" {{isset($create) ? 'multiple required': (isset($show) ? 'disabled': (strtotime($reservation->check_in) >= strtotime(date('Y-m-d', strtotime('-5 days'))) ? 'required':'disabled')) }} style="{{(isset($request) ? "border: 1px solid red !important;":'')}}">
 
                                     @if(isset($create))
                                     @elseif(isset($request))
@@ -175,11 +175,11 @@
                         <div class="block-content block-content-full flex-grow-1 d-flex align-items-center row">
                             <div class="form-row mb-2 col-lg-12">
                                 <label for="check_in">Check In Date</label>
-                                <input type="text" class="js-flatpickr form-control {{isset($show) ? '':(isset($request) ? '':'bg-white') }}" id="check_in" name="check_in" placeholder="Choose check-in date.." {{isset($show) ? 'disabled':(isset($request) ? 'disabled':'required') }} data-min-date="today" value="{{isset($reservation) ? date_format(date_create($reservation->check_in),'Y-m-d') : ''}}">
+                                <input type="text" class="review-old-flatpickr form-control {{isset($show) ? '':(isset($request) ? '':'bg-white') }}" id="check_in" name="check_in" placeholder="Choose check-in date.." {{isset($show) ? 'disabled':(isset($request) ? 'disabled':'required') }} data-min-date="today" value="{{isset($reservation) ? date_format(date_create($reservation->check_in),'Y-m-d') : ''}}">
                             </div>
                             <div class="form-row mb-2 col-lg-12">
                                 <label for="check_out">Check Out Date</label>
-                                <input type="text" class="js-flatpickr form-control {{isset($show) ? '':(isset($request) ? '':'bg-white') }}" id="check_out" name="check_out" placeholder="Choose check-out date.." {{isset($show) ? 'disabled':(isset($request) ? 'disabled':'required') }} data-min-date="today" value="{{isset($reservation) ? date_format(date_create($reservation->check_out),'Y-m-d') : ''}}">
+                                <input type="text" class="review-old-flatpickr form-control {{isset($show) ? '':(isset($request) ? '':'bg-white') }}" id="check_out" name="check_out" placeholder="Choose check-out date.." {{isset($show) ? 'disabled':(isset($request) ? 'disabled':'required') }} data-min-date="today" value="{{isset($reservation) ? date_format(date_create($reservation->check_out),'Y-m-d') : ''}}">
                             </div>
                             <div class="form-row mb-2 col-lg-12">
                                 <label for="adults">Adults</label>
@@ -248,7 +248,7 @@
 
                             <div class="form-row mb-2 col-lg-12">
                                 <label for="payment_type">Payment Method</label>
-                                <select name="payment_type" class="form-control" {{isset($show) ? 'disabled':(isset($request) ? 'disabled':'required') }}>
+                                <select name="payment_type" id="payment_type" class="form-control" {{isset($show) ? 'disabled':(isset($request) ? 'disabled':'required') }} onchange="restrictIfPaystack()">
                                     <option value="">Select Payment Method</option>
                                     <option value="paystack" @if(isset($reservation)) {{$reservation->payment_method == 'paystack' ? 'selected="selected"' : ''}} @endif>Send Paystack Invoice</option>
                                     <option value="cash" @if(isset($reservation)) {{$reservation->payment_method == 'cash' ? 'selected="selected"' : ''}} @endif>Cash Payment</option>
@@ -259,7 +259,7 @@
                             </div>
                             <div class="form-row mb-2 col-lg-12">
                                 <label for="status">Reservation Status</label>
-                                <select name="status" class="form-control" {{isset($show) ? 'disabled':(isset($request) ? 'disabled':'required') }}>
+                                <select name="status" id="status" class="form-control" {{isset($show) ? 'disabled':(isset($request) ? 'disabled':'required') }}>
                                     <option value="">Select Status</option>
                                     <option value="pending" @if(isset($reservation)) {{$reservation->reservation_status == 'pending' ? 'selected="selected"' : ''}} @endif>Pending Approval</option>
                                     <option value="confirmed" @if(isset($reservation)) {{$reservation->reservation_status == 'confirmed' ? 'selected="selected"' : ''}} @endif>Reservation Confirmed</option>
@@ -280,7 +280,7 @@
                                 </div>
                             @endif
                             @if(!isset($show))
-                                @if(isset($reservation) && (strtotime($reservation->check_in) < strtotime(date('Y-m-d'))))
+                                @if(isset($reservation) && (strtotime($reservation->check_in) < strtotime(date('Y-m-d', strtotime('-5 days')))))
                                 @else
                                     <div class="form-row mt-2 col-lg-12 pull-right">
                                         <button class="btn btn-primary" type="submit">{{isset($request) ? ($reservation->invoice_sent ? 'Update Request' : 'Send Request Reply') : (isset($update) ? 'Update Reservation' : 'Save Reservation')}}</button>
@@ -328,9 +328,29 @@
     <script>jQuery(function(){One.helpers(['flatpickr', 'datepicker', 'select2']);});</script>
 
 
-
+    @if(isset($reservation) && $reservation->reservation_status == 'confirmed')
+        <script>
+             console.log("Confirmed");
+        </script>
+    @else
+        <script>
+            console.log("Not Confirmed");
+        $(function () {
+            restrictIfPaystack();
+        });
+    </script>
+    @endif
     <script>
-        // getRooms();
+        function restrictIfPaystack() {
+            var paymenttype = $("#payment_type").val();
+            console.log(paymenttype);
+            if (paymenttype == 'paystack') {
+                $("#status").val("pending").attr('readonly','readonly').attr("style", "pointer-events: none;").attr("tabindex","-1");
+            }else{
+                $("#status").removeAttr('readonly','readonly').removeAttr("style", "pointer-events: none;").removeAttr("tabindex","-1");
+            }
+        }
+
         $("#price_per_day").keyup(function () {
             var price = $(this).val();
             var date1 = new Date($("#check_in").val());
@@ -346,6 +366,10 @@
             $('#total_price').val(price * daydiff);
 
         });
+
+        var today = new Date();
+
+        $('.review-old-flatpickr').flatpickr({ minDate: (today.setDate(today.getDate()-5)) })
 
 
         function getRooms() {

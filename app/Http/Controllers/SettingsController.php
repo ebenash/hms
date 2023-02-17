@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Company;
 use App\Models\Settings;
+use App\Models\HotelNotificationPhones;
 use Illuminate\Auth\Access\Gate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -12,6 +13,12 @@ use Illuminate\Support\Facades\Session;
 
 class SettingsController extends Controller
 {
+
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -22,6 +29,7 @@ class SettingsController extends Controller
         //
         $data = [
             'all_users'=> User::where('company_id',auth()->user()->company->id)->get(),
+            'all_phones'=> HotelNotificationPhones::where('company_id',auth()->user()->company->id)->get(),
             'roles'=> DB::table('roles')->select('name')->get()
         ];
 

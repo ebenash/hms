@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use DateTime;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -11,14 +12,17 @@ class NewRequestNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
+    private $reservation;
+
     /**
      * Create a new notification instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct($reservation)
     {
         //
+        $this->reservation = $reservation;
     }
 
     /**
@@ -43,7 +47,13 @@ class NewRequestNotification extends Notification implements ShouldQueue
         return (new MailMessage)
                     ->subject('New Reservation Request Submitted.')
                     ->greeting('Hello Admin!')
-                    ->line("A New Reservation Request has been submitted on ".env('APP_NAME')."!")
+                    ->line("A New Reservation Request has been submitted on ".env('APP_NAME')."! Please find details below.")
+                    ->line(" ")
+                    ->line("Guest Name: ".$this->reservation->guest->full_name)
+                    ->line("Requested Room Type: ".$this->reservation->roomtype->name)
+                    ->line("Check-In: ".date_format(new DateTime($this->reservation->check_in), 'l jS F, Y'))
+                    ->line("Check-Out: ".date_format(new DateTime($this->reservation->check_out), 'l jS F, Y'))
+                    ->line(" ")
                     ->line('Please verify and approve/reject. ')
                     ->line("Automated message from ".env('APP_NAME').".");
     }

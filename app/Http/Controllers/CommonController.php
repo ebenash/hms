@@ -8,11 +8,12 @@ use App\Models\Guests;
 use App\Models\Rooms;
 use App\Models\RoomTypes;
 use App\Models\Reservations;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use App\Models\HotelNotifications;
 use App\Models\Payments;
 use App\Models\PaystackInvoices;
+use App\Models\HotelNotificationPhones;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Notification;
@@ -180,14 +181,13 @@ class CommonController extends Controller
     }
 
 
-    public function send_to_frog($recipients,$message,$type)
+    public function send_to_frog($contacts,$message,$type)
     {
-        $contacts = explode(',',$recipients);
         $recipients = [];
-        // dd($guest);
+        // dd($contacts);
         foreach ($contacts as $key => $recipient) {
             $recipients[]=[
-                'destination' => $recipient,
+                'destination' => $recipient->phone_number,
                 'msgid' => date('YmdHis')
             ];
         }
@@ -227,6 +227,12 @@ class CommonController extends Controller
             curl_close($curl);
 
             $response = json_decode($response);
+            $this->writelog("FROG Send API Response: ".json_encode($response)."\n",1);
+            // dd($result);
+            if ($err) {
+                $this->writelog("cURL Error #:"."\n",1);
+            }
+
             if(!$err || $err=="") {
                 if($response->status == 'ACCEPTED'){
                     return true;
@@ -244,18 +250,21 @@ class CommonController extends Controller
         return substr(str_shuffle($chars),0,$length);
     }
 
-    public function send_admin_notification() {
+    public function send_admin_notification($reservation_id) {
         // $all_users= User::where('company_id',Company::find(1)->id)->get();
 
         // foreach ($all_users as $key => $user) {
             # code...
-            // $main_company = Company::find(1);
-            $this->send_to_frog(
-                env('HOTEL_PHONES'),
-                "A New Reservation Request has been submitted on the ".env('APP_NAME')." website! Please verify and respond.",
-                'SMS'
-            );
-            Notification::route('mail', env('HOTEL_MAIN_EMAIL'))->notify(new NewRequestNotification());
+            $reservation = Reservations::where('id',$reservation_id)->with(['guest','roomtype'])->first();
+            // dd($reservation);
+            $hotel_phones = HotelNotificationPhones::select('phone_number')->where('status',1)->get();
+
+            // $this->send_to_frog(
+            //     $hotel_phones,
+            //     "A New Reservation Request has been submitted on the ".env('APP_NAME')." website! Please verify and respond.",
+            //     'SMS'
+            // );
+            Notification::route('mail', env('HOTEL_MAIN_EMAIL'))->notify(new NewRequestNotification($reservation));
         // }
     }
 
@@ -690,13 +699,6 @@ class CommonController extends Controller
         //
         $this->writelog("Paystack Callback Payload: ".json_encode($request->all())."\n",1);
 
-        //Delete Later
-        $this->send_to_frog(
-            env('HOTEL_PHONES'),
-            "A New Callback Alert!",
-            'SMS'
-        );
-
         try{
             $callback_results = $this->objectify($request->all());
 
@@ -744,14 +746,7 @@ class CommonController extends Controller
 
     public function payStackWebhook(Request $request)
     {
-        //
-        // $this->writelog("Paystack Webhook Payload: ".json_encode($request->all())."\n",1);
-        //Delete Later
-        $this->send_to_frog(
-            env('HOTEL_PHONES'),
-            "A New Webhook Alert: ".$request->event,
-            'SMS'
-        );
+
         try{
             // only a post with paystack signature header gets our attention
 
@@ -797,6 +792,23 @@ class CommonController extends Controller
                         ]);
                     }
                 }
+                $smstext = "A Payment has been made for Invoice #".($event->data->invoice_number ?? "Undefined")." on Paystack. Invoice Amount: GHS ".(($event->data->amount ?? 0)/100).".";
+            }else if($event->event == "charge.success"){
+                $smstext = "A new payment has been made on Paystack. reference:".($event->data->reference ?? "Undefined").". Amount Paid: GHS ".(($event->data->amount ?? 0)/100).". Paid By: ".($event->data->customer->first_name ?? "Undefined")." ".($event->data->customer->last_name ?? "Undefined")." at ".($event->data->paid_at ?? "Undefined").".";
+            }else if($event->event == "paymentrequest.pending"){
+                $smstext = "New Invoice #".($event->data->invoice_number ?? "Undefined")." has been submitted to a customer and is pending payment.";
+            }else{
+                $smstext = null;
+            }
+
+            $hotel_phones = HotelNotificationPhones::select('phone_number')->where('status',1)->get();
+
+            if($smstext){
+                $this->send_to_frog(
+                    $hotel_phones,
+                    $smstext,
+                    'SMS'
+                );
             }
 
             return array("code" => 200, "message"=> "MESSAGE ACCEPTED", "result"=> []);

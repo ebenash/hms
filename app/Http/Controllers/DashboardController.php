@@ -29,7 +29,7 @@ class DashboardController extends CommonController
     public function index()
     {
         //Quickly Check If Invoices Have Been Paid
-        // $this->checkIfInvoicesArePaid();
+        // dd($this->send_admin_notification(70));
 
         // $recent_reservations = Reservations::where('reservation_status','confirmed')->where('company_id',Auth::user()->company->id)->orderBy('created_at','desc')->limit(16)->get();
         // $sevenday = Reservations::where('reservation_status','confirmed')->orderBy('created_at','desc')->where('company_id',Auth::user()->company->id)->where('created_at', '>', date('Y-m-d 00:00:00',strtotime('-7 days')))->get();

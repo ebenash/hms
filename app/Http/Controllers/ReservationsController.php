@@ -66,7 +66,7 @@ class ReservationsController extends CommonController
     public function confirmed(Request $request)
     {
         //
-        $reservations = DB::table('reservations')->join('guests','reservations.guest_id','=','guests.id')->join('rooms','reservations.room_id','=','rooms.id','left')->select('reservations.*','guests.full_name','rooms.name as roomname')->where('reservations.check_in','>',date("Y-m-d"))->where('reservations.company_id',auth()->user()->company->id)->where('reservations.reservation_status','confirmed');
+        $reservations = DB::table('reservations')->join('guests','reservations.guest_id','=','guests.id')->join('rooms','reservations.room_id','=','rooms.id','left')->select('reservations.*','guests.full_name','rooms.name as roomname')->where('reservations.check_in','>=',date("Y-m-d"))->where('reservations.company_id',auth()->user()->company->id)->where('reservations.reservation_status','confirmed');
         $response = $request->all();
         // dd($response);
         if(isset($response['guest'])){
@@ -144,7 +144,7 @@ class ReservationsController extends CommonController
     public function requests(Request $request)
     {
         //
-        $reservations = DB::table('reservations')->join('guests','reservations.guest_id','=','guests.id')->join('rooms','reservations.room_id','=','rooms.id','left')->select('reservations.*','guests.full_name','rooms.name as roomname')->where('reservations.check_in','>',date("Y-m-d"))->where('reservations.company_id',auth()->user()->company->id)->where('reservations.reservation_status','pending')->where('reservations.created_by',0);
+        $reservations = DB::table('reservations')->join('guests','reservations.guest_id','=','guests.id')->join('rooms','reservations.room_id','=','rooms.id','left')->select('reservations.*','guests.full_name','rooms.name as roomname')->where('reservations.check_in','>=',date("Y-m-d"))->where('reservations.company_id',auth()->user()->company->id)->where('reservations.reservation_status','pending')->where('reservations.created_by',0);
         $response = $request->all();
         // dd($response);
         if(isset($response['guest'])){
@@ -183,7 +183,7 @@ class ReservationsController extends CommonController
     public function pending(Request $request)
     {
         //
-        $reservations = DB::table('reservations')->join('guests','reservations.guest_id','=','guests.id')->join('rooms','reservations.room_id','=','rooms.id','left')->select('reservations.*','guests.full_name','rooms.name as roomname')->where('reservations.check_in','>',date("Y-m-d"))->where('reservations.company_id',auth()->user()->company->id)->where('reservations.reservation_status','pending');
+        $reservations = DB::table('reservations')->join('guests','reservations.guest_id','=','guests.id')->join('rooms','reservations.room_id','=','rooms.id','left')->select('reservations.*','guests.full_name','rooms.name as roomname')->where('reservations.check_in','>=',date("Y-m-d", strtotime('-5 days')))->where('reservations.company_id',auth()->user()->company->id)->where('reservations.reservation_status','pending');
         $response = $request->all();
         // dd($response);
         if(isset($response['guest'])){
@@ -222,7 +222,7 @@ class ReservationsController extends CommonController
     public function cancelled(Request $request)
     {
         //
-        $reservations = DB::table('reservations')->join('guests','reservations.guest_id','=','guests.id')->join('rooms','reservations.room_id','=','rooms.id','left')->select('reservations.*','guests.full_name','rooms.name as roomname')->where('reservations.check_in','>',date("Y-m-d"))->where('reservations.company_id',auth()->user()->company->id)->where('reservations.reservation_status','cancelled');
+        $reservations = DB::table('reservations')->join('guests','reservations.guest_id','=','guests.id')->join('rooms','reservations.room_id','=','rooms.id','left')->select('reservations.*','guests.full_name','rooms.name as roomname')->where('reservations.check_in','>=',date("Y-m-d"))->where('reservations.company_id',auth()->user()->company->id)->where('reservations.reservation_status','cancelled');
         $response = $request->all();
         // dd($response);
         if(isset($response['guest'])){
@@ -261,7 +261,7 @@ class ReservationsController extends CommonController
     public function rejected(Request $request)
     {
         //
-        $reservations = DB::table('reservations')->join('guests','reservations.guest_id','=','guests.id')->join('rooms','reservations.room_id','=','rooms.id','left')->select('reservations.*','guests.full_name','rooms.name as roomname')->where('reservations.check_in','>',date("Y-m-d"))->where('reservations.company_id',auth()->user()->company->id)->where('reservations.reservation_status','rejected');
+        $reservations = DB::table('reservations')->join('guests','reservations.guest_id','=','guests.id')->join('rooms','reservations.room_id','=','rooms.id','left')->select('reservations.*','guests.full_name','rooms.name as roomname')->where('reservations.check_in','>=',date("Y-m-d"))->where('reservations.company_id',auth()->user()->company->id)->where('reservations.reservation_status','rejected');
         $response = $request->all();
         // dd($response);
         if(isset($response['guest'])){
@@ -470,12 +470,13 @@ class ReservationsController extends CommonController
                     $reservation =[
                         'room_id' => $room,
                         // 'discount' => $request->input('discount'),
-                        // 'currency' => $request->input('currency'),
+                        'currency' => $request->input('currency'),
                         'price' => $price
                     ];
                     DB::beginTransaction();
                     DB::table('reservations')->where('id',$id)->update($reservation);
                     DB::commit();
+                    $resrequest = Reservations::find($id);
                     if(!$resrequest->invoice_sent){
                         $feedbacksent = $this->send_feedback_to_guest($resrequest,'invoice');
                     }else{
@@ -603,13 +604,19 @@ class ReservationsController extends CommonController
     public function update(Request $request, $id)
     {
         //
+        // dd($request->all());
         $request->validate([
             'room' => 'required',
-            'guest' => 'required',
+            'room_type' => 'required',
+            'guest_id' => 'required',
             'check_in' => 'required|date',
             'check_out' => 'required|date|after:check_in',
             'adults' => 'required',
-            'children' => 'required'
+            'children' => 'required',
+            'currency' => 'required',
+            'price' => 'required',
+            'payment_type' => 'required',
+            'status' => 'required',
         ]);
 
         $check_in = date_format(date_create($request->input('check_in')),"Y/m/d H:i:s");
@@ -617,7 +624,7 @@ class ReservationsController extends CommonController
 
         $reservation = Reservations::find($id);
         $room = Rooms::find($request->input('room'));
-        $roombooked= $room->reservations->where('check_in', '<', $check_out)->where('check_out', '>=', $check_in)->first();
+        $roombooked= Reservations::where('room_id', $room)->where('check_in', '<', $check_out)->where('check_out', '>=', $check_in)->where('reservation_status', 'confirmed')->first();
         $same = false;
 
         if($roombooked){
@@ -626,26 +633,27 @@ class ReservationsController extends CommonController
             $same = true;
         }
         if(!$same){
-            return redirect('/reservations/'.$id.'/edit')->with('error','Selected Room Already Booked On Specified Dates');
-         }else{
+            return back()->with('error','Selected Room Already Booked On Specified Dates');
+        }else{
             $days = date_diff(date_create($check_in),date_create($check_out))->format("%a");
 
-            $price = ($room->price - ($room->price*($request->input('discount')/100)))*$days;
-
             $reservation->room_id = $request->input('room');
-            $reservation->guest_id = $request->input('guest');
+            $reservation->room_type = $request->input('room_type');
+            $reservation->guest_id = $request->input('guest_id');
             $reservation->check_in = $check_in;
             $reservation->check_out = $check_out;
             $reservation->days = $days;
             $reservation->adults = $request->input('adults');
             $reservation->children = $request->input('children');
             $reservation->reservation_status = $request->input('status');
-            $reservation->discount = $request->input('discount');
+            // $reservation->discount = $request->input('discount');
             $reservation->currency = $request->input('currency');
-            $reservation->price = $price;
+            $reservation->payment_method = $request->input('payment_type');
+            $reservation->price = $request->input('price');
 
             $reservation->update();
-            return redirect('/reservations')->with('success','Reservation Record Updated Successfully');
+
+            return back()->with('success','Reservation Record Updated Successfully');
         }
     }
 
@@ -700,7 +708,7 @@ class ReservationsController extends CommonController
         try {
             if($type == 'invoice'){
                 $note = "Thank you for considering ".$reservation->company->name." for your hospitality needs. We are happy to report that the requested room is available for the dates specified (i.e. ".date_format(new DateTime($reservation->check_in), 'jS F Y').' - '.date_format(new DateTime($reservation->check_out), 'jS F Y')."). Please find details below and click on the Pay Now button to confirm your reservation.";
-                $item = date_format(new DateTime($reservation->check_in), 'jS F Y').' - '.date_format(new DateTime($reservation->check_out), 'jS F Y').": Accommodation in ".$reservation->roomtype->name." for  ".$reservation->days."day.";
+                $item = date_format(new DateTime($reservation->check_in), 'jS F Y').' - '.date_format(new DateTime($reservation->check_out), 'jS F Y').": Accommodation in ".$reservation->roomtype->name." for ".$reservation->days." day(s).";
                 if ($reservation->guest->paystack_identifier) {
                     $customer = $reservation->guest->paystack_identifier;
                 }else{
@@ -816,7 +824,7 @@ class ReservationsController extends CommonController
 
         try{
             $this->hotel_notification( "New Reservation From ".$request->input('bookNowFullName'), 'success', route('reservations-view-request',$reservation_id) );
-            $this->send_admin_notification();
+            $this->send_admin_notification($reservation_id);
         }catch(\Exception $e){
             $this->ExceptionHandler($e);
         }

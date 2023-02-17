@@ -80,6 +80,13 @@ Route::prefix('admin')->group(function(){
     Route::post('/user/update/{id}', 'Auth\UserController@update')->name('user-update');
     Route::post('/notifications/read/{id}', 'CommonController@handle_notification')->name('handle-notification');
     Route::post('/search', 'CommonController@global_search')->name('global-search');
+    Route::post('/hotel-phones/store', 'HotelNotificationPhonesController@store')->name('phone-store');
+    Route::post('/hotel-phones/update/{id}', 'HotelNotificationPhonesController@update')->name('phone-update');
+    Route::resource('hotel-phones','HotelNotificationPhonesController', [
+        'names' => [
+            'destroy' => 'phone-destroy',
+        ]
+    ]);
     Route::resource('guests','GuestsController', [
         'names' => [
             'index' => 'guests',

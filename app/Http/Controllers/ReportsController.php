@@ -106,19 +106,19 @@ class ReportsController extends CommonController
             }
         }else if($request->input('filter_type') == 3){
             $title = "Rooms";
-            $exportArray[] = ['id','room_name','roomtype','price','max_persons','status','created_at','created_by'];
+            $exportArray[] = ['id','room_name','roomtype','grand_total','max_persons','status','created_at','created_by'];
             $all_data = Rooms::where('created_at', '<=', $end_date)->where('created_at', '>=', $start_date)->where('company_id',auth()->user()->company->id)->get();
 
             foreach($all_data as $data){
-                $exportArray[] = [$data->id,$data->name,$data->roomtype->name,$data->price,$data->max_persons,$data->status,date_format(date_create($data->created_at), 'jS F, Y'),$data->user['name']];
+                $exportArray[] = [$data->id,$data->name,$data->roomtype->name,$data->grand_total,$data->max_persons,$data->status,date_format(date_create($data->created_at), 'jS F, Y'),$data->user['name']];
             }
         }else if($request->input('filter_type') == 4){
             $title = "SalesRevenue";
-            $exportArray[] = ['id','guest_name','room_name','roomtype','check_in','check_out','reservation_status','days','room_price','discount','total_amount','created_at','created_by'];
+            $exportArray[] = ['id','guest_name','room_name','roomtype','check_in','check_out','reservation_status','days','room_grand_total','discount','total_amount','created_at','created_by'];
             $all_data = Reservations::where('created_at', '<=', $end_date)->where('created_at', '>=', $start_date)->where('company_id',auth()->user()->company->id)->get();
 
             foreach($all_data as $data){
-                $exportArray[] = [$data->id,$data->guest->first_name.' '.$data->guest->last_name, $data->room->name,$data->room->roomtype->name,date_format(date_create($data->check_in), 'jS F, Y'),date_format(date_create($data->check_out), 'jS F, Y'),$data->reservation_status,date_diff(date_create($data->check_in),date_create($data->check_out))->format("%a"),$data->room->price,$data->discount.'%',$data->price,date_format(date_create($data->created_at), 'jS F, Y'),$data->user['name']];
+                $exportArray[] = [$data->id,$data->guest->first_name.' '.$data->guest->last_name, $data->room->name,$data->room->roomtype->name,date_format(date_create($data->check_in), 'jS F, Y'),date_format(date_create($data->check_out), 'jS F, Y'),$data->reservation_status,date_diff(date_create($data->check_in),date_create($data->check_out))->format("%a"),$data->room->grand_total,$data->discount.'%',$data->grand_total,date_format(date_create($data->created_at), 'jS F, Y'),$data->user['name']];
             }
         }
         //die(print_r($exportArray));

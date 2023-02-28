@@ -78,6 +78,36 @@
                 </div>
                 <div>
                     <span class="img-thumbnail d-block">
+                        <img alt="" src="{{asset('homepage/assets/img/reh/IMG_3933.jpeg')}}" class="img-fluid">
+                    </span>
+                </div>
+                <div>
+                    <span class="img-thumbnail d-block">
+                        <img alt="" src="{{asset('homepage/assets/img/reh/IMG_3928.jpeg')}}" class="img-fluid">
+                    </span>
+                </div>
+                <div>
+                    <span class="img-thumbnail d-block">
+                        <img alt="" src="{{asset('homepage/assets/img/reh/IMG_3936.jpeg')}}" class="img-fluid">
+                    </span>
+                </div>
+                <div>
+                    <span class="img-thumbnail d-block">
+                        <img alt="" src="{{asset('homepage/assets/img/reh/IMG_3939.jpeg')}}" class="img-fluid">
+                    </span>
+                </div>
+                <div>
+                    <span class="img-thumbnail d-block">
+                        <img alt="" src="{{asset('homepage/assets/img/reh/IMG_3944.jpeg')}}" class="img-fluid">
+                    </span>
+                </div>
+                <div>
+                    <span class="img-thumbnail d-block">
+                        <img alt="" src="{{asset('homepage/assets/img/reh/IMG_3943.jpeg')}}" class="img-fluid">
+                    </span>
+                </div>
+                <div>
+                    <span class="img-thumbnail d-block">
                         <img alt="" src="{{asset('homepage/assets/img/reh/MG_8217.jpg')}}" class="img-fluid">
                     </span>
                 </div>
@@ -406,6 +436,36 @@
                 <div>
                     <span class="img-thumbnail d-block cur-pointer">
                         <img alt="" src="{{asset('homepage/assets/img/reh/MG_8196.jpg')}}">
+                    </span>
+                </div>
+                <div>
+                    <span class="img-thumbnail d-block cur-pointer">
+                        <img alt="" src="{{asset('homepage/assets/img/reh/IMG_3933.jpeg')}}">
+                    </span>
+                </div>
+                <div>
+                    <span class="img-thumbnail d-block cur-pointer">
+                        <img alt="" src="{{asset('homepage/assets/img/reh/IMG_3928.jpeg')}}">
+                    </span>
+                </div>
+                <div>
+                    <span class="img-thumbnail d-block cur-pointer">
+                        <img alt="" src="{{asset('homepage/assets/img/reh/IMG_3936.jpeg')}}">
+                    </span>
+                </div>
+                <div>
+                    <span class="img-thumbnail d-block cur-pointer">
+                        <img alt="" src="{{asset('homepage/assets/img/reh/IMG_3939.jpeg')}}">
+                    </span>
+                </div>
+                <div>
+                    <span class="img-thumbnail d-block cur-pointer">
+                        <img alt="" src="{{asset('homepage/assets/img/reh/IMG_3944.jpeg')}}">
+                    </span>
+                </div>
+                <div>
+                    <span class="img-thumbnail d-block cur-pointer">
+                        <img alt="" src="{{asset('homepage/assets/img/reh/IMG_3943.jpeg')}}">
                     </span>
                 </div>
                 <div>
@@ -839,6 +899,78 @@
                     <div class="thumb-info">
                         <div class="thumb-info-wrapper size-2 m-0">
                             <span class="thumb-info-background" style="background-image: url('homepage/assets/img/reh/MG_8196.jpg');"></span>
+                            <span class="thumb-info-plus"></span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </li>
+        <li class="col-md-8 col-lg-8 isotope-item p-0">
+            <div class="portfolio-grid-item">
+                <a href="#photographyLightbox" class="text-decoration-none popup-with-move-anim">
+                    <div class="thumb-info">
+                        <div class="thumb-info-wrapper size-1 m-0">
+                            <span class="thumb-info-background" style="background-image: url('homepage/assets/img/reh/IMG_3933.jpeg');"></span>
+                            <span class="thumb-info-plus"></span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </li>
+        <li class="col-md-4 col-lg-4 isotope-item p-0">
+            <div class="portfolio-grid-item">
+                <a href="#photographyLightbox" class="text-decoration-none popup-with-move-anim">
+                    <div class="thumb-info">
+                        <div class="thumb-info-wrapper size-2 m-0">
+                            <span class="thumb-info-background" style="background-image: url('homepage/assets/img/reh/IMG_3928.jpeg');"></span>
+                            <span class="thumb-info-plus"></span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </li>
+        <li class="col-md-4 col-lg-4 isotope-item p-0">
+            <div class="portfolio-grid-item">
+                <a href="#photographyLightbox" class="text-decoration-none popup-with-move-anim">
+                    <div class="thumb-info">
+                        <div class="thumb-info-wrapper size-2 m-0">
+                            <span class="thumb-info-background" style="background-image: url('homepage/assets/img/reh/IMG_3936.jpeg');"></span>
+                            <span class="thumb-info-plus"></span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </li>
+        <li class="col-md-4 col-lg-4 isotope-item p-0">
+            <div class="portfolio-grid-item">
+                <a href="#photographyLightbox" class="text-decoration-none popup-with-move-anim">
+                    <div class="thumb-info">
+                        <div class="thumb-info-wrapper size-2 m-0">
+                            <span class="thumb-info-background" style="background-image: url('homepage/assets/img/reh/IMG_3939.jpeg');"></span>
+                            <span class="thumb-info-plus"></span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </li>
+        <li class="col-md-4 col-lg-4 isotope-item p-0">
+            <div class="portfolio-grid-item">
+                <a href="#photographyLightbox" class="text-decoration-none popup-with-move-anim">
+                    <div class="thumb-info">
+                        <div class="thumb-info-wrapper size-2 m-0">
+                            <span class="thumb-info-background" style="background-image: url('homepage/assets/img/reh/IMG_3944.jpeg');"></span>
+                            <span class="thumb-info-plus"></span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </li>
+        <li class="col-md-4 col-lg-4 isotope-item p-0">
+            <div class="portfolio-grid-item">
+                <a href="#photographyLightbox" class="text-decoration-none popup-with-move-anim">
+                    <div class="thumb-info">
+                        <div class="thumb-info-wrapper size-2 m-0">
+                            <span class="thumb-info-background" style="background-image: url('homepage/assets/img/reh/IMG_3943.jpeg');"></span>
                             <span class="thumb-info-plus"></span>
                         </div>
                     </div>

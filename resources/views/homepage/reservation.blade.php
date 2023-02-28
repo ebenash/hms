@@ -150,7 +150,7 @@
                     <div class="row">
                         <div class="col">
                             <p class="pb-4 text-2">
-                                * Please note that this is not confirmation of a reservation. Confirmation is dependent on room availability and payment of deposit. Booking management will be in contact with you to facilitate finalization on both fronts.
+                                * Please note that this is not confirmation of a reservation. Confirmation is dependent on room availability and payment of deposit. Booking management will be in contact with you to facilitate finalization on both fronts. <br/>* For bulk reservations, contact the hotel directly.
                             </p>
                         </div>
                     </div>

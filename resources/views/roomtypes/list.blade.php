@@ -75,7 +75,7 @@
                                                     <div class="">Max Persons: <b>{{$roomtype->max_persons}}</b></div>
                                                 </div>
                                                 <div class="form-group">
-                                                    <div class="">Bed Type: <b>{{$roomtype->bed_type}}</b></div>
+                                                    <div class="">Common Bed Type: <b>{{$roomtype->bed_type}}</b></div>
                                                 </div>
                                                 <div class="form-group">
                                                     <div class="">Category: <b>{{$roomtype->category}}</b></div>
@@ -175,7 +175,7 @@
                                                     <input type="number" name="max_persons" class="form-control" min="1" max="10" value="{{$roomtype->max_persons}}">
                                                 </div>
                                                 <div class="form-group col-lg-6">
-                                                    <label for="material-text2">Bed Type: eg. "1 King Bed" <span class="text-danger" style="display: inline-block;">*</span></label>
+                                                    <label for="material-text2">Common Bed Type: eg. "1 King Bed" <span class="text-danger" style="display: inline-block;">*</span></label>
                                                     <input type="text" name="bed_type" class="form-control" value="{{$roomtype->bed_type}}">
                                                 </div>
                                                 <div class="form-group col-lg-6">
@@ -246,7 +246,7 @@
                                     <input type="number" name="max_persons" class="form-control" min="1" max="10">
                                 </div>
                                 <div class="form-group col-lg-6">
-                                    <label for="material-text2">Bed Type: eg. "1 King Bed" <span class="text-danger" style="display: inline-block;">*</span></label>
+                                    <label for="material-text2">Common Bed Type: eg. "1 King Bed" <span class="text-danger" style="display: inline-block;">*</span></label>
                                     <input type="text" name="bed_type" class="form-control">
                                 </div>
                                 <div class="form-group col-lg-6">

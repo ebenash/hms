@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Guests;
+use Illuminate\Contracts\Session\Session;
 use Illuminate\Http\Request;
 
 class GuestsController extends CommonController
@@ -69,6 +70,7 @@ class GuestsController extends CommonController
 
         $guest->save();
 
+        $request->session()->put('guestdetail',$guest->id);
         return redirect()->route('guests')->with('success','Successfully Created!');
 
     }

@@ -89,7 +89,7 @@
                                         </div>
                                         <div class="modal-footer">
                                             <button class="btn btn-lg btn-alt-primary" type="button" data-dismiss="modal">Close</button>
-                                            @can('add reservations')<a href="{{route('reservations-create-guest',$guest->id)}}" class="btn btn-lg btn-primary"><i class="fa fa-calendar-check-o"></i> Make Reservation</a>@endcan
+                                            @can('add reservations')<a href="{{route('reservations-create-guest',$guest->id)}}" class="btn btn-lg btn-primary"><i class="fa fa-address-book"></i> Make Reservation</a>@endcan
                                         </div>
                                     </div>
                                 </div>

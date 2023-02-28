@@ -8,6 +8,7 @@ use App\Models\Payments;
 use App\Models\Guests;
 use App\Helpers\Helper;
 use App\Models\Reservations;
+use App\Models\ReservationDetails;
 use App\Models\Rooms;
 use App\Models\RoomTypes;
 use Illuminate\Http\Request;
@@ -66,7 +67,8 @@ class ReservationsController extends CommonController
     public function confirmed(Request $request)
     {
         //
-        $reservations = DB::table('reservations')->join('guests','reservations.guest_id','=','guests.id')->join('rooms','reservations.room_id','=','rooms.id','left')->select('reservations.*','guests.full_name','rooms.name as roomname')->where('reservations.check_in','>=',date("Y-m-d"))->where('reservations.company_id',auth()->user()->company->id)->where('reservations.reservation_status','confirmed');
+        // $this->send_feedback_to_guest(4,'invoice');
+        $reservations = DB::table('reservations')->join('guests','reservations.guest_id','=','guests.id')->select('reservations.*','guests.full_name')->where('reservations.check_in','>=',date("Y-m-d"))->where('reservations.company_id',auth()->user()->company->id)->where('reservations.reservation_status','confirmed');
         $response = $request->all();
         // dd($response);
         if(isset($response['guest'])){
@@ -105,7 +107,7 @@ class ReservationsController extends CommonController
     public function today(Request $request)
     {
         //
-        $reservations = DB::table('reservations')->join('guests','reservations.guest_id','=','guests.id')->join('rooms','reservations.room_id','=','rooms.id','left')->select('reservations.*','guests.full_name','rooms.name as roomname')->where('reservations.company_id',auth()->user()->company->id)->where('reservations.check_in',date('Y-m-d'))->where('reservations.reservation_status','confirmed');
+        $reservations = DB::table('reservations')->join('guests','reservations.guest_id','=','guests.id')->select('reservations.*','guests.full_name')->where('reservations.company_id',auth()->user()->company->id)->where('reservations.check_in',date('Y-m-d'))->where('reservations.reservation_status','confirmed');
         $response = $request->all();
         // dd($response);
         if(isset($response['guest'])){
@@ -144,7 +146,7 @@ class ReservationsController extends CommonController
     public function requests(Request $request)
     {
         //
-        $reservations = DB::table('reservations')->join('guests','reservations.guest_id','=','guests.id')->join('rooms','reservations.room_id','=','rooms.id','left')->select('reservations.*','guests.full_name','rooms.name as roomname')->where('reservations.check_in','>=',date("Y-m-d"))->where('reservations.company_id',auth()->user()->company->id)->where('reservations.reservation_status','pending')->where('reservations.created_by',0);
+        $reservations = DB::table('reservations')->join('guests','reservations.guest_id','=','guests.id')->select('reservations.*','guests.full_name')->where('reservations.check_in','>=',date("Y-m-d"))->where('reservations.company_id',auth()->user()->company->id)->where('reservations.reservation_status','pending')->where('reservations.created_by',0);
         $response = $request->all();
         // dd($response);
         if(isset($response['guest'])){
@@ -183,7 +185,7 @@ class ReservationsController extends CommonController
     public function pending(Request $request)
     {
         //
-        $reservations = DB::table('reservations')->join('guests','reservations.guest_id','=','guests.id')->join('rooms','reservations.room_id','=','rooms.id','left')->select('reservations.*','guests.full_name','rooms.name as roomname')->where('reservations.check_in','>=',date("Y-m-d", strtotime('-5 days')))->where('reservations.company_id',auth()->user()->company->id)->where('reservations.reservation_status','pending');
+        $reservations = DB::table('reservations')->join('guests','reservations.guest_id','=','guests.id')->select('reservations.*','guests.full_name')->where('reservations.check_in','>=',date("Y-m-d", strtotime('-5 days')))->where('reservations.company_id',auth()->user()->company->id)->where('reservations.reservation_status','pending');
         $response = $request->all();
         // dd($response);
         if(isset($response['guest'])){
@@ -222,7 +224,7 @@ class ReservationsController extends CommonController
     public function cancelled(Request $request)
     {
         //
-        $reservations = DB::table('reservations')->join('guests','reservations.guest_id','=','guests.id')->join('rooms','reservations.room_id','=','rooms.id','left')->select('reservations.*','guests.full_name','rooms.name as roomname')->where('reservations.check_in','>=',date("Y-m-d"))->where('reservations.company_id',auth()->user()->company->id)->where('reservations.reservation_status','cancelled');
+        $reservations = DB::table('reservations')->join('guests','reservations.guest_id','=','guests.id')->select('reservations.*','guests.full_name')->where('reservations.check_in','>=',date("Y-m-d"))->where('reservations.company_id',auth()->user()->company->id)->where('reservations.reservation_status','cancelled');
         $response = $request->all();
         // dd($response);
         if(isset($response['guest'])){
@@ -261,7 +263,7 @@ class ReservationsController extends CommonController
     public function rejected(Request $request)
     {
         //
-        $reservations = DB::table('reservations')->join('guests','reservations.guest_id','=','guests.id')->join('rooms','reservations.room_id','=','rooms.id','left')->select('reservations.*','guests.full_name','rooms.name as roomname')->where('reservations.check_in','>=',date("Y-m-d"))->where('reservations.company_id',auth()->user()->company->id)->where('reservations.reservation_status','rejected');
+        $reservations = DB::table('reservations')->join('guests','reservations.guest_id','=','guests.id')->select('reservations.*','guests.full_name')->where('reservations.check_in','>=',date("Y-m-d"))->where('reservations.company_id',auth()->user()->company->id)->where('reservations.reservation_status','rejected');
         $response = $request->all();
         // dd($response);
         if(isset($response['guest'])){
@@ -301,7 +303,7 @@ class ReservationsController extends CommonController
     public function tomorrow(Request $request)
     {
         // dd(date('Y-m-d', strtotime('tomorrow')));
-        $reservations = DB::table('reservations')->join('guests','reservations.guest_id','=','guests.id')->join('rooms','reservations.room_id','=','rooms.id','left')->select('reservations.*','guests.full_name','rooms.name as roomname')->where('reservations.company_id',auth()->user()->company->id)->where('check_in',date('Y-m-d', strtotime('tomorrow')))->where('reservations.reservation_status','confirmed');
+        $reservations = DB::table('reservations')->join('guests','reservations.guest_id','=','guests.id')->select('reservations.*','guests.full_name')->where('reservations.company_id',auth()->user()->company->id)->where('check_in',date('Y-m-d', strtotime('tomorrow')))->where('reservations.reservation_status','confirmed');
 
         $data = [
             'all_rooms' => Rooms::where('status',1)->where('company_id',auth()->user()->company->id)->orderBy('name','asc')->get(),
@@ -345,87 +347,93 @@ class ReservationsController extends CommonController
      */
     public function store(Request $request)
     {
-        //
-        // dd($request->all());
+        //dd($request->all());
         $request->validate([
-            'room' => 'required',
-            'room_type' => 'required',
+            'room1' => 'required',
+            'room_type1' => 'required',
             'guest_id' => 'required',
             'check_in' => 'required|date',
             'check_out' => 'required|date|after:check_in',
-            'adults' => 'required',
-            'children' => 'required',
-            'currency' => 'required',
-            'price' => 'required',
+            'adults1' => 'required',
+            'children1' => 'required',
+            'total_price1' => 'required',
+            'roomtypecount' => 'required',
+            'amount_paid' => 'required',
+            'balance' => 'required',
+            'grand_total' => 'required',
             'payment_type' => 'required',
             'status' => 'required',
         ]);
+
         try{
             $check_in = date_format(date_create($request->input('check_in')),"Y/m/d H:i:s");
             $check_out = date_format(date_create($request->input('check_out')),"Y/m/d H:i:s");
+            $days = date_diff(date_create($check_in),date_create($check_out))->format("%a");
 
-            $reservations = array();
+            $reservation_details = array();
             $totalamount = 0;
-            foreach ($request->input('room') as $key => $room_id) {
-                # code...
-                $roombooked= Reservations::where('room_id', $room_id)->where('check_in', '<', $check_out)->where('check_out', '>=', $check_in)->where('reservation_status', 'confirmed')->first();
-                // dump($roombooked);
-                if($roombooked){
-                    return back()->with('error','Selected Room(s) Already Booked On Specified Dates');
-                }else{
-                    $days = date_diff(date_create($check_in),date_create($check_out))->format("%a");
-
-                    $price = $request->input('price');
-                    $reservation =[
-                        'room_id' => $room_id,
-                        'room_type' => $request->input('room_type'),
-                        'guest_id' => $request->input('guest_id'),
-                        'check_in' => $check_in,
-                        'check_out' => $check_out,
-                        'days' => $days,
-                        'adults' => $request->input('adults'),
-                        'children' => $request->input('children'),
-                        'reservation_status' => $request->input('status'),
-                        // 'discount' => $request->input('discount'),
-                        'currency' => "GHS",
-                        'payment_method' => $request->input('payment_type'),
-                        'price' => $price,
-                        'company_id' => auth()->user()->company->id,
-                        'created_by' => auth()->user()->id,
-                        'created_at' => $this->todaydatetime(),
-                    ];
-
-                    $reservations[] = $reservation;
-                    $totalamount += $price;
-                }
-            }
 
             DB::beginTransaction();
-            if (count($reservations) == 1) {
-                $reservations = current($reservations);
-                // dd($reservations);
-                $reservation_id = DB::table('reservations')->insertGetId($reservations);
-            }else{
-                $reservation_id = null;
-                DB::table('reservations')->insert($reservations);
+
+            $reservation_id = DB::table('reservations')->insertGetId([
+                'guest_id' => $request->input('guest_id'),
+                'check_in' => $check_in,
+                'check_out' => $check_out,
+                'days' => $days,
+                'reservation_status' => $request->input('status'),
+                'currency' => "GHS",
+                'grand_total' => $request->input('grand_total'),
+                'amount_paid' => $request->input('amount_paid'),
+                'balance' => $request->input('balance'),
+                'payment_method' => $request->input('payment_type'),
+                'invoice_sent' => false,
+                'paid' => $request->input('payment_type') != 'paystack' && ($request->input('status') == 'confirmed' && $request->input('balance') == 0) ? 'full' : ($request->input('amount_paid') != 0 && $request->input('status') == 'confirmed' ? 'part': 'pending'),
+                'notes' => $request->input('notes') ?? "",
+                'company_id' => auth()->user()->company->id,
+                'created_by' => auth()->user()->id,
+                'created_at' => $this->todaydatetime(),
+            ]);
+
+            for ($i=1; $i < $request->input('roomtypecount')+1; $i++) {
+                # code...
+                foreach ($request->input('room'.$i) as $key => $room_id) {
+                    # code...
+                    $roombooked = DB::table('reservation_details')->join('reservations','reservation_details.reservations_id','=','reservations.id')->select('reservations.check_in','reservations.check_out','reservation_details.room_id')->where('reservation_details.room_id', $room_id)->where('reservations.check_in', '<', $check_out)->where('reservations.check_out', '>', $check_in)->where('reservations.reservation_status', 'confirmed')->first();
+                    // dd($roombooked);
+                    if($roombooked){
+                        return back()->with('error','Selected Room(s) Already Booked On Specified Dates');
+                    }else{
+
+                        $total_price = $request->input('total_price'.$i);
+                        $reservation_detail =[
+                            'reservations_id' => $reservation_id,
+                            'room_id' => $room_id,
+                            'room_type_id' => $request->input('room_type'.$i),
+                            'adults' => $request->input('adults'.$i),
+                            'children' => $request->input('children'.$i),
+                            'price_per_day' => $request->input('price_per_day'.$i),
+                            'total_price' => $total_price,
+                        ];
+
+                        $reservation_details[] = $reservation_detail;
+                        $totalamount += $total_price;
+                    }
+                }
             }
+            // dd($reservation_details);
+
+            DB::table('reservation_details')->insert($reservation_details);
+
             DB::commit();
 
             if($request->input('payment_type') == 'paystack'){
-                if($reservation_id){
-                    $resrequest = Reservations::find($reservation_id);
-                    $this->send_feedback_to_guest($resrequest,'invoice');
-                }else{
-                    // dd($reservation);
-                    $item = date_format(new DateTime($reservation['check_in']), 'jS F Y').' - '.date_format(new DateTime($reservation['check_out']), 'jS F Y').": Reservation For Multiple Rooms";
-                    $this->send_invoice_to_guest($request->input('guest_id'),$totalamount,"Contact Hotel Directly For Detailed Breakdown",$item);
-                }
+                $this->send_feedback_to_guest($reservation_id,'invoice');
             }
 
         }catch(\Exception $e){
             $this->ExceptionHandler($e);
             DB::rollback();
-            return back()->with('error','Could Not Record Reservation Request.');
+            return back()->with('error','Could Not Record Reservation.');
         }
         // dd("Well");
         return redirect()->route('reservations-calendar')->with('success','Reservation Record Saved Successfully');
@@ -435,19 +443,15 @@ class ReservationsController extends CommonController
         //
         // dd($request->all());
         $request->validate([
-            'room' => 'required',
-            'price' => 'required',
-            'currency' => 'required'
+            'room1' => 'required',
+            'grand_total' => 'required',
+            'hotelresponse' => 'required'
         ]);
         try{
             if (isset($request->hotelresponse) && $request->hotelresponse == 'reject') {
                 $resrequest = Reservations::find($id);
-                $reservation =[
-                    'reservation_status' => 'rejected',
-                ];
-                DB::beginTransaction();
-                DB::table('reservations')->where('id',$id)->update($reservation);
-                DB::commit();
+                $resrequest->reservation_status = 'rejected';
+                $resrequest->update();
 
                 //Notify Guest
                 Notification::route('mail', $resrequest->guest->email)->notify(new RequestRejectedNotification($resrequest));
@@ -458,27 +462,34 @@ class ReservationsController extends CommonController
 
                 $check_in = date_format(date_create($resrequest->check_in),"Y/m/d H:i:s");
                 $check_out = date_format(date_create($resrequest->check_out),"Y/m/d H:i:s");
-                $room = $request->input('room');
-                $price = $request->input('price');
+                $room_id = $request->input('room1');
+                $grand_total = $request->input('grand_total');
 
-                $roombooked= Reservations::where('room_id', $room)->where('check_in', '<', $check_out)->where('check_out', '>=', $check_in)->where('reservation_status', 'confirmed')->first();
-                // dump($roombooked);
+                $roombooked = DB::table('reservation_details')->join('reservations','reservation_details.reservations_id','=','reservations.id')->select('reservations.check_in','reservations.check_out','reservation_details.room_id')->where('reservation_details.room_id', $room_id)->where('reservations.check_in', '<', $check_out)->where('reservations.check_out', '>', $check_in)->where('reservations.reservation_status', 'confirmed')->where('reservation_details.reservations_id','!=',$id)->first();
+                // dd($roombooked);
                 if($roombooked){
                     return back()->with('error','Selected Room(s) Already Booked On Specified Dates');
                 }else{
 
                     $reservation =[
-                        'room_id' => $room,
-                        // 'discount' => $request->input('discount'),
-                        'currency' => $request->input('currency'),
-                        'price' => $price
+                        'grand_total' => $grand_total,
+                        'balance' => $request->input('balance'),
+                        'amount_paid' => $request->input('amount_paid'),
                     ];
+
+                    $reservation_detail =[
+                        'room_id' => $room_id,
+                        'price_per_day' => $request->input('price_per_day1'),
+                        'total_price' => $request->input('total_price1'),
+                    ];
+
                     DB::beginTransaction();
                     DB::table('reservations')->where('id',$id)->update($reservation);
+                    DB::table('reservation_details')->where('reservations_id',$id)->update($reservation_detail);
                     DB::commit();
-                    $resrequest = Reservations::find($id);
+
                     if(!$resrequest->invoice_sent){
-                        $feedbacksent = $this->send_feedback_to_guest($resrequest,'invoice');
+                        $feedbacksent = $this->send_feedback_to_guest($id,'invoice');
                     }else{
                         $feedbacksent = true;
                     }
@@ -506,12 +517,11 @@ class ReservationsController extends CommonController
     public function show($id)
     {
         //
-        $reservation = Reservations::find($id);
-
         $data = [
             'all_rooms' => Rooms::where('status',1)->where('company_id',auth()->user()->company->id)->orderBy('name','asc')->get(),
             'all_roomtypes' => RoomTypes::where('company_id',auth()->user()->company->id)->get(),
-            'reservation' => $reservation,
+            'reservation' => Reservations::where('id',$id)->with('details')->first(),
+            'distinctdetails' => ReservationDetails::where('reservations_id',$id)->groupBy('room_type_id')->get(),
             'show' => 'show'
         ];
         return view('reservations.form',$data);
@@ -520,12 +530,14 @@ class ReservationsController extends CommonController
     {
         //
         $reservation = Reservations::find($id);
+        $reservation_detail = $reservation->details->first();
 
         $data = [
             'all_rooms' => Rooms::where('status',1)->where('company_id',auth()->user()->company->id)->orderBy('name','asc')->get(),
             'all_roomtypes' => RoomTypes::where('company_id',auth()->user()->company->id)->get(),
             'reservation' => $reservation,
-            'req_rooms' => $reservation->roomtype ? $reservation->roomtype->rooms->where('status',1) : [],
+            'req_rooms' => $reservation_detail->roomtype ? $reservation_detail->roomtype->rooms->where('status',1) : [],
+            'distinctdetails' => ReservationDetails::where('reservations_id',$id)->groupBy('room_type_id')->get(),
             'request' => 'request'
         ];
         // dd($data);
@@ -535,12 +547,12 @@ class ReservationsController extends CommonController
     public function calendar()
     {
         //
-        $reservations = DB::table('reservations')->join('guests','reservations.guest_id','=','guests.id')->join('rooms','reservations.room_id','=','rooms.id','left')->select('reservations.*','guests.full_name','rooms.name as roomname')->where('reservations.company_id',auth()->user()->company->id)->where('reservations.check_in','>',date("Y-m-d", strtotime('-30 days')))->orderBy('reservations.check_in','asc');
-        $limit = 3000;
-        if($reservations->count() > $limit){
-            $reservations->limit($limit);
-        }
-        $reservations=$reservations->get();
+        $limit = 1000;
+        $reservations = DB::table('reservations')->join('guests','reservations.guest_id','=','guests.id')->join('reservation_details','reservations.id','=','reservation_details.reservations_id')->leftJoin('rooms','reservation_details.room_id','=','rooms.id')->select('reservations.id','reservations.check_in', 'reservations.check_out', 'reservations.days', 'reservations.paid', 'reservations.reservation_status', 'reservations.grand_total', 'reservations.amount_paid', 'reservations.balance', 'reservations.payment_method', 'reservations.created_by', 'guests.full_name','rooms.name as roomname')->where('reservations.company_id',auth()->user()->company->id)->where('reservations.check_in','>',date("Y-m-d", strtotime('-30 days')))->orderBy('reservations.check_in','asc')->limit($limit)->get();
+        // if($reservations->count() > $limit){
+        //     $reservations->limit($limit);
+        // }
+        // $reservations=$reservations->get();
 
         $callendar_reservation_list = [];
         // dd($reservations);
@@ -552,7 +564,11 @@ class ReservationsController extends CommonController
                 }else{
                     $color = ['color' => '#f3b760','textColor' => '#FF0000','url' => (auth()->user()->can('respond to reservation requests') ? ($reservation->created_by==0 ? route('reservations-view-request',$reservation->id) : route('reservations-show',$reservation->id)) : route('reservations-show',$reservation->id))];
                 }
-            }else if($reservation->reservation_status == "confirmed"){
+            }else if($reservation->payment_method == "complementary"){
+                $color = ['color' => '#20368b;','textColor' => '#ffffff','url' => (auth()->user()->can('view reservations') ? route('reservations-show',$reservation->id) : '#')];
+            }else if($reservation->reservation_status == "confirmed" && $reservation->paid == "part"){
+                $color = ['color' => '#fffb00','textColor' => '#46c37b','url' => (auth()->user()->can('view reservations') ? route('reservations-show',$reservation->id) : '#')];
+            }else if($reservation->reservation_status == "confirmed" && $reservation->paid == "full"){
                 $color = ['color' => '#46c37b','textColor' => '#ffffff','url' => (auth()->user()->can('view reservations') ? route('reservations-show',$reservation->id) : '#')];
             }else{
                 $color = ['color' => '#d26a5c','textColor' => '#ffffff','url' => (auth()->user()->can('view reservations') ? route('reservations-show',$reservation->id) : '#')];
@@ -583,12 +599,11 @@ class ReservationsController extends CommonController
     public function edit($id)
     {
         //
-        $reservation = Reservations::find($id);
-
         $data = [
             'all_rooms' => Rooms::where('status',1)->where('company_id',auth()->user()->company->id)->orderBy('name','asc')->get(),
             'all_roomtypes' => RoomTypes::where('company_id',auth()->user()->company->id)->get(),
-            'reservation' => $reservation,
+            'reservation' => Reservations::where('id',$id)->with('details')->first(),
+            'distinctdetails' => ReservationDetails::where('reservations_id',$id)->groupBy('room_type_id')->get(),
             'update' => 'update'
         ];
         return view('reservations.form',$data);
@@ -606,55 +621,87 @@ class ReservationsController extends CommonController
         //
         // dd($request->all());
         $request->validate([
-            'room' => 'required',
-            'room_type' => 'required',
+            'room1' => 'required',
+            'room_type1' => 'required',
             'guest_id' => 'required',
             'check_in' => 'required|date',
             'check_out' => 'required|date|after:check_in',
-            'adults' => 'required',
-            'children' => 'required',
-            'currency' => 'required',
-            'price' => 'required',
+            'adults1' => 'required',
+            'children1' => 'required',
+            'total_price1' => 'required',
+            'roomtypecount' => 'required',
+            'amount_paid' => 'required',
+            'balance' => 'required',
+            'grand_total' => 'required',
             'payment_type' => 'required',
             'status' => 'required',
         ]);
 
-        $check_in = date_format(date_create($request->input('check_in')),"Y/m/d H:i:s");
-        $check_out = date_format(date_create($request->input('check_out')),"Y/m/d H:i:s");
-
-        $reservation = Reservations::find($id);
-        $room = Rooms::find($request->input('room'));
-        $roombooked= Reservations::where('room_id', $room)->where('check_in', '<', $check_out)->where('check_out', '>=', $check_in)->where('reservation_status', 'confirmed')->first();
-        $same = false;
-
-        if($roombooked){
-            $same = $room->reservations->where('check_in', '<', $check_out)->where('check_out', '>=', $check_in)->where('id',$reservation->id)->first();
-        }else{
-            $same = true;
-        }
-        if(!$same){
-            return back()->with('error','Selected Room Already Booked On Specified Dates');
-        }else{
+        try{
+            $check_in = date_format(date_create($request->input('check_in')),"Y/m/d H:i:s");
+            $check_out = date_format(date_create($request->input('check_out')),"Y/m/d H:i:s");
             $days = date_diff(date_create($check_in),date_create($check_out))->format("%a");
 
-            $reservation->room_id = $request->input('room');
-            $reservation->room_type = $request->input('room_type');
-            $reservation->guest_id = $request->input('guest_id');
-            $reservation->check_in = $check_in;
-            $reservation->check_out = $check_out;
-            $reservation->days = $days;
-            $reservation->adults = $request->input('adults');
-            $reservation->children = $request->input('children');
-            $reservation->reservation_status = $request->input('status');
-            // $reservation->discount = $request->input('discount');
-            $reservation->currency = $request->input('currency');
-            $reservation->payment_method = $request->input('payment_type');
-            $reservation->price = $request->input('price');
+            $reservation_details = array();
+            $totalamount = 0;
 
-            $reservation->update();
+            $reservation = Reservations::find($id);
 
-            return back()->with('success','Reservation Record Updated Successfully');
+            DB::beginTransaction();
+
+            DB::table('reservations')->where('id',$id)->update([
+                'check_in' => $check_in,
+                'check_out' => $check_out,
+                'days' => $days,
+                'reservation_status' => $request->input('status'),
+                'grand_total' => $request->input('grand_total'),
+                'amount_paid' => $request->input('amount_paid'),
+                'balance' => $request->input('balance'),
+                'payment_method' => $request->input('payment_type'),
+                'paid' => $request->input('payment_type') != 'paystack' && ($request->input('status') == 'confirmed' && $request->input('balance') == 0) ? 'full' : ($request->input('amount_paid') != 0 && $request->input('status') == 'confirmed' ? 'part': 'pending'),
+                'notes' => $request->input('notes') ?? $reservation->notes,
+            ]);
+
+            for ($i=1; $i < $request->input('roomtypecount')+1; $i++) {
+                # code...
+                foreach ($request->input('room'.$i) as $key => $room_id) {
+                    # code...
+                    $roombooked = DB::table('reservation_details')->join('reservations','reservation_details.reservations_id','=','reservations.id')->select('reservations.id', 'reservation_details.id as detail_id','reservations.check_in','reservations.check_out','reservation_details.room_id')->where('reservation_details.room_id', $room_id)->where('reservations.check_in', '<', $check_out)->where('reservations.check_out', '>', $check_in)->where('reservations.reservation_status', 'confirmed')->where('reservation_details.reservations_id','!=',$id)->first();
+                    // dd($roombooked);
+                    if($roombooked){
+                        // dd($roombooked);
+                        return back()->with('error','Selected Room(s) Already Booked On Specified Dates');
+                    }else{
+
+                        $total_price = $request->input('total_price'.$i);
+                        $reservation_detail =[
+                            'reservations_id' => $id,
+                            'room_id' => $room_id,
+                            'room_type_id' => $request->input('room_type'.$i),
+                            'adults' => $request->input('adults'.$i),
+                            'children' => $request->input('children'.$i),
+                            'price_per_day' => $request->input('price_per_day'.$i),
+                            'total_price' => $total_price,
+                        ];
+
+                        $reservation_details[] = $reservation_detail;
+                        $totalamount += $total_price;
+                    }
+                }
+            }
+
+            DB::table('reservation_details')->where('reservations_id',$id)->delete();
+            DB::table('reservation_details')->insert($reservation_details);
+
+            DB::commit();
+
+        }catch(\Exception $e){
+            $this->ExceptionHandler($e);
+            DB::rollback();
+            return back()->with('error','Could Not Update Reservation.');
         }
+
+        return back()->with('success','Reservation Record Updated Successfully');
     }
 
     /**
@@ -672,6 +719,7 @@ class ReservationsController extends CommonController
     }
     public function send_invoice_to_guest($guest_id,$amount,$note,$item)
     {
+        dd("NOT DONE");
         $guest = Guests::find($guest_id);
 
         try {
@@ -703,24 +751,37 @@ class ReservationsController extends CommonController
 
     }
 
-    public function send_feedback_to_guest($reservation,$type)
+    public function send_feedback_to_guest($reservation_id,$type = 'invoice')
     {
+        $reservation = Reservations::find($reservation_id);
         try {
             if($type == 'invoice'){
-                $note = "Thank you for considering ".$reservation->company->name." for your hospitality needs. We are happy to report that the requested room is available for the dates specified (i.e. ".date_format(new DateTime($reservation->check_in), 'jS F Y').' - '.date_format(new DateTime($reservation->check_out), 'jS F Y')."). Please find details below and click on the Pay Now button to confirm your reservation.";
-                $item = date_format(new DateTime($reservation->check_in), 'jS F Y').' - '.date_format(new DateTime($reservation->check_out), 'jS F Y').": Accommodation in ".$reservation->roomtype->name." for ".$reservation->days." day(s).";
+
+                $note = "Thank you for considering ".$reservation->company->name." for your hospitality needs. We are happy to report that the requested room(s) is available for the dates specified (i.e. ".date_format(new DateTime($reservation->check_in), 'jS F Y').' - '.date_format(new DateTime($reservation->check_out), 'jS F Y')."). Please find details below and click on the Pay Now button to confirm your reservation.";
+
                 if ($reservation->guest->paystack_identifier) {
                     $customer = $reservation->guest->paystack_identifier;
                 }else{
                     $customer = $this->getNewPaystackCustomerCode($reservation->guest);
                 }
                 if($customer){
+                    $line_items = array();
+
+                    foreach ($reservation->details as $detail) {
+                        $line_items[] = [
+                            'name' => date_format(new DateTime($reservation->check_in), 'jS F Y').' - '.date_format(new DateTime($reservation->check_out), 'jS F Y').": Accommodation in ".$detail->roomtype->name." for ".$reservation->days." day(s).",
+                            'amount' => number_format(($detail->price_per_day*100),0,'.',''),
+                            "quantity"=> $reservation->days,
+                        ];
+                    }
+
+                    // dd($line_items);
+
                     $this->sendPayStackInvoiceApi(
                         $customer,
                         $note,
-                        $item,
-                        $reservation->price/$reservation->days,
-                        $reservation->days,
+                        $line_items,
+                        $reservation->grand_total,
                         null,
                         date('Y-m-d', strtotime('-5 days', strtotime($reservation->check_in))),
                         $reservation->id
@@ -798,20 +859,32 @@ class ReservationsController extends CommonController
             }
 
             $reservation_id = DB::table('reservations')->insertGetId([
-                'room_type' => $request->input('bookNowRoom'),
                 'guest_id' => $guest_id,
                 'check_in' => $check_in,
                 'check_out' => $check_out,
                 'days' => $days,
-                'adults' => $request->input('bookNowAdults'),
-                'children' => $request->input('bookNowKids'),
-                'reservation_status' => 'pending',
-                'discount' => null,
-                'price' => null,
+                'reservation_status' => $request->input('status'),
+                'currency' => "GHS",
+                'grand_total' => null,
+                'amount_paid' => null,
+                'balance' => null,
                 'payment_method' => 'paystack',
+                'reservation_status' => 'pending',
+                'paid' => 'pending',
+                'invoice_sent' => false,
                 'company_id' => 1,
                 'created_by' => 0,
                 'created_at' => $this->todaydatetime(),
+            ]);
+
+            DB::table('reservation_details')->insert([
+                'reservations_id' => $reservation_id,
+                'room_id' => null,
+                'room_type_id' => $request->input('bookNowRoom'),
+                'adults' => $request->input('bookNowAdults'),
+                'children' => $request->input('bookNowKids'),
+                'price_per_day' => null,
+                'total_price' => null,
             ]);
 
             DB::commit();
@@ -830,4 +903,5 @@ class ReservationsController extends CommonController
         }
          return back()->with('success','Reservation Request Recorded Successfully');
     }
+
 }

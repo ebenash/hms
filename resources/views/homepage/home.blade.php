@@ -14,6 +14,10 @@
                 </li>
                 <li data-transition="boxfade">
 
+                    <img src="{{asset('homepage/assets/img/hotel/slides/el_slide3.jpeg')}}" alt="" data-bgposition="top bottom" data-bgfit="cover" data-bgrepeat="no-repeat" data-bgparallax="10" class="rev-slidebg" data-no-retina>
+                </li>
+                <li data-transition="boxfade">
+
                     <img src="{{asset('homepage/assets/img/hotel/slides/el_slide3.jpg')}}" alt="" data-bgposition="center bottom" data-bgfit="cover" data-bgrepeat="no-repeat" data-bgparallax="10" class="rev-slidebg" data-no-retina>
                 </li>
             </ul>
@@ -240,7 +244,7 @@
                                 </span>
                                 <span class="thumb-info-side-image thumb-info-side-image-custom thumb-info-no-zoom box-shadow-custom appear-animation" data-appear-animation="fadeIn" data-appear-animation-delay="600">
                                     <span class="thumb-info-side-image-wrapper">
-                                        <img alt="" class="img-fluid mb-4" style="max-width: 225px;" src="{{asset('homepage/assets/img/reh/MG_8244.jpg')}}">
+                                        <img alt="" class="img-fluid mb-4" style="max-width: 225px;" src="{{asset('homepage/assets/img/reh/IMG_3943.jpeg')}}"><!--MG_8244.jpg-->
                                     </span>
                                 </span>
                             </div>

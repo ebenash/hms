@@ -25,6 +25,7 @@
 					<th class="text-center">#</th>
 					<th>Room Name</th>
 					<th class="hidden-sm">Room Type</th>
+					<th class="hidden-sm">Bed Type</th>
 					<th class="hidden-sm">Room Status</th>
 					<th class="text-center" style="width: 10%;">Actions</th>
 				</tr>
@@ -36,6 +37,7 @@
                         <td class="text-center">{{$count}}</td>
                         <td class="font-w600"><a href="javascript:void(0)">{{$room->name}}</a></td>
                         <td class="hidden-sm">{{$room->roomtype->name ?? 'Undefined Room Type'}}</td>
+                        <td class="hidden-sm">{{$room->bed_type ?? ''}}</td>
                         <td class="hidden-sm">@if($room->status == 1) <span class="badge badge-success">Available</span>  @else <span class="badge badge-danger">Inactive</span> @endif</td>
                         <td class="text-center">
                             @php
@@ -75,6 +77,11 @@
                                                         <option value="">Select Room Type</option>
                                                         @include('includes.roomtypeoptions')
                                                     </select>
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label for="material-text2">Bed Type: eg. "1 King Bed" <span class="text-danger" style="display: inline-block;">*</span></label>
+                                                    <input type="text" name="bed_type" class="form-control" value="{{$room->bed_type ?? ""}}">
                                                 </div>
 
                                                 <div class="form-group">
@@ -131,7 +138,10 @@
                                         @endforeach
                                     </select>
                                 </div>
-
+                                <div class="form-group">
+                                    <label for="material-text2">Common Bed Type: eg. "1 King Bed" <span class="text-danger" style="display: inline-block;">*</span></label>
+                                    <input type="text" name="bed_type" class="form-control">
+                                </div>
                                 <div class="form-group">
                                     <label for="material-text2">Room Status <span class="text-danger" style="display: inline-block;">*</span></label>
                                     <select name="status" class="form-control">

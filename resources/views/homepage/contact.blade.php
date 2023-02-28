@@ -28,6 +28,11 @@
                 <label>call us</label>
                 <strong>+233 244 759 137</strong>
             </div>
+            <div class="macro-map-info-detail">
+                <i class="icon-envelope icons text-color-primary mt-3"></i>
+                <label>email us</label>
+                <strong>info@royalelmounthotel.com</strong>
+            </div>
         </div>
     </div>
 

@@ -86,7 +86,7 @@
         </h3>
 
 		<div class="pull-right">
-			@can('add reservations')<a href="{{route('reservations-create')}}" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> Add New Reservation</a>@endcan
+			@can('add reservations')<a href="javascript:void(0)" data-toggle="modal" data-target="#modal-view-add-reservation" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> Add New Reservation</a>@endcan
 			@if(isset($today))
 			    <a href="{{route('reservations-tomorrow')}}" class="btn btn-sm btn-primary"><i class="fa fa-calendar-check"></i> View Tomorrow's Check-Ins</a>
 			@endif
@@ -103,7 +103,6 @@
 				<tr>
 					<th class="hidden-sm">#</th>
 					<th>Guest</th>
-					<th class="hidden-sm">Room</th>
 					<th class="hidden-sm">Check-In</th>
 					<th class="hidden-sm">Check-Out</th>
 					<th class="hidden-sm">Status</th>
@@ -118,10 +117,9 @@
                     <tr>
                         <td class="text-center">{{$count++}}</td>
                         <td class="font-w600">{{$reservation->full_name}}</td>
-                        <td class="hidden-sm">{{$reservation->roomname ?? 'Unassigned'}}</td>
-                        <td class="hidden-sm">{{date_format(new DateTime($reservation->check_in), 'l jS F, Y')}}</td>
-                        <td class="hidden-sm">{{date_format(new DateTime($reservation->check_out), 'l jS F Y')}}</td>
-                        <td class="hidden-sm">@if($reservation->reservation_status == 'confirmed') <span class="badge badge-success">Confirmed</span>  @elseif($reservation->reservation_status == 'pending') {!! strtotime($reservation->check_in) < strtotime(date('Y-m-d')) ? '<span class="badge badge-danger">Overdue</span>':'<span class="badge badge-warning">Pending</span>' !!} @elseif($reservation->reservation_status == 'rejected') <span class="badge badge-danger">Rejected</span> @else <span class="badge badge-danger">Cancelled</span> @endif</td>
+                        <td class="hidden-sm" data-sort="{{date_format(new DateTime($reservation->check_in),'Y-m-d')}}">{{date_format(new DateTime($reservation->check_in), 'l jS F, Y')}}</td>
+                        <td class="hidden-sm" data-sort="{{date_format(new DateTime($reservation->check_out),'Y-m-d')}}">{{date_format(new DateTime($reservation->check_out), 'l jS F Y')}}</td>
+                        <td class="hidden-sm">@if($reservation->payment_method == 'complementary') <span class="badge badge-primary">Complementary</span> @endif @if($reservation->reservation_status == 'confirmed') <span class="badge badge-success">Confirmed</span>  @if($reservation->payment_method != 'complementary') @if($reservation->paid == 'full') <span class="badge badge-success">Fully Paid</span> @elseif($reservation->paid == 'part') <span class="badge badge-warning">Part Paid</span> @else<span class="badge badge-danger">Not Paid</span> @endif @endif  @elseif($reservation->reservation_status == 'pending') {!! strtotime($reservation->check_in) < strtotime(date('Y-m-d')) ? '<span class="badge badge-danger">Overdue</span>':'<span class="badge badge-warning">Pending</span>' !!} @elseif($reservation->reservation_status == 'rejected') <span class="badge badge-danger">Rejected</span> @else <span class="badge badge-danger">Cancelled</span> @endif</td>
                         <td class="text-center">
                             <div class="btn-group">
                                 @php

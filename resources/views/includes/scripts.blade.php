@@ -8,6 +8,15 @@
 
 @yield('js_after')
 
+@if(!empty(Session::get('guestdetail')))
+    <script>
+        $(function() {
+            $('#modal-view{{Session::get("guestdetail")}}').modal('show');
+        });
+    </script>
+    {{Session::forget("guestdetail")}}
+@endif
+
 <script type="text/javascript">
     function display_c(){
         var refresh=1000; // Refresh rate in milli seconds
@@ -108,6 +117,74 @@
             }
         });
         }
+
+        function closeOneOpenAnotherModal(modal1,modal2) {
+            $(modal1).modal('hide');
+            $(modal2).modal('show');
+        }
+
+        var searchRequest = null;
+
+        $(function () {
+            var minlength = 3;
+
+            $("#search_guest").keyup(function () {
+                var that = this,
+                value = $(this).val();
+                // console.log(value);
+
+                if (value.length >= minlength ) {
+                    if (searchRequest != null)
+                        searchRequest.abort();
+                        searchRequest = $.ajax({
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                        url: '/admin/guests/findguest/'+value,
+                        type: 'POST',
+                        // data: {client_id: client_id, service_id: selected},
+                        success: function(response){
+                            console.log(response);
+                            //we need to check if the value is the same
+                            if (value==$(that).val()) {
+                                $("#table-div").show();
+                                $("#summary-div").html('<span class="text-primary font-w700" >'+response.length+'</span> results found for <mark class="text-danger">'+value+'</mark>');
+                                $('#search-div').html("");
+                                // JSON.parse($('<div>').html(response)[0].textContent).forEach(function (client) {
+                                var countnum = 1
+                                response.forEach(function (guest) {
+                                    // console.log(guest.created_at);
+                                    let option = '<tr>'+
+                                                    '<td class="d-none d-sm-table-cell text-center">'+
+                                                        '<span class="badge badge-pill badge-primary">'+countnum+'</span>'+
+                                                    '</td>'+
+                                                    '<td class="font-w600">'+
+                                                        '<a href="javascript:void(0)">'+guest.full_name+'</a>'+
+                                                    '</td>'+
+                                                    '<td class="d-none d-sm-table-cell" width="15px">'+
+                                                        guest.email+
+                                                    '</td>'+
+                                                    '<td class="d-none d-lg-table-cell" width="15px">'+
+                                                        guest.phone+
+                                                    '</td>'+
+                                                    '<td class="text-center">'+
+                                                        '<div class="btn-group">'+
+                                                            '<a href="/admin/reservations/create/guest/'+guest.id+'" class="btn btn-success" data-toggle="tooltip" title="Make Reservation">'+
+                                                                '<i class="fa fa-address-book"></i> Make Reservation'+
+                                                            '</a>'+
+                                                        '</div>'+
+                                                    '</td>'+
+                                                '</tr>';
+                                    $('#search-div').append(option);
+
+                                    countnum++;
+                                });
+                            }
+                        }
+                    });
+                }
+            });
+        });
 
 </script>
 

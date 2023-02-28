@@ -60,7 +60,8 @@ class RoomsController extends Controller
         $this->validate($request,[
             'name'=>'required',
             'type'=>'required',
-            'status'=>'required'
+            'status'=>'required',
+            'bed_type'=>'required'
         ]);
 
         $room = new Rooms;
@@ -68,6 +69,7 @@ class RoomsController extends Controller
         $room->name = $request->input('name');
         $room->room_type_id = $request->input('type');
         $room->status = $request->input('status');
+        $room->bed_type = $request->input('bed_type');
         $room->company_id = auth()->user()->company->id;
         $room->created_by = auth()->user()->id;
 
@@ -117,12 +119,14 @@ class RoomsController extends Controller
         $this->validate($request,[
             'name'=>'required',
             'type'=>'required',
-            'status'=>'required'
+            'status'=>'required',
+            'bed_type'=>'required'
         ]);
 
         $room->name = $request->input('name');
         $room->room_type_id = $request->input('type');
         $room->status = $request->input('status');
+        $room->bed_type = $request->input('bed_type');
 
         $room->update();
 

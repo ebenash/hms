@@ -1,19 +1,22 @@
 <div class="header-top-custom">
     <div class="container">
         <div class="row">
-        <div class="col-sm-5 col-address">
+        <div class="col-sm-3 col-address">
             <i class="icon-location-pin icons text-color-primary"></i>
             <label>address</label>
-            <strong>32 Ankaful Road,
-    CK-0067-2921,
-    Elmina</strong>
+            <strong>32 Ankaful Road, Elmina</strong>
         </div>
         <div class="col-sm-3 col-phone">
             <i class="icon-phone icons text-color-primary"></i>
             <label>call us</label>
             <strong>+233 244 759 137</strong>
         </div>
-        <div class="col-sm-4 col-share">
+        <div class="col-sm-4 col-email">
+            <i class="icon-envelope icons text-color-primary"></i>
+            <label>email us</label>
+            <strong>info@royalelmounthotel.com</strong>
+        </div>
+        <div class="col-sm-2 col-share">
             <i class="icon-share icons text-color-primary"></i>
             <label>follow us</label>
             <ul class="social-icons">

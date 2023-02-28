@@ -16,15 +16,12 @@ class Reservations extends Model
     	return $this->belongsTo('App\Models\Guests');
     }
 
-    public function payments(){
-    	return $this->hasMany('App\Models\Payments');
+    public function details(){
+    	return $this->hasMany('App\Models\ReservationDetails','reservations_id');
     }
 
-    public function room(){
-    	return $this->belongsTo('App\Models\Rooms');
-    }
-    public function roomtype(){
-    	return $this->belongsTo('App\Models\RoomTypes','room_type');
+    public function payments(){
+    	return $this->hasMany('App\Models\Payments');
     }
 
     public function user(){

@@ -25,7 +25,7 @@ class ReservationsFactory extends Factory
             'reservation_status' => $this->faker->randomElement(['confirmed','pending','cancelled']),
             'discount' => null,
             'currency' => 'GHS',
-            'price' => $this->faker->numberBetween(500,1500),
+            'grand_total' => $this->faker->numberBetween(500,1500),
             'payment_method' => 'paystack',
             'company_id' => 1,
             'created_by' => 1,

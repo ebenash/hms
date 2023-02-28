@@ -13,6 +13,7 @@ class NewRequestNotification extends Notification implements ShouldQueue
     use Queueable;
 
     private $reservation;
+    private $reservation_detail;
 
     /**
      * Create a new notification instance.
@@ -23,6 +24,9 @@ class NewRequestNotification extends Notification implements ShouldQueue
     {
         //
         $this->reservation = $reservation;
+        $this->reservation_detail = $reservation->details->first();
+
+
     }
 
     /**
@@ -50,7 +54,7 @@ class NewRequestNotification extends Notification implements ShouldQueue
                     ->line("A New Reservation Request has been submitted on ".env('APP_NAME')."! Please find details below.")
                     ->line(" ")
                     ->line("Guest Name: ".$this->reservation->guest->full_name)
-                    ->line("Requested Room Type: ".$this->reservation->roomtype->name)
+                    ->line("Requested Room Type: ".$this->reservation_detail->roomtype->name)
                     ->line("Check-In: ".date_format(new DateTime($this->reservation->check_in), 'l jS F, Y'))
                     ->line("Check-Out: ".date_format(new DateTime($this->reservation->check_out), 'l jS F, Y'))
                     ->line(" ")

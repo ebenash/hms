@@ -80,12 +80,13 @@ class Helper
                     'myCustomButton' => [
                         'text'=> ' Add New Reservation',
                         'click' => 'function() {
-                            window.location.href = "/admin/reservations/create";
+                            $("#modal-view-add-reservation").modal("show");
                         }'
                     ]
                 ]
             ]);
         }
         return $calendar;
+        // window.location.href = "/admin/reservations/create";
     }
 }

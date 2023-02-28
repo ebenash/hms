@@ -6,7 +6,7 @@
                 Forged in <a class="font-w600" href="#" target="_blank">  <span class="fa fa-chevron-right"></span><strong>ASH</strong><span class="fa fa-window-minimize"></span></a>
             </div>
             <div class="col-sm-6 order-sm-1 py-1 text-center text-sm-left">
-                <a class="font-w600" href="#" target="_blank">{{ config('app.name', 'MIST Hotel Management System') }}</a> &copy; <script>document.write(new Date().getFullYear())</script> </span>
+                <a class="font-w600" href="#" target="_blank">{{ config('app.name', 'Ash Hotel Management System') }}</a> &copy; 2023 </span>
             </div>
         </div>
     </div>

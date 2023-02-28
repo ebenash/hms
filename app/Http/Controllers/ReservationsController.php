@@ -363,6 +363,7 @@ class ReservationsController extends CommonController
             'grand_total' => 'required',
             'payment_type' => 'required',
             'status' => 'required',
+            'signed_by' => 'required',
         ]);
 
         try{
@@ -389,6 +390,8 @@ class ReservationsController extends CommonController
                 'invoice_sent' => false,
                 'paid' => $request->input('payment_type') != 'paystack' && ($request->input('status') == 'confirmed' && $request->input('balance') == 0) ? 'full' : ($request->input('amount_paid') != 0 && $request->input('status') == 'confirmed' ? 'part': 'pending'),
                 'notes' => $request->input('notes') ?? "",
+                'vat_invoice_number' => $request->input('vat_invoice_number'),
+                'signed_by' => $request->input('signed_by'),
                 'company_id' => auth()->user()->company->id,
                 'created_by' => auth()->user()->id,
                 'created_at' => $this->todaydatetime(),
@@ -445,7 +448,8 @@ class ReservationsController extends CommonController
         $request->validate([
             'room1' => 'required',
             'grand_total' => 'required',
-            'hotelresponse' => 'required'
+            // 'hotelresponse' => 'required',
+            'signed_by' => 'required'
         ]);
         try{
             if (isset($request->hotelresponse) && $request->hotelresponse == 'reject') {
@@ -475,6 +479,8 @@ class ReservationsController extends CommonController
                         'grand_total' => $grand_total,
                         'balance' => $request->input('balance'),
                         'amount_paid' => $request->input('amount_paid'),
+                        'signed_by' => $request->input('signed_by'),
+                        'signed_by' => $resrequest->signed_by != "" ? ", ".$request->input('signed_by') : $request->input('signed_by'),
                     ];
 
                     $reservation_detail =[
@@ -635,6 +641,7 @@ class ReservationsController extends CommonController
             'grand_total' => 'required',
             'payment_type' => 'required',
             'status' => 'required',
+            'signed_by' => 'required',
         ]);
 
         try{
@@ -660,6 +667,8 @@ class ReservationsController extends CommonController
                 'payment_method' => $request->input('payment_type'),
                 'paid' => $request->input('payment_type') != 'paystack' && ($request->input('status') == 'confirmed' && $request->input('balance') == 0) ? 'full' : ($request->input('amount_paid') != 0 && $request->input('status') == 'confirmed' ? 'part': 'pending'),
                 'notes' => $request->input('notes') ?? $reservation->notes,
+                'vat_invoice_number' => $request->input('vat_invoice_number'),
+                'signed_by' => $reservation->signed_by.", ".$request->input('signed_by'),
             ]);
 
             for ($i=1; $i < $request->input('roomtypecount')+1; $i++) {

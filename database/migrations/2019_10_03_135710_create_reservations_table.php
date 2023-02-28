@@ -26,9 +26,10 @@ class CreateReservationsTable extends Migration
             $table->decimal('balance',7,2)->nullable();
             $table->string('payment_method',50)->nullable();
             $table->string('invoice_sent',5)->default(false);
-            $table->string('paid',5)->default("pending");
+            $table->string('paid',10)->default("pending");
             $table->text('notes')->nullable();
             $table->string('vat_invoice_number')->nullable();
+            $table->string('signed_by')->nullable();
             $table->integer('company_id');
             $table->integer('created_by');
             $table->timestamps();

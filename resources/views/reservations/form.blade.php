@@ -239,44 +239,55 @@
                             <input type="hidden" name="roomtypecount" id="roomtypecount" value="0" autocomplete="off">
 
                             <div class="form-row mb-2 col-lg-6">
-                                <label for="discount">Grand Total For {{$reservation->days ?? 'Specified'}} Day(s)</label>
-                                <div class="input-group mb-2">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text input-group-text-alt">
-                                            {{$current_user->company->currency}}
-                                        </span>
-                                    </div>
-                                    <input type="hidden" name="currency" value="{{$current_user->company->currency}}">
-                                    <input type="number" id="grand_total" name="grand_total" class="form-control text-center" value="{{$reservation->grand_total ?? ''}}" readonly placeholder="0.00" style="height:90px;font-size:40pt;" autocomplete="off">
-                                    <div class="input-group-append">
-                                        <span class="input-group-text input-group-text-alt">
-                                            <i class="fa fa-calculator"></i>
-                                        </span>
+                                <div class="form-row mb-2 col-lg-12">
+                                    <label for="discount">Grand Total For {{$reservation->days ?? 'Specified'}} Day(s)</label>
+                                    <div class="input-group mb-2">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text input-group-text-alt">
+                                                {{$current_user->company->currency}}
+                                            </span>
+                                        </div>
+                                        <input type="hidden" name="currency" value="{{$current_user->company->currency}}">
+                                        <input type="number" id="grand_total" name="grand_total" class="form-control text-center" value="{{$reservation->grand_total ?? ''}}" readonly placeholder="0.00" style="height:90px;font-size:40pt;" autocomplete="off">
+                                        <div class="input-group-append">
+                                            <span class="input-group-text input-group-text-alt">
+                                                <i class="fa fa-calculator"></i>
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
-                                <label for="price">Amount Paid</label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text input-group-text-alt">
-                                            {{$current_user->company->currency}}
-                                        </span>
+                                <div class="form-row mb-2 col-lg-12">
+                                    <label for="price">Amount Paid</label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text input-group-text-alt">
+                                                {{$current_user->company->currency}}
+                                            </span>
+                                        </div>
+                                        <input type="number" id="amount_paid" name="amount_paid" class="form-control text-center" onkeyup="calculateBalance()" value="{{$reservation->amount_paid ?? 0}}" {{isset($show) ? 'disabled':(isset($request) ? 'readonly' : 'required') }} placeholder="Total Deposit Received" autocomplete="off">
                                     </div>
-                                    <input type="number" id="amount_paid" name="amount_paid" class="form-control text-center" onkeyup="calculateBalance()" value="{{$reservation->amount_paid ?? 0}}" {{isset($show) ? 'disabled':(isset($request) ? 'readonly' : 'required') }} placeholder="Total Deposit Received" autocomplete="off">
                                 </div>
-                                <label for="balance">Balance Remaining</label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text input-group-text-alt">
-                                            {{$current_user->company->currency}}
-                                        </span>
+                                <div class="form-row mb-2 col-lg-12">
+                                    <label for="balance">Balance Remaining</label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text input-group-text-alt">
+                                                {{$current_user->company->currency}}
+                                            </span>
+                                        </div>
+                                        <input type="hidden" name="currency" value="{{$current_user->company->currency}}">
+                                        <input type="number" id="balance" name="balance" class="form-control text-center" value="{{$reservation->balance ?? 0}}" readonly placeholder="Grand Total - Amount Paid" autocomplete="off">
+                                        <div class="input-group-append">
+                                            <span class="input-group-text input-group-text-alt">
+                                                <i class="fa fa-calculator"></i>
+                                            </span>
+                                        </div>
                                     </div>
-                                    <input type="hidden" name="currency" value="{{$current_user->company->currency}}">
-                                    <input type="number" id="balance" name="balance" class="form-control text-center" value="{{$reservation->balance ?? 0}}" readonly placeholder="Grand Total - Amount Paid" autocomplete="off">
-                                    <div class="input-group-append">
-                                        <span class="input-group-text input-group-text-alt">
-                                            <i class="fa fa-calculator"></i>
-                                        </span>
-                                    </div>
+                                </div>
+
+                                <div class="form-row mb-2 col-lg-12">
+                                    <label for="vat_invoice_number">Receipt/VAT Invoice Number</label>
+                                    <input type="text" class="form-control" id="vat_invoice_number" name="vat_invoice_number" placeholder="Receipt/VAT Invoice Number" {{isset($show) || isset($request) ? 'disabled': '' }} value="{{$reservation->vat_invoice_number ?? ''}}" autocomplete="off">
                                 </div>
                             </div>
                             <div class="form-row mb-2 col-lg-6">
@@ -320,6 +331,10 @@
                                         <input type="text" class="form-control" id="notes" name="notes" placeholder="Notes" {{isset($show) ? 'disabled': '' }} value="{{$reservation->notes ?? ''}}" autocomplete="off">
                                     </div>
                                 @endif
+                                <div class="form-row mb-2 col-lg-12">
+                                    <label for="signed_by">Signed By</label>
+                                    <input type="text" class="form-control" id="signed_by" name="signed_by" placeholder="{{isset($show) || isset($update) ? 'Last':''}} Signed By {{$reservation->signed_by ?? ''}}" {{isset($show) ? 'disabled': '' }} required value="" style="{{(isset($request) ? "border: 1px solid red !important;":'')}}" autocomplete="off">
+                                </div>
                                 @if(!isset($show))
                                     @if(isset($reservation) && (strtotime($reservation->check_in) < strtotime(date('Y-m-d', strtotime('-5 days')))))
                                     @else

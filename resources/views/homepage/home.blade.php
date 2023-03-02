@@ -56,7 +56,8 @@
                             <div class="micro-map-info-detail">
                                 <i class="icon-phone icons text-color-primary"></i>
                                 <label>call us</label>
-                                <strong>+233 244 759 137</strong>
+                                <strong>+233 20 004 3929</strong>
+                                <strong>+233 20 004 3979</strong>
                             </div>
                         </div>
                     </div>

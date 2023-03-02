@@ -16,7 +16,8 @@
                 <div class="footer-info">
                     <i class="icon-phone icons"></i>
                     <label>call us</label>
-                    <strong>233 244 759 137</strong>
+                    <strong>233 20 004 3929</strong>
+                    <strong>233 20 004 3979</strong>
                 </div>
             </div>
             <div class="col-lg-3 mb-0">

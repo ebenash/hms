@@ -398,7 +398,7 @@ class CommonController extends Controller
         $fields = [
             "email" => $guest->email,
             "first_name" => $guestname[0],
-            "last_name" => $guestname[1],
+            "last_name" => $guestname[1] ?? '',
         ];
         // dd(json_encode($fields));
         $fields_string = http_build_query($fields);

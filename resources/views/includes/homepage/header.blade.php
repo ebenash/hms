@@ -9,7 +9,7 @@
         <div class="col-sm-3 col-phone">
             <i class="icon-phone icons text-color-primary"></i>
             <label>call us</label>
-            <strong>+233 244 759 137</strong>
+            <strong>+233 20 004 3929</strong>
         </div>
         <div class="col-sm-4 col-email">
             <i class="icon-envelope icons text-color-primary"></i>

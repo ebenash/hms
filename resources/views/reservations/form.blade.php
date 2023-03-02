@@ -512,97 +512,105 @@
             if(!$('#check_in').val() && !$('#check_out').val()){
                 swalnotify("Error!", "Please Enter Check-In and Check-Out Dates First","error");
             }else{
-                var excludedoptions = markSelectedRooms();
-                // console.log(excludedoptions);
-                var index = $('.roombox').length + 1;
-                $('#roomtypecount').val(index);
-                // pricePerDay(index);
+                let check_in = new Date($('#check_in').val());
+                let check_out = new Date($('#check_out').val());
 
-                var roomtypes = JSON.parse('<?php echo $all_roomtypes->where("status",0); ?>');
-                var options = '';
-                roomtypes.forEach(function (roomtype) {
-                    if (!excludedoptions.includes(roomtype.id)) {
-                        options += '<option value="'+roomtype.id+'">'+roomtype.name+'</option>';
-                    }
-                });
-                event.preventDefault();
-                $('#roomdiv').append('' +
-                    '<div class="col-lg-12 d-flex flex-column roombox">'+
-                        '<div class="block block-rounded flex-grow-1 d-flex flex-column">'+
-                            '<div class="block-header block-header-default">'+
-                                '<h3 class="block-title">Room Details</h3>'+
-                                '<div class="block-options">'+
-                                    '<button type="button" class="btn-block-option btn-remove-phone">'+
-                                        '<i class="si si-close"></i>'+
-                                    '</button>'+
+                if(check_in.getTime() > check_out.getTime()){
+                    swalnotify("Error!", "Check-out date value must be after the Check-in date.","error");
+                    $('#roomdiv').html("");
+                }else{
+                    var excludedoptions = markSelectedRooms();
+                    // console.log(excludedoptions);
+                    var index = $('.roombox').length + 1;
+                    $('#roomtypecount').val(index);
+                    // pricePerDay(index);
+
+                    var roomtypes = JSON.parse('<?php echo $all_roomtypes->where("status",0); ?>');
+                    var options = '';
+                    roomtypes.forEach(function (roomtype) {
+                        if (!excludedoptions.includes(roomtype.id)) {
+                            options += '<option value="'+roomtype.id+'">'+roomtype.name+'</option>';
+                        }
+                    });
+                    event.preventDefault();
+                    $('#roomdiv').append('' +
+                        '<div class="col-lg-12 d-flex flex-column roombox">'+
+                            '<div class="block block-rounded flex-grow-1 d-flex flex-column">'+
+                                '<div class="block-header block-header-default">'+
+                                    '<h3 class="block-title">Room Details</h3>'+
+                                    '<div class="block-options">'+
+                                        '<button type="button" class="btn-block-option btn-remove-phone">'+
+                                            '<i class="si si-close"></i>'+
+                                        '</button>'+
+                                    '</div>'+
                                 '</div>'+
-                            '</div>'+
-                            '<div class="row">'+
-                                '<div class="col-lg-8 d-flex flex-column">'+
-                                    '<div class="block-content block-content-full flex-grow-1 d-flex align-items-center row">'+
+                                '<div class="row">'+
+                                    '<div class="col-lg-8 d-flex flex-column">'+
+                                        '<div class="block-content block-content-full flex-grow-1 d-flex align-items-center row">'+
 
-                                        '<div class="form-row mb-2 col-lg-12">'+
-                                            '<label for="room_type">Room Type</label>'+
-                                            '<div class="input-group">'+
-                                                '<select class="form-control" id="room_type'+index+'" data-placeholder="Select Room Type.." name="room_type'+index+'" onchange="getRooms('+index+')">'+
-                                                    '<option>Select Room Type</option>'+
-                                                    options+
-                                                '</select>'+
-                                            '</div>'+
-                                        '</div>'+
-                                        '<div class="form-row col-lg-12 mb-3">'+
-                                            '<label for="room'+index+'">Select Room(s)</label>'+
-                                            '<div class="input-group">'+
-                                                '<select class="form-control" data-placeholder="Select Room Type First" name="room'+index+'[]" id="room'+index+'" multiple required>'+
-                                                '</select>'+
-                                            '</div>'+
-                                        '</div>'+
-                                        '<div class="form-row mb-2 col-lg-12">'+
-                                            '<label for="price">Room Price Per Day <span id="roomnums'+index+'"></span></label>'+
-                                            '<div class="input-group">'+
-                                                '<div class="input-group-prepend">'+
-                                                    '<span class="input-group-text input-group-text-alt">GHS</span>'+
+                                            '<div class="form-row mb-2 col-lg-12">'+
+                                                '<label for="room_type">Room Type</label>'+
+                                                '<div class="input-group">'+
+                                                    '<select class="form-control" id="room_type'+index+'" data-placeholder="Select Room Type.." name="room_type'+index+'" onchange="getRooms('+index+')">'+
+                                                        '<option>Select Room Type</option>'+
+                                                        options+
+                                                    '</select>'+
                                                 '</div>'+
-                                                '<input type="number" onkeyup="pricePerDay('+index+')" id="price_per_day'+index+'" name="price_per_day'+index+'" class="form-control text-center" value="" placeholder="Room Price Per Day">'+
+                                            '</div>'+
+                                            '<div class="form-row col-lg-12 mb-3">'+
+                                                '<label for="room'+index+'">Select Room(s)</label>'+
+                                                '<div class="input-group">'+
+                                                    '<select class="form-control" data-placeholder="Select Room Type First" name="room'+index+'[]" id="room'+index+'" multiple required>'+
+                                                    '</select>'+
+                                                '</div>'+
+                                            '</div>'+
+                                            '<div class="form-row mb-2 col-lg-12">'+
+                                                '<label for="price">Room Price Per Day <span id="roomnums'+index+'"></span></label>'+
+                                                '<div class="input-group">'+
+                                                    '<div class="input-group-prepend">'+
+                                                        '<span class="input-group-text input-group-text-alt">GHS</span>'+
+                                                    '</div>'+
+                                                    '<input type="number" onkeyup="pricePerDay('+index+')" id="price_per_day'+index+'" name="price_per_day'+index+'" class="form-control text-center" value="" placeholder="Room Price Per Day">'+
+                                                '</div>'+
                                             '</div>'+
                                         '</div>'+
                                     '</div>'+
-                                '</div>'+
-                                '<div class="col-lg-4 d-flex flex-column">'+
-                                    '<div class="block-content block-content-full flex-grow-1 d-flex align-items-center row">'+
+                                    '<div class="col-lg-4 d-flex flex-column">'+
+                                        '<div class="block-content block-content-full flex-grow-1 d-flex align-items-center row">'+
 
-                                        '<div class="form-row mb-2 col-lg-12">'+
-                                            '<label for="adults'+index+'">Adults</label>'+
-                                            '<input type="number" class="form-control" id="adults'+index+'" name="adults'+index+'" placeholder="Adults" required value="">'+
-                                        '</div>'+
-                                        '<div class="form-row mb-2 col-lg-12">'+
-                                            '<label for="children'+index+'">Children</label>'+
-                                            '<input type="number" class="form-control" id="children'+index+'" name="children'+index+'" placeholder="Children" required value="">'+
-                                        '</div>'+
+                                            '<div class="form-row mb-2 col-lg-12">'+
+                                                '<label for="adults'+index+'">Adults</label>'+
+                                                '<input type="number" class="form-control" id="adults'+index+'" name="adults'+index+'" placeholder="Adults" required value="">'+
+                                            '</div>'+
+                                            '<div class="form-row mb-2 col-lg-12">'+
+                                                '<label for="children'+index+'">Children</label>'+
+                                                '<input type="number" class="form-control" id="children'+index+'" name="children'+index+'" placeholder="Children" required value="">'+
+                                            '</div>'+
 
 
-                                        '<div class="form-row mb-2 col-lg-12">'+
-                                            '<label for="total_price'+index+'">Room Total For <span id="roomdays'+index+'">Specified</span> Day(s)</label>'+
-                                            '<div class="input-group">'+
-                                                '<div class="input-group-prepend">'+
-                                                    '<span class="input-group-text input-group-text-alt">GHS</span>'+
-                                                '</div>'+
-                                                '<input type="hidden" name="currency" value="GHS">'+
-                                                '<input type="number" id="total_price'+index+'" name="total_price'+index+'" class="form-control text-center" value="" readonly placeholder="Total Amount">'+
-                                                '<div class="input-group-append">'+
-                                                    '<span class="input-group-text input-group-text-alt">'+
-                                                        '<i class="fa fa-calculator"></i>'+
-                                                    '</span>'+
+                                            '<div class="form-row mb-2 col-lg-12">'+
+                                                '<label for="total_price'+index+'">Room Total For <span id="roomdays'+index+'">Specified</span> Day(s)</label>'+
+                                                '<div class="input-group">'+
+                                                    '<div class="input-group-prepend">'+
+                                                        '<span class="input-group-text input-group-text-alt">GHS</span>'+
+                                                    '</div>'+
+                                                    '<input type="hidden" name="currency" value="GHS">'+
+                                                    '<input type="number" id="total_price'+index+'" name="total_price'+index+'" class="form-control text-center" value="" readonly placeholder="Total Amount">'+
+                                                    '<div class="input-group-append">'+
+                                                        '<span class="input-group-text input-group-text-alt">'+
+                                                            '<i class="fa fa-calculator"></i>'+
+                                                        '</span>'+
+                                                    '</div>'+
                                                 '</div>'+
                                             '</div>'+
-                                        '</div>'+
 
+                                        '</div>'+
                                     '</div>'+
                                 '</div>'+
                             '</div>'+
-                        '</div>'+
-                    '</div>'
-                );
+                        '</div>'
+                    );
+                }
             }
 
         });

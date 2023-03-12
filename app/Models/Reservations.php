@@ -20,6 +20,14 @@ class Reservations extends Model
     	return $this->hasMany('App\Models\ReservationDetails','reservations_id');
     }
 
+    public function rentals(){
+    	return $this->hasMany('App\Models\ReservationRentals','reservations_id');
+    }
+
+    public function expenses(){
+    	return $this->hasMany('App\Models\ReservationExpenses','reservations_id');
+    }
+
     public function payments(){
     	return $this->hasMany('App\Models\Payments');
     }

@@ -68,7 +68,7 @@
                                         <a href="javascript:void(0)">{{$reservation->guest->full_name}}</a>
                                     </h4>
                                     <p class="d-none d-sm-block text-muted">
-                                        Room: {{$reservation->room->name ?? 'Unassigned Room'}} ({{$reservation->roomtype->name ?? 'No Room Type'}})
+                                        Room: {{$reservation->details->count() ?? '0'}} Room(s)
                                     </p>
                                 </td>
                                 <td class="d-none d-lg-table-cell text-center">

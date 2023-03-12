@@ -101,7 +101,7 @@
                         if (response) {
                            swalnotify("Done!", "Your record has been deleted!","success").then((okay) => {
                                if (success) {
-                                return location.href = success;
+                                    return location.href = success;
                                } else {
                                     return location.reload();
                                }

@@ -107,6 +107,55 @@
             <!-- END Reservations Overview -->
         @endcan
 
+        {{-- <h2 class="content-heading">What’s happening today?</h2>
+        <div class="row">
+            <div class="col-lg-12">
+                <!-- Block Tabs With Options Default Style -->
+                <div class="block block-rounded">
+                    <ul class="nav nav-tabs nav-tabs-block align-items-center" data-toggle="tabs" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#btabswo-static-home">New Requests</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#btabswo-static-profile">Arrivals</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#btabswo-static-profile">In-House</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#btabswo-static-profile">Departures</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#btabswo-static-profile">Cancellations</a>
+                        </li>
+                        <li class="nav-item ml-auto">
+                            <div class="block-options pl-3 pr-2">
+                                <button type="button" class="btn-block-option" data-toggle="block-option" data-action="fullscreen_toggle"></button>
+                                <button type="button" class="btn-block-option" data-toggle="block-option" data-action="state_toggle" data-action-mode="demo">
+                                    <i class="si si-refresh"></i>
+                                </button>
+                                <button type="button" class="btn-block-option" data-toggle="block-option" data-action="content_toggle"></button>
+                                <button type="button" class="btn-block-option" data-toggle="block-option" data-action="close">
+                                    <i class="si si-close"></i>
+                                </button>
+                            </div>
+                        </li>
+                    </ul>
+                    <div class="block-content tab-content">
+                        <div class="tab-pane active" id="btabswo-static-home" role="tabpanel">
+                            <h4 class="font-w400">Home Content</h4>
+                            <p>...</p>
+                        </div>
+                        <div class="tab-pane" id="btabswo-static-profile" role="tabpanel">
+                            <h4 class="font-w400">Profile Content</h4>
+                            <p>...</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- END Block Tabs With Options Default Style -->
+            </div>
+        </div> --}}
+
         <!-- Statistics -->
         {{-- <div class="row">
             <div class="col-xl-8 d-flex flex-column">
@@ -274,15 +323,18 @@
                         <div class="block-header block-header-default">
                             <h3 class="block-title">Calendar</h3>
                             <div class="block-options">
-                                <button type="button" class="btn-block-option" data-toggle="block-option" data-action="state_toggle" data-action-mode="demo">
-                                    <i class="si si-refresh"></i>
-                                </button>
-                                {{-- <button type="button" class="btn-block-option">
-                                    <i class="si si-settings"></i>
+
+                                <button type="button" class="btn-block-option" data-toggle="block-option" data-action="fullscreen_toggle" onclick="resizecalendar()"></button>
+                                {{-- <button type="button" class="btn-block-option" data-toggle="block-option" data-action="pinned_toggle">
+                                    <i class="si si-pin"></i>
                                 </button> --}}
+                                {{-- <button type="button" class="btn-block-option" data-toggle="block-option" data-action="state_toggle" data-action-mode="demo">
+                                    <i class="si si-refresh"></i>
+                                </button> --}}
+                                <button type="button" class="btn-block-option" data-toggle="block-option" data-action="content_toggle"></button>
                             </div>
                         </div>
-                        <div class="block-content block-content-full flex-grow-1 align-items-center">
+                        <div class="block-content block-content-full flex-grow-1 align-items-center" id="calendar">
                             <?php $all_calendar_reservations = $helper->get_calendar($callendar_reservation_list); ?>
                             @if(isset($calendar_reservation))
                                 {!! $calendar_reservation->calendar() !!}
@@ -363,5 +415,13 @@
 
     <script src="{{ asset('js/plugins/fullcalendar/main.js') }}"></script>
     <script src="{{ asset('js/plugins/fullcalendar/locales-all.min.js') }}"></script>
+
+    <script>
+        function resizecalendar() {
+            $('.fc-col-header').css('width', '100%');
+            $('.fc-daygrid-body').css('width', '100%');
+            $('.fc-scrollgrid-sync-table').css('width', '100%');
+        }
+    </script>
 
 @endsection

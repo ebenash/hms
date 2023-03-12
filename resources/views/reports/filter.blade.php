@@ -14,22 +14,28 @@
             <h3 class="block-title">Filter</h3>
             <div class="pull-right">
                 {{-- <button type="submit" class="btn btn-dark">Generate Report</button> --}}
+
+            <div class="pull-right">
+                <button type="submit" class="btn btn-dark">Generate</button>
+            </div>
             </div>
         </div>
         <div class="block-content block-content-full">
             <!-- Form Search - Alternative Style -->
             <div class="row">
-                <div class="form-group col-lg-3">
-                    <select name="filter_type" id="filter_type" class="form-control form-control-alt mb-2 mr-sm-2 mb-sm-2" disabled onchange="hideFilterFields(this)">
+                <div class="col-lg-3">
+                    <input type="text" class="form-control form-control-alt mb-2 mr-sm-2 mb-sm-2" id="search" name="search" value="{{isset($filter) ? $filter->search : ''}}" placeholder="Search" autocomplete="off">
+                </div>
+                <div class="col-lg-3">
+                    <select name="filter_type" id="filter_type" class="form-control form-control-alt mb-2 mr-sm-2 mb-sm-2" required>
                         <option value="">Select Filter Type</option>
-                        <option value="typereservation" selected {{isset($filter) ? ($filter->filter_type == 'typereservation' ? 'selected' : '') : ''}}>Reservations</option>
-                        {{-- <option value="typerooms" {{isset($filter) ? ($filter->filter_type == 'typerooms' ? 'selected' : '') : ''}}>Rooms</option> --}}
-                        {{-- <option value="typeroomtypes" {{isset($filter) ? ($filter->filter_type == 'typeroomtypes' ? 'selected' : '') : ''}}>Room Types</option> --}}
+                        <option value="typereservationincome" {{isset($filter) ? ($filter->filter_type == 'typereservationincome' ? 'selected' : '') : ''}}>Reservation Income Summary</option>
+                        <option value="typeroomincome" {{isset($filter) ? ($filter->filter_type == 'typeroomincome' ? 'selected' : '') : ''}}>Room Income Summary</option>
+                        <option value="typeota" {{isset($filter) ? ($filter->filter_type == 'typeota' ? 'selected' : '') : ''}}>OTA Summary</option>
                         {{-- <option value="typeguests" {{isset($filter) ? ($filter->filter_type == 'typeguests' ? 'selected' : '') : ''}}>Guests</option> --}}
                     </select>
-                    <input type="hidden" name="filter_type" value="typereservation">
                 </div>
-                <div class="form-group col-lg-3">
+                <div class="col-lg-3">
                     <select name="reservation_status" id="reservation_status" class="form-control form-control-alt mb-2 mr-sm-2 mb-sm-2">
                         <option value="">Select Reservation Status</option>
                         <option value="pending" {{isset($filter) ? ($filter->reservation_status == 'pending' ? 'selected' : '') : ''}}>Pending Confirmation/Requests</option>
@@ -38,17 +44,9 @@
                         <option value="rejected" {{isset($filter) ? ($filter->reservation_status == 'rejected' ? 'selected' : '') : ''}}>Rejected Reservations</option>
                     </select>
                 </div>
-                    {{-- <select name="room_type" id="room_type" class="form-control form-control-alt mb-2 mr-sm-2 mb-sm-2 col-lg-2">
-                        @foreach ($all_roomtypes as $roomtype)
-                            <option value="{{$roomtype->id}}" {{isset($filter['room_type']) ? ($filter['room_type'] == $roomtype->id ? 'selected' : '') : ''}}>{{$roomtype->name ?? 'Undefined Room Type'}}</option>
-                        @endforeach
-                    </select> --}}
-                <div class="form-group col-lg-4">
-                    <input type="text" class="js-flatpickr form-control form-control-alt mb-2 mr-sm-2 mb-sm-2" id="daterange" name="daterange" value="{{$filter->daterange ?? ''}}" placeholder="Select Date Range" data-mode="range">
+                <div class="col-lg-3">
+                    <input type="text" class="today-flatpickr form-control form-control-alt mb-2 mr-sm-2 mb-sm-2" id="daterange" name="daterange" value="{{$filter->daterange ?? ''}}" placeholder="Select Date Range" data-mode="range">
                      {{-- data-min-date="today"> --}}
-                </div>
-                <div class="form-group col-lg-2">
-                    <button type="submit" class="btn btn-primary">Generate</button>
                 </div>
             </div>
         </div>
@@ -72,17 +70,27 @@
             <table class="table table-bordered table-striped table-vcenter js-dataTable-report">
                 <thead>
                     <tr>
-                        <td class="font-w600">#</td>
+                        <td class="font-w600">No.</td>
                         <td class="font-w600">Name</td>
-                        <td class="font-w600">Room</td>
+                        <td class="font-w600">Room(s)</td>
                         <td class="font-w600">Type</td>
                         <td class="font-w600">Arrival</td>
                         <td class="font-w600">Departure</td>
                         <td class="font-w600">Status</td>
+                        <td class="font-w600">Method</td>
                         <td class="font-w600">Days</td>
-                        <td class="font-w600">Price</td>
-                        <td class="font-w600">Total</td>
-                        {{-- <td class="font-w600">Recorded</td> --}}
+                        @if(isset($filter) && $filter->filter_type == 'typeroomincome')
+                            <td class="font-w600">Per Day(GHS)</td>
+                            @endif
+                        <td class="font-w600">Total(GHS)</td>
+                        @if(isset($filter) && $filter->filter_type != 'typeroomincome')
+                            <td class="font-w600">Paid(GHS)</td>
+                            <td class="font-w600">Balance(GHS)</td>
+                        @endif
+                        @if(isset($filter) && $filter->filter_type == 'typeota')
+                            <td class="font-w600">Reservation #</td>
+                        @endif
+                        <td class="font-w600">Recorded</td>
                     </tr>
                 </thead>
                 <tbody>
@@ -92,16 +100,39 @@
                     @foreach($reservations as $reservation)
                         <tr>
                             <td class="text-center">{{$count++}}</td>
-                            <td class="hidden-xs">{{$reservation->guest->full_name}}</td>
-                            <td class="hidden-xs">{{$reservation->room->name ?? 'Unassigned Room'}}</td>
-                            <td class="hidden-xs">{{$reservation->roomtype->name ?? 'Undefined Room Type'}}</td>
-                            <td class="hidden-xs">{{date_format(new DateTime($reservation->check_in), 'jS F, Y')}}</td>
-                            <td class="hidden-xs">{{date_format(new DateTime($reservation->check_out), 'jS F, Y')}}</td>
-                            <td class="hidden-xs">@if($reservation->reservation_status == 'confirmed') <span class="badge badge-success">Confirmed</span>  @elseif($reservation->reservation_status == 'pending') <span class="badge badge-warning">Pending</span> @else <span class="badge badge-danger">Cancelled</span> @endif</td>
+                            <td class="hidden-xs"><span>{{$reservation->full_name}}</span></td>
+                            @if(isset($filter) && $filter->filter_type != 'typeroomincome')
+                                <td class="hidden-xs">
+                                    @foreach ($reservation->details as $detail)
+                                    <span class="badge badge-primary">{{$detail->room->name ?? ''}}</span>
+                                    @endforeach
+                                </td>
+                                <td class="hidden-xs">
+                                    @foreach ($reservation->details as $detail)
+                                    <span class="badge badge-secondary">{{$detail->roomtype->name ?? ''}}</span>
+                                    @endforeach
+                                </td>
+                            @else
+                                <td class="hidden-xs">{{$reservation->room_name ?? 'Unassigned'}}</td>
+                                <td class="hidden-xs">{{$reservation->room_type ?? 'Unassigned'}}</td>
+                            @endif
+                            <td class="hidden-xs">{{$reservation->check_in}}</td>
+                            <td class="hidden-xs">{{$reservation->check_out}}</td>
+                            <td class="hidden-xs">@if($reservation->payment_method == 'complementary') <span class="badge badge-primary">Complementary</span> @endif @if($reservation->reservation_status == 'confirmed') <span class="badge badge-success">Confirmed</span>  @if($reservation->payment_method != 'complementary') @if($reservation->paid == 'full') <span class="badge badge-success">Fully Paid</span> @elseif($reservation->paid == 'part') <span class="badge badge-warning">Part Paid</span> @else<span class="badge badge-danger">Not Paid</span> @endif @endif  @elseif($reservation->reservation_status == 'pending') {!! strtotime($reservation->check_in) < strtotime(date('Y-m-d')) ? '<span class="badge badge-danger">Overdue</span>':'<span class="badge badge-warning">Pending</span>' !!} @elseif($reservation->reservation_status == 'rejected') <span class="badge badge-danger">Rejected</span> @else <span class="badge badge-danger">Cancelled</span> @endif</td>
+                            <td class="text-center">{{ucfirst($reservation->payment_method)}}</td>
                             <td class="text-center">{{$reservation->days}}</td>
-                            <td class="hidden-xs">{{$reservation->currency." ".number_format(($reservation->price/$reservation->days),2)}}</td>
-                            <td class="hidden-xs">{{$reservation->currency." ".number_format($reservation->price,2)}}</td>
-                            {{-- <td class="hidden-xs">{{date_format(new DateTime($reservation->created_at), 'jS F, Y')}}</td> --}}
+                            @if(isset($filter) && $filter->filter_type == 'typeroomincome')
+                                <td class="hidden-xs">{{ number_format($reservation->price_per_day,2)}}</td>
+                            @endif
+                            <td class="hidden-xs">{{ number_format($reservation->grand_total,2)}}</td>
+                            @if(isset($filter) && $filter->filter_type != 'typeroomincome')
+                                <td class="hidden-xs">{{ number_format(($reservation->amount_paid),2)}}</td>
+                                <td class="hidden-xs">{{ number_format(($reservation->balance),2)}}</td>
+                            @endif
+                            @if(isset($filter) && $filter->filter_type == 'typeota')
+                                <td class="hidden-xs">{{$reservation->ota_reservation_number}}</td>
+                            @endif
+                            <td class="hidden-xs">{{$reservation->created_at}}</td>
                         </tr>
                     @endforeach
                 </tbody>
@@ -135,7 +166,7 @@
     <script src="{{ asset('js/pages/tables_datatables.js') }}"></script>
 
     <script>jQuery(function(){One.helpers(['flatpickr']);});</script>
-    <script>
+    {{-- <script>
         function hideFilterFields(select) {
             if (select.value == 'today') {
                 $("#daterange").hide();
@@ -143,7 +174,7 @@
                 $("#daterange").show();
             }
         }
-    </script>
+    </script> --}}
     <script id="blockOfStuff" type="text/html">
         <div class="paginate" style="margin-left: auto;">
             {{$reservations->onEachSide(1)->links()}}
@@ -159,5 +190,10 @@
             div.innerHTML = document.getElementById('blockOfStuff').innerHTML;
             document.getElementById('DataTables_Table_0_paginate').appendChild(div);
         });
+        $('.today-flatpickr').flatpickr()
+        $(".table").addClass("compact nowrap w-100");
+//         $('#report_filtered').dataTable( {
+//   "scrollX": true
+// } );
     </script>
 @endsection

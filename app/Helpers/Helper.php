@@ -67,7 +67,7 @@ class Helper
             $calendar->setOptions([
                 'locales' => 'FullCalendar.globalLocales',
                 'locale' => 'en-gb',
-                'firstDay' => 0,
+                'firstDay' => 1,
                 'displayEventTime' => false,
                 'selectable' => true,
                 'initialView' => 'dayGridMonth',

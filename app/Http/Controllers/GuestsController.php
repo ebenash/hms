@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Guests;
 use Illuminate\Contracts\Session\Session;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\Paginator;
 
 class GuestsController extends CommonController
 {
@@ -26,8 +27,15 @@ class GuestsController extends CommonController
     public function index(Request $request)
     {
         //
+        $paginate = 50;
+        if($request->session()->has('guestdetail')) {
+            $lastPage = Guests::where('company_id',auth()->user()->company->id)->paginate($paginate)->lastPage();
+            Paginator::currentPageResolver(function() use ($lastPage) {
+                return $lastPage;
+            });
+        }
         $data = [
-            'all_guests' => Guests::where('company_id',auth()->user()->company->id)->paginate(50)
+            'all_guests' => Guests::where('company_id',auth()->user()->company->id)->paginate($paginate)
         ];
         return view('guests.list',$data);
     }
@@ -60,7 +68,7 @@ class GuestsController extends CommonController
 
         $guest = new Guests;
 
-        $guest->full_name = $request->input('full_name');
+        $guest->full_name = ucwords($request->input('full_name'));
         $guest->email = $request->input('email');
         $guest->phone = $this->formatphonenumber($request->input('phone'));
         $guest->city = $request->input('city');
@@ -120,7 +128,7 @@ class GuestsController extends CommonController
             'phone' => 'required'
         ]);
 
-        $guest->full_name = $request->input('full_name');
+        $guest->full_name = ucwords($request->input('full_name'));
         $guest->email = $request->input('email');
         $guest->phone = $this->formatphonenumber($request->input('phone'));
         $guest->city = $request->input('city');

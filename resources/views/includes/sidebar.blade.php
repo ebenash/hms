@@ -77,7 +77,7 @@
                     <ul class="nav-main-submenu">
                         @can('add reservations')
                             <li class="nav-main-item">
-                                <a class="nav-main-link{{ request()->is('admin/reservations/create/guest') ? ' active' : '' }}" href="javascript:void(0)" data-toggle="modal" data-target="#modal-view-add-reservation"><i class="nav-main-link-icon fa fa-plus"></i><span class="nav-main-link-name">Add New Reservation</span></a>
+                                <a class="nav-main-link{{ request()->is('admin/reservations/create/guest/*') ? ' active' : '' }}" href="javascript:void(0)" data-toggle="modal" data-target="#modal-view-add-reservation"><i class="nav-main-link-icon fa fa-plus"></i><span class="nav-main-link-name">Add New Reservation</span></a>
                             </li>
                         @endcan
                         @can('view reservations')
@@ -113,9 +113,9 @@
                         </li>
                     </ul>
                 </li> --}}
-                {{-- <li class="nav-main-item">
+                <li class="nav-main-item">
                     <a class="nav-main-link{{ request()->is('admin/reports') ? ' active' : '' }}" href="{{route('reports')}}" ><i class="nav-main-link-icon si si-docs"></i><span class="nav-main-link-name">Reports</span></a>
-                </li> --}}
+                </li>
                 @can('view settings')
                     <li class="nav-main-item">
                         <a class="nav-main-link{{ request()->is('admin/settings') ? ' active' : '' }}" href="{{route('settings')}}" ><i class="nav-main-link-icon si si-settings"></i><span class="nav-main-link-name">Configuration</span></a>

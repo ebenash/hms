@@ -58,22 +58,23 @@ class pageTablesDatatables {
                 [10, 50, 100, 200],
                 [10, 50, 100, 200]
             ],
+            scrollX: true,
             autoWidth: !1,
             buttons: [{ extend: "colvis", className: "btn btn-sm btn-alt-primary" }, { extend: "copy", className: "btn btn-sm btn-alt-primary" }, { extend: "csv", className: "btn btn-sm btn-alt-primary" }, { extend: "print", className: "btn btn-sm btn-alt-primary" }],
             dom: "<'row'<'col-sm-12'<'text-left py-2 mb-2'B>>><'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>><'row'<'col-sm-12'tr>><'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>"
         }), jQuery(".js-dataTable-report").dataTable({
-            pageLength: 100,
+            pageLength: 200,
+            scrollX: true,
             lengthMenu: [
-                [10, 50, 100, 200],
-                [10, 50, 100, 200]
+                [50, 100, 200, 500],
+                [50, 100, 200, 500]
             ],
             columnDefs: [
                 // { targets: [0, 1], visible: false },
             ],
             searching: false,
             autoWidth: !1,
-            buttons: [{ extend: "colvis", className: "btn btn-sm btn-alt-primary" }],
-            //, { extend: "copy", className: "btn btn-sm btn-alt-primary" }, { extend: "csv", className: "btn btn-sm btn-alt-primary" }, { extend: "print", className: "btn btn-sm btn-alt-primary" }],
+            buttons: [{ extend: "colvis", className: "btn btn-sm btn-alt-primary" }, { extend: "copy", className: "btn btn-sm btn-alt-primary" }, { extend: "csv", className: "btn btn-sm btn-alt-primary" }, { extend: "pdf", className: "btn btn-sm btn-alt-primary" }, { extend: "print", className: "btn btn-sm btn-alt-primary" }],
             dom: "<'row'<'col-sm-12'<'text-left py-2 mb-2'B>>><'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>><'row'<'col-sm-12'tr>><'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>"
         })
     }

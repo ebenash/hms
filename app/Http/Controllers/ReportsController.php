@@ -37,10 +37,27 @@ class ReportsController extends CommonController
     public function index(Request $request)
     {
         //
-        $reservations = Reservations::orderBy('created_at','desc')->where('company_id',auth()->user()->company->id);
         $response = $request->all();
         // dd($response);
         if(!empty($response)){
+
+            if(isset($response['filter_type']) && $response['filter_type'] == 'typereservationincome'){
+                $reservations = Reservations::join('guests','reservations.guest_id','=','guests.id')->select('reservations.id','reservations.check_in', 'reservations.check_out', 'reservations.days', 'reservations.paid', 'reservations.reservation_status', 'reservations.grand_total', 'reservations.amount_paid', 'reservations.balance', 'reservations.payment_method', 'reservations.created_at', 'guests.full_name','reservations.vat_invoice_number','reservations.ota_reservation_number');
+
+            }else if(isset($response['filter_type']) && $response['filter_type'] == 'typeroomincome'){
+                $reservations = Reservations::join('guests','reservations.guest_id','=','guests.id')->join('reservation_details','reservations.id','=','reservation_details.reservations_id')->leftJoin('rooms','reservation_details.room_id','=','rooms.id')->join('room_types','room_types.id','=','reservation_details.room_type_id')->select('reservations.id','reservations.check_in', 'reservations.check_out', 'reservations.days', 'reservations.paid', 'reservations.reservation_status', 'reservations.grand_total', 'reservations.amount_paid', 'reservations.balance', 'reservations.payment_method', 'reservations.created_at', 'guests.full_name','rooms.name as room_name','reservation_details.price_per_day','room_types.name as room_type','reservations.ota_reservation_number');
+
+            }else if(isset($response['filter_type']) && $response['filter_type'] == 'typeota'){
+                $reservations = Reservations::join('guests','reservations.guest_id','=','guests.id')->select('reservations.id','reservations.check_in', 'reservations.check_out', 'reservations.days', 'reservations.paid', 'reservations.reservation_status', 'reservations.grand_total', 'reservations.amount_paid', 'reservations.balance', 'reservations.payment_method', 'reservations.created_at', 'guests.full_name','reservations.vat_invoice_number','reservations.ota_reservation_number')->where('reservations.payment_method','expedia')->orWhere('reservations.payment_method','booking.com');
+            }
+            // dd($reservations->get());
+            if(isset($response['search'])){
+                $search = $response['search'];
+                $reservations->where('guests.full_name', 'like', '%'.$search.'%')->orWhere('reservations.payment_method', 'like', '%'.$search.'%')->orWhere('reservations.vat_invoice_number', 'like', '%'.$search.'%')->orWhere('reservations.ota_reservation_number', 'like', '%'.$search.'%');
+                if(isset($response['filter_type']) && $response['filter_type'] == 'typeroomincome'){
+                    $reservations->orWhere('rooms.name', 'like', '%'.$search.'%')->orWhere('room_types.name', 'like', '%'.$search.'%');
+                }
+            }
             if(isset($response['reservation_status'])){
                 $reservation_status = $response['reservation_status'];
                 $reservations->where('reservation_status',$reservation_status);
@@ -58,6 +75,7 @@ class ReportsController extends CommonController
 
             $data = [
                 'filter' => $this->objectify([
+                    'search'=> $response['search'] ?? "",
                     'filter_type'=> $response['filter_type'] ?? null,
                     'reservation_status'=> $response['reservation_status'] ?? null,
                     'daterange'=> $response['daterange'] ?? null,
@@ -65,7 +83,7 @@ class ReportsController extends CommonController
                 'reservations' => $reservations->orderBy('check_in','desc')->paginate(100),
             ];
         }else{
-            $data['reservations'] = $reservations->orderBy('check_in','desc')->paginate(1);
+            $data['reservations'] = Reservations::where('company_id',auth()->user()->company->id)->orderBy('check_in','desc')->paginate(1);
         }
         // dd($data);
         return view('reports.filter',$data)->with('success','Report Generated');

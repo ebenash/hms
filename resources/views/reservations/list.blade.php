@@ -98,7 +98,7 @@
     <div class="block-content block-content-full">
         <!-- DataTables init on table by adding .js-dataTable-full class, functionality is initialized in js/pages/tables_datatables.js -->
 
-        <table class="table table-bordered table-striped table-vcenter js-dataTable-full">
+        <table class="table table-bordered table-striped table-vcenter js-dataTable-report">
 			<thead>
 				<tr>
 					<th class="hidden-sm">#</th>
@@ -106,6 +106,7 @@
 					<th class="hidden-sm">Check-In</th>
 					<th class="hidden-sm">Check-Out</th>
 					<th class="hidden-sm">Status</th>
+					<th class="hidden-sm">Date Added</th>
 					<th class="text-center" style="width: 10%;">Actions</th>
 				</tr>
 			</thead>
@@ -120,6 +121,7 @@
                         <td class="hidden-sm" data-sort="{{date_format(new DateTime($reservation->check_in),'Y-m-d')}}">{{date_format(new DateTime($reservation->check_in), 'l jS F, Y')}}</td>
                         <td class="hidden-sm" data-sort="{{date_format(new DateTime($reservation->check_out),'Y-m-d')}}">{{date_format(new DateTime($reservation->check_out), 'l jS F Y')}}</td>
                         <td class="hidden-sm">@if($reservation->payment_method == 'complementary') <span class="badge badge-primary">Complementary</span> @endif @if($reservation->reservation_status == 'confirmed') <span class="badge badge-success">Confirmed</span>  @if($reservation->payment_method != 'complementary') @if($reservation->paid == 'full') <span class="badge badge-success">Fully Paid</span> @elseif($reservation->paid == 'part') <span class="badge badge-warning">Part Paid</span> @else<span class="badge badge-danger">Not Paid</span> @endif @endif  @elseif($reservation->reservation_status == 'pending') {!! strtotime($reservation->check_in) < strtotime(date('Y-m-d')) ? '<span class="badge badge-danger">Overdue</span>':'<span class="badge badge-warning">Pending</span>' !!} @elseif($reservation->reservation_status == 'rejected') <span class="badge badge-danger">Rejected</span> @else <span class="badge badge-danger">Cancelled</span> @endif</td>
+                        <td class="hidden-sm" data-sort="{{date_format(new DateTime($reservation->created_at),'Y-m-d')}}">{{date_format(new DateTime($reservation->created_at), 'l jS F Y')}}</td>
                         <td class="text-center">
                             <div class="btn-group">
                                 @php
@@ -127,7 +129,7 @@
                                     // $successurl = route('settings-tab','users');
                                 @endphp
                                 @can('view reservations')<div style="display: inline-block;"><a href="{{route('reservations-show',$reservation->id)}}" class="btn btn-sm btn-alt-primary" data-toggle="tooltip" title="View Reservation"> <i class="fa fa-eye"> </i></a></div>@endcan
-                                @if($reservation->reservation_status =='pending' || auth()->user()->hasRole('administrator')) @can('edit reservations')<div style="display: inline-block;"><a href="{{route(($reservation->reservation_status=='pending' && $reservation->created_by==0) ? 'reservations-view-request':'reservations-edit',$reservation->id)}}" class="btn btn-sm btn-primary" data-toggle="tooltip" title="{{($reservation->reservation_status=='pending' && $reservation->created_by==0) ? 'Respond To Reservation Request':'Edit Reservation'}}"> <i class="fa fa-edit"></i> </a></div>@endcan @endif
+                                @can('edit reservations')<div style="display: inline-block;"><a href="{{route(($reservation->reservation_status=='pending' && $reservation->created_by==0) ? 'reservations-view-request':'reservations-edit',$reservation->id)}}" class="btn btn-sm btn-primary" data-toggle="tooltip" title="{{($reservation->reservation_status=='pending' && $reservation->created_by==0) ? 'Respond To Reservation Request':'Edit Reservation'}}"> <i class="fa fa-edit"></i> </a></div>@endcan
                                 @can('remove reservations')<div style="display: inline-block;"><button class="btn btn-sm btn-danger" type="button" data-toggle="tooltip" title="Remove Reservation" onclick="confimdelete('{{$deleteurl}}')"><i class="fa fa-times"> </i></button></div>@endcan
                             </div>
                         </td>

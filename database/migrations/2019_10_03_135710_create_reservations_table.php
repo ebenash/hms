@@ -28,6 +28,7 @@ class CreateReservationsTable extends Migration
             $table->string('invoice_sent',5)->default(false);
             $table->string('paid',10)->default("pending");
             $table->text('notes')->nullable();
+            $table->string('ota_reservation_number')->nullable();
             $table->string('vat_invoice_number')->nullable();
             $table->string('signed_by')->nullable();
             $table->integer('company_id');

@@ -9,10 +9,17 @@
 <div class="block block-rounded">
     <div class="block-header">
         <h3 class="block-title">Calendar <small>View</small></h3>
+        <div class="block-options">
 
-        {{-- <div class="pull-left">
-            <a href="#" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#modal-view-add-reservation"><i class="fa fa-plus"></i> Add New Reservation</a>
-        </div> --}}
+            <button type="button" class="btn-block-option" data-toggle="block-option" data-action="fullscreen_toggle" onclick="resizecalendar()"></button>
+            {{-- <button type="button" class="btn-block-option" data-toggle="block-option" data-action="pinned_toggle">
+                <i class="si si-pin"></i>
+            </button> --}}
+            {{-- <button type="button" class="btn-block-option" data-toggle="block-option" data-action="state_toggle" data-action-mode="demo">
+                <i class="si si-refresh"></i>
+            </button> --}}
+            <button type="button" class="btn-block-option" data-toggle="block-option" data-action="content_toggle"></button>
+        </div>
     </div>
     <div class="block-content">
         <div class="row items-push">
@@ -39,4 +46,11 @@
     <script src="{{ asset('js/plugins/fullcalendar/main.js') }}"></script>
     <script src="{{ asset('js/plugins/fullcalendar/locales-all.min.js') }}"></script>
 
+    <script>
+        function resizecalendar() {
+            $('.fc-col-header').css('width', '100%');
+            $('.fc-daygrid-body').css('width', '100%');
+            $('.fc-scrollgrid-sync-table').css('width', '100%');
+        }
+    </script>
 @endsection

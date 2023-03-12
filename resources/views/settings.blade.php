@@ -136,7 +136,7 @@
                                 <td class="font-w600">{{$phone->phone_name}}</td>
                                 <td class="hidden-xs">{{$phone->phone_number}}</td>
                                 <td class="hidden-xs">@if($phone->status == 1) <span class="badge badge-success">Active</span>  @else <span class="badge badge-danger">Inactive</span> @endif</td>
-                                <td class="hidden-xs">{{date_format(new DateTime($phone->date_created), 'l jS F, Y')}}</td>
+                                <td class="hidden-xs">{{date_format(new DateTime($phone->created_at), 'l jS F, Y')}}</td>
                                 <td class="text-center">
                                     @php
                                         $deleteurl = route('phone-destroy',$phone->id);

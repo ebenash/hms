@@ -45,7 +45,7 @@ class DailySummaryNotification extends Notification implements ShouldQueue
     public function toMail($notifiable)
     {
         return (new MailMessage)
-            ->subject('Summary Report for '.date("jS F, Y",strtotime("-1 day")))
+            ->subject('Daily Summary Report ('.date("jS F, Y").')')
             ->greeting('Royal Elmount Hotel Summary Of Reservations On '.date("jS F, Y"/*,strtotime("-1 day")*/))
             ->line(new HtmlString('<br/>'))
             ->line(new HtmlString('<h3>SUMMARY OF RESERVATIONS YESTERDAY</h3>'))

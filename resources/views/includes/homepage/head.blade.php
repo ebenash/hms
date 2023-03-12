@@ -53,6 +53,46 @@
     <link rel="stylesheet" href="{{ asset('homepage/assets/vendor/rs-plugin/css/layers.css')}}">
     <link rel="stylesheet" href="{{ asset('homepage/assets/vendor/rs-plugin/css/navigation.css')}}">
 
+    @php
+        $bg = array('bg-1.svg', 'bg-2.svg', 'bg-3.svg', 'bg-4.svg', 'bg-5.svg', 'bg-6.svg' ); // array of filenames
+        $month = (int)date('m');
+        $i = $month > 6 ? $month - 6 : $month ;// generate random number size of the array
+        $selectedBg = $bg[$i-1]; // set variable equal to which random filename was chosen
+
+        // dd($selectedBg);
+        if (!in_array($selectedBg, $bg)){
+            $selectedBg = 'bg-1.svg';
+        }
+    @endphp
+
+    <style type="text/css">
+        html.boxed {
+            background-image: url("homepage/assets/img/patterns/<?php echo $selectedBg; ?>") !important;
+        }
+    </style>
+    @if ($selectedBg == 'bg-4.svg' || $selectedBg == 'bg-5.svg' || $selectedBg == 'bg-6.svg')
+        <style type="text/css">
+            html.boxed {
+                background-size: 100%;
+                background-repeat: no-repeat;
+                background-attachment: fixed;
+                background-position: center top;
+                -webkit-background-size: cover;
+                -moz-background-size: cover;
+                background-size: cover;
+                opacity: 0.95;
+                -webkit-backface-visibility: hidden;
+                -webkit-background-size: cover !important;
+                z-index: -1;
+                -webkit-transform: translate3d(0, 0);
+                width: 100%;
+                height: 100%;
+                margin: 0 auto;
+            }
+        </style>
+    @endif
+
+
     <!-- Demo CSS -->
     <link rel="stylesheet" href="{{ asset('homepage/assets/css/demos/demo-hotel.css')}}">
 

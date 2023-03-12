@@ -18,7 +18,7 @@
                 </li>
                 <li data-transition="boxfade">
 
-                    <img src="{{asset('homepage/assets/img/hotel/slides/el_slide3.jpg')}}" alt="" data-bgposition="center bottom" data-bgfit="cover" data-bgrepeat="no-repeat" data-bgparallax="10" class="rev-slidebg" data-no-retina>
+                    <img src="{{asset('homepage/assets/img/hotel/slides/el_slide4.jpg')}}" alt="" data-bgposition="center bottom" data-bgfit="cover" data-bgrepeat="no-repeat" data-bgparallax="10" class="rev-slidebg" data-no-retina>
                 </li>
             </ul>
         </div>

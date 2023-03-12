@@ -8,6 +8,7 @@ use App\Models\Guests;
 use App\Models\Rooms;
 use App\Models\RoomTypes;
 use App\Models\Reservations;
+use App\Models\ReservationDetails;
 use App\Models\HotelNotifications;
 use App\Models\Payments;
 use App\Models\PaystackInvoices;
@@ -20,6 +21,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Notification;
 use App\Notifications\NewRequestNotification;
 use App\Notifications\DailySummaryNotification;
+use App\Notifications\GuestPaymentNotification;
 
 // use Illuminate\Support\Facades\DB;
 
@@ -263,7 +265,8 @@ class CommonController extends Controller
             "A New Reservation Request has been submitted on the ".env('APP_NAME')." website! Please verify and respond.",
             'SMS'
         );
-        Notification::route('mail', env('HOTEL_MAIN_EMAIL'))->notify(new NewRequestNotification($reservation));
+        $users = User::all();
+        Notification::send($users, new NewRequestNotification($reservation));
     }
 
     public function hotel_notification( $message, $type, $url ) {
@@ -317,25 +320,27 @@ class CommonController extends Controller
                 $no_filter = false;
             }
             if (count($rooms) > 0) {
+                $details = ReservationDetails::whereIn("room_id",array_column($rooms->toArray(), 'id'))->get();
                 if ($first) {
-                    $reservations->whereIn("room_id",array_column($rooms->toArray(), 'id'));
+                    $reservations->whereIn("id",array_column($details->toArray(), 'reservations_id'));
                     $first = false;
                 } else {
-                    $reservations->orWhereIn("room_id",array_column($rooms->toArray(), 'id'));
+                    $reservations->orWhereIn("id",array_column($details->toArray(), 'reservations_id'));
                 }
                 $no_filter = false;
             }
             if (count($roomtypes) > 0) {
+                $details = ReservationDetails::whereIn("room_type_id",array_column($roomtypes->toArray(), 'id'))->get();
                 if ($first) {
-                    $reservations->whereIn("room_type",array_column($roomtypes->toArray(), 'id'));
+                    $reservations->whereIn("id",array_column($details->toArray(), 'reservations_id'));
                     $first = false;
                 } else {
-                    $reservations->orWhereIn("room_type",array_column($roomtypes->toArray(), 'id'));
+                    $reservations->orWhereIn("id",array_column($details->toArray(), 'reservations_id'));
                 }
                 $no_filter = false;
             }
 
-            $reservations->with(['roomtype','room']);
+            // $reservations->with(['roomtype','room']);
         }
 
         if($no_filter){
@@ -785,6 +790,8 @@ class CommonController extends Controller
                             'amount_paid' => (($event->data->amount ?? 0)/100),
                             'balance' => 0,
                         ]);
+                        $reservation = Reservations::where('id',$invoice->reservation_id)->with('guest')->first();
+                        Notification::route('mail', $reservation->guest->email)->notify(new GuestPaymentNotification($reservation));
                     }
                 }
                 $smstext = "A Payment has been made for Invoice #".($event->data->invoice_number ?? "Undefined")." on Paystack. Invoice Amount: GHS ".(($event->data->amount ?? 0)/100).".";
@@ -951,8 +958,7 @@ class CommonController extends Controller
             try{
                 Notification::send($users, new DailySummaryNotification($this->objectify($summary)));
             } catch (\Exception $e) {
-                $this->writelog("Daily Summary Error: ".$e."\n",1);
-                Notification::route('mail', (env("EXCEPTION_EMAIL", 'info@royalelmounthotel.com')))->notify(new ExceptionAlertNotification($e));
+                $this->ExceptionHandler($e);
             }
             return "true";
         }else{

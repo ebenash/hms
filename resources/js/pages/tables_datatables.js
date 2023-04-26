@@ -64,6 +64,7 @@ class pageTablesDatatables {
             dom: "<'row'<'col-sm-12'<'text-left py-2 mb-2'B>>><'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>><'row'<'col-sm-12'tr>><'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>"
         }), jQuery(".js-dataTable-report").dataTable({
             pageLength: 200,
+            responsive: true,
             scrollX: true,
             lengthMenu: [
                 [50, 100, 200, 500],

@@ -63,7 +63,8 @@ class GuestsController extends CommonController
         $this->validate($request,[
             'full_name' => 'required',
             'email' => 'required',
-            'phone' => 'required'
+            'phone' => 'required',
+            'id_card' => 'image|required'
         ]);
 
         $guest = new Guests;
@@ -73,6 +74,12 @@ class GuestsController extends CommonController
         $guest->phone = $this->formatphonenumber($request->input('phone'));
         $guest->city = $request->input('city');
         $guest->country = $request->input('country');
+
+        $extension = $request->file('id_card')->getClientOriginalExtension();
+        $filename = $guest->full_name."_".time().".".$extension;
+        $path = $request->file('id_card')->storeAs('public/uploads/guestids/',$filename);
+
+        $guest->id_card = $filename;
         $guest->company_id = auth()->user()->company->id;
         $guest->created_by = auth()->user()->id;
 
@@ -125,12 +132,33 @@ class GuestsController extends CommonController
         $this->validate($request,[
             'full_name' => 'required',
             'email' => 'required',
-            'phone' => 'required'
+            'phone' => 'required',
+            // 'id_card' => 'image|required'
         ]);
+
+        if(!$guest->id_card){
+            $this->validate($request,[
+                'id_card' => 'image|required'
+            ]);
+        }
+
+        if($request->hasFile('id_card')){
+            $extension = $request->file('id_card')->getClientOriginalExtension();
+            $filename = $guest->full_name."_".time().".".$extension;
+            $path = $request->file('id_card')->storeAs('public/uploads/guestids/',$filename);
+
+            if($guest->id_card != null || $guest->id_card != "")
+            {
+                unlink(storage_path('app/public/uploads/guestids/'.$guest->id_card));
+            }
+        }else{
+            $filename = $guest->id_card;
+        }
 
         $guest->full_name = ucwords($request->input('full_name'));
         $guest->email = $request->input('email');
         $guest->phone = $this->formatphonenumber($request->input('phone'));
+        $guest->id_card = $filename;
         $guest->city = $request->input('city');
         $guest->country = $request->input('country');
 

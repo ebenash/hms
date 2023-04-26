@@ -88,21 +88,21 @@
                                                 <div class="row items-push js-gallery img-fluid-100">
                                                     @if ($roomtype->image_one)
                                                         <div class="col-md-6 col-lg-4 col-xl-3 animated fadeIn">
-                                                            <a class="img-link img-link-zoom-in img-thumb img-lightbox" onclick="closeModal('#modal-view{{$roomtype->id}}')"  href="{{ asset($roomtype->image_one)}}">
+                                                            <a class="img-link img-link-zoom-in img-thumb img-lightbox"  href="{{ asset($roomtype->image_one)}}">
                                                                 <img class="img-fluid" src="{{ asset($roomtype->image_one)}}" alt="">
                                                             </a>
                                                         </div>
                                                     @endif
                                                     @if ($roomtype->image_two)
                                                         <div class="col-md-6 col-lg-4 col-xl-3 animated fadeIn">
-                                                            <a class="img-link img-link-zoom-in img-thumb img-lightbox" onclick="closeModal('#modal-view{{$roomtype->id}}')" href="{{ asset($roomtype->image_two)}}">
+                                                            <a class="img-link img-link-zoom-in img-thumb img-lightbox" href="{{ asset($roomtype->image_two)}}">
                                                                 <img class="img-fluid" src="{{ asset($roomtype->image_two)}}" alt="">
                                                             </a>
                                                         </div>
                                                     @endif
                                                     @if ($roomtype->image_three)
                                                         <div class="col-md-6 col-lg-4 col-xl-3 animated fadeIn">
-                                                            <a class="img-link img-link-zoom-in img-thumb img-lightbox" onclick="closeModal('#modal-view{{$roomtype->id}}')" href="{{ asset($roomtype->image_three)}}">
+                                                            <a class="img-link img-link-zoom-in img-thumb img-lightbox" href="{{ asset($roomtype->image_three)}}">
                                                                 <img class="img-fluid" src="{{ asset($roomtype->image_three)}}" alt="">
                                                             </a>
                                                         </div>
@@ -311,9 +311,6 @@
     <!-- Page JS Helpers (Slick Slider Plugin) -->
     <script>jQuery(function(){One.helpers(['ckeditor5','magnific-popup']);});</script>
     <script>
-        function closeModal(modal){
-            $(modal).modal('toggle');
-        }
         function newckeditor(element) {
             console.log(element);
             // Init full text editor

@@ -99,9 +99,15 @@
                         @endcan
                     </ul>
                 </li>
-                {{-- <li class="nav-main-item{{ request()->is('admin/accounting/*') ? ' open' : '' }}">
+                <li class="nav-main-item{{ request()->is('admin/accounting/*') ? ' open' : '' }}">
                     <a class="nav-main-link nav-main-link-submenu" data-toggle="submenu" aria-haspopup="true" aria-expanded="true" href="#"><i class="nav-main-link-icon si si-calculator"></i><span class="nav-main-link-name">Accounting</span></a>
                     <ul class="nav-main-submenu">
+                        <li class="nav-main-item">
+                            <a class="nav-main-link{{ request()->is('admin/accounting/other-sales') ? ' active' : '' }}" href="{{route('other.sales')}}"><i class="nav-main-link-icon fa fa-list"></i><span class="nav-main-link-name">Other Sales</span></a>
+                        </li>
+                        {{-- <li class="nav-main-item">
+                            <a class="nav-main-link{{ request()->is('admin/accounting/paystack-invoices') ? ' active' : '' }}" href="{{route('paystack.invoices')}}"><i class="nav-main-link-icon fa fa-list"></i><span class="nav-main-link-name">Paystack Invoices</span></a>
+                        </li>
                         <li class="nav-main-item">
                             <a class="nav-main-link{{ request()->is('admin/accounting/') ? ' active' : '' }}" href="#" data-toggle="modal" data-target="#modal-view-add-reservation"><i class="nav-main-link-icon fa fa-calendar"></i><span class="nav-main-link-name">Overview</span></a>
                         </li>
@@ -110,9 +116,9 @@
                         </li>
                         <li class="nav-main-item">
                             <a class="nav-main-link{{ request()->is('admin/accounting/payments') ? ' active' : '' }}" href="{{url('/admin/reservations')}}"><i class="nav-main-link-icon fa fa-list"></i><span class="nav-main-link-name">Payments</span></a>
-                        </li>
+                        </li> --}}
                     </ul>
-                </li> --}}
+                </li>
                 <li class="nav-main-item">
                     <a class="nav-main-link{{ request()->is('admin/reports') ? ' active' : '' }}" href="{{route('reports')}}" ><i class="nav-main-link-icon si si-docs"></i><span class="nav-main-link-name">Reports</span></a>
                 </li>

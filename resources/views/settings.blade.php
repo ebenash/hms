@@ -117,7 +117,7 @@
                 </div>
                 <div class="block-content block-content-full">
                     <!-- DataTables init on table by adding .js-dataTable-full-pagination class, functionality initialized in js/pages/base_tables_datatables.js -->
-                    <table class="table table-bordered table-striped table-vcenter js-dataTable-full">
+                    <table class="table table-bordered table-striped table-vcenter js-dataTable-buttons">
                         <thead>
                             <tr>
                                 <th class="hidden-xs">#</th>
@@ -211,7 +211,7 @@
                 </div>
                 <div class="block-content block-content-full">
                     <!-- DataTables init on table by adding .js-dataTable-full-pagination class, functionality initialized in js/pages/base_tables_datatables.js -->
-                    <table class="table table-bordered table-striped table-vcenter js-dataTable-full">
+                    <table class="table table-bordered table-striped table-vcenter js-dataTable-buttons">
                         <thead>
                             <tr>
                                 <th class="hidden-xs">#</th>

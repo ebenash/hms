@@ -65,6 +65,12 @@ Route::prefix('admin')->group(function(){
     Route::post('/rooms/update/{id}', 'RoomsController@update')->name('rooms-update');
     Route::post('/rooms/getrooms/{id}', 'RoomsController@get_rooms')->name('get-rooms');
     Route::post('/payments/store', 'PaymentsController@store')->name('payments-store');
+    Route::get('/accounting/paystack-invoices', 'AccountingController@paystack_invoices')->name('paystack.invoices');
+    Route::get('/accounting/other-sales', 'AccountingController@other_sales')->name('other.sales');
+    Route::post('/accounting/sale/store', 'AccountingController@sale_store')->name('sale-store');
+    Route::post('/accounting/sale/update/{id}', 'AccountingController@sale_update')->name('sale-update');
+    Route::post('/accounting/sale/filter', 'AccountingController@sale_filter')->name('sale-filter');
+    Route::delete('/accounting/sale/delete/{id}', 'AccountingController@sale_destroy')->name('sale-destroy');
     Route::get('/reports', 'ReportsController@index')->name('reports');
     Route::post('/reports', 'ReportsController@reportfilter')->name('reports-filter');
     Route::post('/reports/exportexcel', 'ReportsController@excelexport')->name('reports-excel');
@@ -131,17 +137,18 @@ Route::prefix('admin')->group(function(){
             'destroy' => 'roomtypes-destroy',
         ]
     ]);
-    Route::resource('payments','PaymentsController', [
-        'names' => [
-            'index' => 'payments',
-            'create' => 'payments-create',
-            // 'store' => 'payments-store',
-            'show' => 'payments-show',
-            'edit' => 'payments-edit',
-            // 'update' => 'payments-update',
-            'destroy' => 'payments-destroy',
-        ]
-    ]);
+    // Route::resource('accounting','AccountingController', [
+    //     'names' => [
+    //         // 'index' => 'accounting',
+    //         // 'paystack_invoices' => 'paystack.invoices',
+    //         // 'create' => 'accounting-create',
+    //         // // 'store' => 'accounting-store',
+    //         // 'show' => 'accounting-show',
+    //         // 'edit' => 'accounting-edit',
+    //         // // 'update' => 'accounting-update',
+    //         // 'destroy' => 'accounting-destroy',
+    //     ]
+    // ]);
     Route::resource('users','Auth\UserController', [
         'names' => [
             'index' => 'users',
@@ -166,4 +173,16 @@ Route::prefix('admin')->group(function(){
         abort(404);
 
     }])->name('hms-uploads-file');
+
+    Route::get('/hms-guest-identification/{file}', [ function ($file) {
+
+        $path = storage_path('app/public/uploads/guestids/'.$file);
+
+        if (file_exists($path)) {
+            return response()->file($path, []);
+        }
+
+        abort(404);
+
+    }])->name('hms-guest-identification');
 });

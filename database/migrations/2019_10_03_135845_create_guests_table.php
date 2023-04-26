@@ -18,6 +18,7 @@ class CreateGuestsTable extends Migration
             $table->string('full_name');
             $table->string('email');
             $table->string('phone');
+            $table->string('id_card')->nullable();
             $table->string('city')->nullable();
             $table->string('country')->nullable();
             $table->integer('paystack_identifier')->nullable();

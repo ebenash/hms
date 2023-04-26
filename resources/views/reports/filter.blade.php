@@ -32,6 +32,8 @@
                         <option value="typereservationincome" {{isset($filter) ? ($filter->filter_type == 'typereservationincome' ? 'selected' : '') : ''}}>Reservation Income Summary</option>
                         <option value="typeroomincome" {{isset($filter) ? ($filter->filter_type == 'typeroomincome' ? 'selected' : '') : ''}}>Room Income Summary</option>
                         <option value="typeota" {{isset($filter) ? ($filter->filter_type == 'typeota' ? 'selected' : '') : ''}}>OTA Summary</option>
+                        <option value="typepaystack" {{isset($filter) ? ($filter->filter_type == 'typepaystack' ? 'selected' : '') : ''}}>Paystack Invoices</option>
+                        <option value="typesales" {{isset($filter) ? ($filter->filter_type == 'typesales' ? 'selected' : '') : ''}}>Sales Income</option>
                         {{-- <option value="typeguests" {{isset($filter) ? ($filter->filter_type == 'typeguests' ? 'selected' : '') : ''}}>Guests</option> --}}
                     </select>
                 </div>
@@ -71,70 +73,142 @@
                 <thead>
                     <tr>
                         <td class="font-w600">No.</td>
-                        <td class="font-w600">Name</td>
-                        <td class="font-w600">Room(s)</td>
-                        <td class="font-w600">Type</td>
-                        <td class="font-w600">Arrival</td>
-                        <td class="font-w600">Departure</td>
-                        <td class="font-w600">Status</td>
-                        <td class="font-w600">Method</td>
-                        <td class="font-w600">Days</td>
-                        @if(isset($filter) && $filter->filter_type == 'typeroomincome')
-                            <td class="font-w600">Per Day(GHS)</td>
-                            @endif
-                        <td class="font-w600">Total(GHS)</td>
-                        @if(isset($filter) && $filter->filter_type != 'typeroomincome')
-                            <td class="font-w600">Paid(GHS)</td>
-                            <td class="font-w600">Balance(GHS)</td>
+                        @if(isset($filter) && $filter->filter_type == 'typesales')
+                            <td class="font-w600">Description</td>
+                            <td class="font-w600">Type</td>
+                        @else
+                            <td class="font-w600">Guest</td>
                         @endif
-                        @if(isset($filter) && $filter->filter_type == 'typeota')
-                            <td class="font-w600">Reservation #</td>
+                        @if(isset($filter) && $filter->filter_type == 'typepaystack')
+                            <th class="font-w600">Customer Number</th>
+                            <th class="font-w600">Reservation</th>
+                            <th class="font-w600">Invoice ID</th>
+                            <th class="font-w600">Invoice Number</th>
+                            <th class="font-w600">Amount</th>
+                            <th class="font-w600">Request Code</th>
+                        @elseif(isset($filter) && $filter->filter_type != 'typesales')
+                            <td class="font-w600">Room(s)</td>
+                            <td class="font-w600">Type</td>
+                            <td class="font-w600">Arrival</td>
+                            <td class="font-w600">Departure</td>
+                        @endif
+                        <td class="font-w600">Status</td>
+                        @if(isset($filter) && $filter->filter_type == 'typepaystack')
+                            <th class="font-w600">Paid At</th>
+                        @else
+                            <td class="font-w600">Method</td>
+                            @if(isset($filter) && $filter->filter_type != 'typesales')
+                                <td class="font-w600">Days</td>
+                            @endif
+                            @if(isset($filter) && $filter->filter_type == 'typeroomincome')
+                                <td class="font-w600">Per Day(GHS)</td>
+                            @elseif(isset($filter) && $filter->filter_type == 'typesales')
+                                <td class="font-w600">Quantity</td>
+                                <td class="font-w600">Price(GHS)</td>
+                            @endif
+                            <td class="font-w600">Total(GHS)</td>
+                            @if(isset($filter) && $filter->filter_type != 'typeroomincome')
+                                <td class="font-w600">Paid(GHS)</td>
+                                <td class="font-w600">Balance(GHS)</td>
+                                <td class="font-w600">VAT/Receipt Number</td>
+                                <td class="font-w600">OTA Reservation Number</td>
+                            @endif
+                            {{-- @if(isset($filter) && $filter->filter_type == 'typeota')
+                                <td class="font-w600">Reservation #</td>
+                            @endif --}}
                         @endif
                         <td class="font-w600">Recorded</td>
                     </tr>
                 </thead>
                 <tbody>
                     @php
-                        $count=($reservations->perPage()*($reservations->currentPage() -1))+1;
+                        $count=($reports->perPage()*($reports->currentPage() -1))+1;
                     @endphp
-                    @foreach($reservations as $reservation)
+                    @foreach($reports as $report)
                         <tr>
-                            <td class="text-center">{{$count++}}</td>
-                            <td class="hidden-xs"><span>{{$reservation->full_name}}</span></td>
-                            @if(isset($filter) && $filter->filter_type != 'typeroomincome')
-                                <td class="hidden-xs">
-                                    @foreach ($reservation->details as $detail)
-                                    <span class="badge badge-primary">{{$detail->room->name ?? ''}}</span>
-                                    @endforeach
-                                </td>
-                                <td class="hidden-xs">
-                                    @foreach ($reservation->details as $detail)
-                                    <span class="badge badge-secondary">{{$detail->roomtype->name ?? ''}}</span>
-                                    @endforeach
-                                </td>
-                            @else
-                                <td class="hidden-xs">{{$reservation->room_name ?? 'Unassigned'}}</td>
-                                <td class="hidden-xs">{{$reservation->room_type ?? 'Unassigned'}}</td>
-                            @endif
-                            <td class="hidden-xs">{{$reservation->check_in}}</td>
-                            <td class="hidden-xs">{{$reservation->check_out}}</td>
-                            <td class="hidden-xs">@if($reservation->payment_method == 'complementary') <span class="badge badge-primary">Complementary</span> @endif @if($reservation->reservation_status == 'confirmed') <span class="badge badge-success">Confirmed</span>  @if($reservation->payment_method != 'complementary') @if($reservation->paid == 'full') <span class="badge badge-success">Fully Paid</span> @elseif($reservation->paid == 'part') <span class="badge badge-warning">Part Paid</span> @else<span class="badge badge-danger">Not Paid</span> @endif @endif  @elseif($reservation->reservation_status == 'pending') {!! strtotime($reservation->check_in) < strtotime(date('Y-m-d')) ? '<span class="badge badge-danger">Overdue</span>':'<span class="badge badge-warning">Pending</span>' !!} @elseif($reservation->reservation_status == 'rejected') <span class="badge badge-danger">Rejected</span> @else <span class="badge badge-danger">Cancelled</span> @endif</td>
-                            <td class="text-center">{{ucfirst($reservation->payment_method)}}</td>
-                            <td class="text-center">{{$reservation->days}}</td>
-                            @if(isset($filter) && $filter->filter_type == 'typeroomincome')
-                                <td class="hidden-xs">{{ number_format($reservation->price_per_day,2)}}</td>
-                            @endif
-                            <td class="hidden-xs">{{ number_format($reservation->grand_total,2)}}</td>
-                            @if(isset($filter) && $filter->filter_type != 'typeroomincome')
-                                <td class="hidden-xs">{{ number_format(($reservation->amount_paid),2)}}</td>
-                                <td class="hidden-xs">{{ number_format(($reservation->balance),2)}}</td>
-                            @endif
-                            @if(isset($filter) && $filter->filter_type == 'typeota')
-                                <td class="hidden-xs">{{$reservation->ota_reservation_number}}</td>
-                            @endif
-                            <td class="hidden-xs">{{$reservation->created_at}}</td>
+                            {{-- @if(isset($filter) && $filter->filter_type == 'typesales')
+                                @foreach ($report->details as $item)
+                                    <td class="text-center font-w600"><a href="{{route('reservations-show',$item->reservations_id)}}">#{{$item->reservation_id}}</a></td>
+                                @endforeach
+                            @else --}}
+                                @if(isset($filter) && $filter->filter_type == 'typepaystack')
+                                    <td class="text-center">{{$count++}}</td>
+                                @else
+                                    <td class="text-center font-w600">@if($report->id)<a href="{{route('reservations-show',$report->id)}}">#{{$report->id}}</a>@endif</td>
+                                @endif
+                                @if(isset($filter) && $filter->filter_type == 'typesales')
+                                    <td class="hidden-xs"><span>{{$report->description}}</span></td>
+                                    <td class="hidden-xs"><span>{{ucfirst($report->type)}}</span></td>
+                                @else
+                                    <td class="hidden-xs"><span>{{$report->full_name}}</span></td>
+                                @endif
+                                @if(isset($filter) && $filter->filter_type == 'typepaystack')
+                                    <td class="hidden-xs">{{$report->customer}}</td>
+                                    <td class="font-w600">@if($report->reservation_id)<a href="{{route('reservations-show',$report->reservation_id)}}">#{{$report->reservation_id}}</a>@endif</td>
+                                    <td class="hidden-xs">{{$report->invoice_id}}</td>
+                                    <td class="hidden-xs">{{$report->invoice_number}}</td>
+                                    <td class="font-w600">{{$report->currency.' '.number_format($report->amount/100,2)}}</td>
+                                    <td class="hidden-xs">{{$report->request_code}}</td>
+                                    <td class="hidden-xs"><span class="badge badge-{{$report->status == 'success' ? 'success':'warning'}}">{{$report->status == 'success' ? 'Success':'Pending'}}</span> <span class="badge badge-{{$report->paid ? 'success':'danger'}}">{{$report->paid ? 'Paid':'Unpaid'}}</span></td>
+                                    <td class="hidden-xs">{{$report->paid_at}}</td>
+                                @else
+                                    @if(isset($filter) && $filter->filter_type != 'typeroomincome' && $filter->filter_type != 'typesales')
+                                        <td class="hidden-xs">
+                                            @foreach ($report->details as $detail)
+                                                <span class="badge badge-primary">{{$detail->room->name ?? ''}}</span>
+                                            @endforeach
+                                        </td>
+                                        <td class="hidden-xs">
+                                            @php
+                                                $roomtypes = array();
+                                                foreach ($report->details as $detail){
+                                                    $roomtype = $detail->roomtype->name;
+                                                    if ($roomtype) {
+                                                        !in_array($roomtype,$roomtypes) ? $roomtypes[]=$roomtype : false;
+                                                    }
+                                                }
+                                            @endphp
+                                            @foreach ($roomtypes as $type)
+                                                <span class="badge badge-secondary">{{$type}}</span>
+                                            @endforeach
+                                        </td>
+                                    @elseif(isset($filter) && $filter->filter_type != 'typesales')
+                                        <td class="hidden-xs">{{$report->room_name ?? 'Unassigned'}}</td>
+                                        <td class="hidden-xs">{{$report->room_type ?? 'Unassigned'}}</td>
+                                    @endif
+                                    @if(isset($filter) && $filter->filter_type != 'typesales')
+                                        <td class="hidden-xs">{{$report->check_in}}</td>
+                                        <td class="hidden-xs">{{$report->check_out}}</td>
+                                        <td class="hidden-xs">@if($report->payment_method == 'complementary') <span class="badge badge-primary">Complementary</span> @endif @if($report->reservation_status == 'confirmed') <span class="badge badge-success">Confirmed</span>  @if($report->payment_method != 'complementary') @if($report->paid == 'full') <span class="badge badge-success">Fully Paid</span> @elseif($report->paid == 'part') <span class="badge badge-warning">Part Paid</span> @else<span class="badge badge-danger">Not Paid</span> @endif @endif  @elseif($report->reservation_status == 'pending') {!! strtotime($report->check_in) < strtotime(date('Y-m-d')) ? '<span class="badge badge-danger">Overdue</span>':'<span class="badge badge-warning">Pending</span>' !!} @elseif($report->reservation_status == 'rejected') <span class="badge badge-danger">Rejected</span> @else <span class="badge badge-danger">Cancelled</span> @endif</td>
+                                    @else
+                                        <td class="hidden-xs">@if($report->payment_method == 'complementary') <span class="badge badge-primary">Complementary</span> @endif @if($report->reservation_status == 'confirmed') <span class="badge badge-success">Confirmed</span>  @if($report->payment_method != 'complementary') @if($report->paid == 'full') <span class="badge badge-success">Fully Paid</span> @elseif($report->paid == 'part') <span class="badge badge-warning">Part Paid</span> @else<span class="badge badge-danger">Not Paid</span> @endif @endif @elseif($report->reservation_status == 'pending') <span class="badge badge-warning">Pending</span> @elseif($report->reservation_status == 'rejected') <span class="badge badge-danger">Rejected</span> @else <span class="badge badge-danger">Cancelled</span> @endif</td>
+                                    @endif
+                                    <td class="text-center">{{ucfirst($report->payment_method)}}</td>
+                                    @if(isset($filter) && $filter->filter_type != 'typesales')
+                                        <td class="text-center">{{$report->days}}</td>
+                                    @endif
+                                    @if(isset($filter) && $filter->filter_type == 'typeroomincome')
+                                        <td class="hidden-xs">{{ number_format($report->price_per_day,2)}}</td>
+                                    @elseif(isset($filter) && $filter->filter_type == 'typesales')
+                                        <td class="hidden-xs">{{$report->quantity}}</td>
+                                        <td class="hidden-xs">{{$report->total_price ?? 0}}</td>
+                                    @endif
+                                    <td class="hidden-xs">{{ number_format($report->grand_total,2)}}</td>
+                                    @if(isset($filter) && $filter->filter_type != 'typeroomincome')
+                                        <td class="hidden-xs">{{ number_format(($report->amount_paid),2)}}</td>
+                                        <td class="hidden-xs">{{ number_format(($report->balance),2)}}</td>
+                                        <td class="hidden-xs">{{$report->vat_invoice_number}}</td>
+                                        <td class="hidden-xs">{{$report->ota_reservation_number}}</td>
+                                    @endif
+                                    {{-- @if(isset($filter) && $filter->filter_type == 'typeota')
+                                        <td class="hidden-xs">{{$report->ota_reservation_number}}</td>
+                                    @endif --}}
+                                @endif
+                            {{-- @endif --}}
+                            <td class="hidden-xs">{{$report->created_at}}</td>
                         </tr>
                     @endforeach
+
                 </tbody>
             </table>
         </div>
@@ -147,6 +221,7 @@
 @section('css_before')
     <!-- Page JS Plugins CSS -->
     <link rel="stylesheet" href="{{ asset('js/plugins/datatables/dataTables.bootstrap4.css') }}">
+    <link rel="stylesheet" href="{{ asset('js/plugins/datatables/dataTables.responsive.css') }}">
     <link rel="stylesheet" href="{{ asset('js/plugins/datatables/buttons-bs4/buttons.bootstrap4.min.css') }}">
     <link rel="stylesheet" href="{{ asset('js/plugins/flatpickr/flatpickr.min.css') }}">
 @endsection
@@ -155,6 +230,7 @@
     <!-- Page JS Plugins -->
     <script src="{{ asset('js/plugins/datatables/jquery.dataTables.min.js') }}"></script>
     <script src="{{ asset('js/plugins/datatables/dataTables.bootstrap4.min.js') }}"></script>
+    <script src="{{ asset('js/plugins/datatables/dataTables.responsive.js') }}"></script>
     <script src="{{ asset('js/plugins/datatables/buttons/dataTables.buttons.min.js') }}"></script>
     <script src="{{ asset('js/plugins/datatables/buttons/buttons.print.min.js') }}"></script>
     <script src="{{ asset('js/plugins/datatables/buttons/buttons.html5.min.js') }}"></script>
@@ -177,13 +253,13 @@
     </script> --}}
     <script id="blockOfStuff" type="text/html">
         <div class="paginate" style="margin-left: auto;">
-            {{$reservations->onEachSide(1)->links()}}
+            {{$reports->onEachSide(1)->links()}}
         </div>
     </script>
 
     <script type="text/javascript">
         $(function () {
-            $('#DataTables_Table_0_info').html("Page {{$reservations->currentPage()}} of {{$reservations->lastPage()}}");
+            $('#DataTables_Table_0_info').html("Page {{$reports->currentPage()}} of {{$reports->lastPage()}}");
             $('#DataTables_Table_0_paginate').html("");
             var div = document.createElement('div');
             // div.setAttribute('class', 'someClass');

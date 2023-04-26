@@ -118,9 +118,19 @@
         });
         }
 
+        $(".table").addClass("compact nowrap w-100");
+
         function closeOneOpenAnotherModal(modal1,modal2) {
             $(modal1).modal('hide');
             $(modal2).modal('show');
+        }
+
+        function calcSalePrice() {
+            var price = $("#expense_price").val();
+            var quantity = $("#expense_quantity").val();
+
+            var totalprice = quantity * price;
+            $('#expense_total_price').val(totalprice);
         }
 
         var searchRequest = null;

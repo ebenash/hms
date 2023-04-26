@@ -21,6 +21,8 @@ class CreateReservationExpensesTable extends Migration
             $table->decimal('price',15,2);
             $table->integer('quantity');
             $table->decimal('total_price',15,2);
+            $table->string('method',50)->nullable();
+            $table->string('status',50)->nullable();
             $table->timestamps();
         });
     }

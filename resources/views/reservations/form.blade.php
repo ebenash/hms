@@ -58,7 +58,7 @@
                     <!-- Reservation Details -->
                     <div class="block block-rounded flex-grow-1 d-flex flex-column">
                         <div class="block-header block-header-default">
-                            <h3 class="block-title"></h3>
+                            <h3 class="block-title">{{isset($reservation) ? 'Invoice Number: #'.$reservation->id : ''}}</h3>
                         </div>
                         <div class="block-content block-content-full flex-grow-1 d-flex align-items-center row">
                             {{-- <div class="form-row mb-2 col-lg-12">
@@ -109,7 +109,7 @@
                                             <div class="form-row col-lg-12 mb-2">
                                                 <label for="room">Select Room(s)</label>
                                                 <div class="input-group">
-                                                    <select class="form-control" data-placeholder="Select Room Type First" name="{{isset($create) || isset($update) ? 'room'.$i.'[]': 'room'.$i }}" id="room{{$i}}" {!! isset($create) || isset($update) && (isset($reservation) && $reservation->reservation_status != 'confirmed') ? 'multiple required': (isset($show) || (!auth()->user()->hasRole(['administrator']) && isset($reservation) && $reservation->reservation_status == 'confirmed') ? 'multiple readonly style="pointer-events: none;" tabindex="-1"': (strtotime($reservation->check_in) >= strtotime(date('Y-m-d', strtotime('-5 days'))) ? 'required':'disabled')) !!} style="{{(isset($request) ? "border: 1px solid red !important;":'')}}" autocomplete="off">
+                                                    <select class="form-control" data-placeholder="Select Room Type First" name="{{isset($create) || isset($update) ? 'room'.$i.'[]': 'room'.$i }}" id="room{{$i}}" {!! isset($create) || isset($update) ? 'multiple required': (isset($show) || (!auth()->user()->hasRole(['administrator']) && isset($reservation) && $reservation->reservation_status == 'confirmed') ? 'multiple readonly style="pointer-events: none;" tabindex="-1"': (strtotime($reservation->check_in) >= strtotime(date('Y-m-d', strtotime('-5 days'))) ? 'required':'disabled')) !!} style="{{(isset($request) ? "border: 1px solid red !important;":'')}}" autocomplete="off">
 
                                                         @if(isset($create))
                                                         @elseif(isset($request))
@@ -286,23 +286,23 @@
                             <!-- Reservation Details -->
                             <div class="block block-rounded flex-grow-1 d-flex flex-column">
                                 <div class="block-header block-header-default">
-                                    <h3 class="block-title">Additional Expense Details</h3>
+                                    <h3 class="block-title">Additional Sale Details</h3>
                                 </div>
                                 <div class="block-content block-content-full flex-grow-1 d-flex align-items-center row">
                                     <div class="col-lg-6 d-flex flex-column">
                                         <div class="row">
                                             <div class="form-row col-lg-12 mb-2">
-                                                <label for="expense_description{{$i}}">Expense Description</label>
+                                                <label for="expense_description{{$i}}">Sale Description</label>
                                                 <div class="input-group">
-                                                    <input type="text" id="expense_description{{$i}}" name="expense_description{{$i}}" class="form-control" value="{{$expense->description ?? ''}}" placeholder="Expense Description" {{isset($show) || isset($request) || (!auth()->user()->hasRole(['administrator']) && isset($reservation) && $reservation->reservation_status == 'confirmed') ? 'readonly':'' }} autocomplete="off">
+                                                    <input type="text" id="expense_description{{$i}}" name="expense_description{{$i}}" class="form-control" value="{{$expense->description ?? ''}}" placeholder="Sale Description" {{isset($show) || isset($request) || (!auth()->user()->hasRole(['administrator']) && isset($reservation) && $reservation->reservation_status == 'confirmed') ? 'readonly':'' }} autocomplete="off">
                                                 </div>
                                             </div>
 
                                             <div class="form-row mb-2 col-lg-6">
-                                                <label for="expense_type">Expense Type</label>
+                                                <label for="expense_type">Sale Type</label>
                                                 <div class="input-group">
-                                                    <select class="form-control" id="expense_type{{$i}}" data-placeholder="Select Expense Type.." name="expense_type{{$i}}" {!! isset($show) || isset($request) || (!auth()->user()->hasRole(['administrator']) && isset($reservation) && $reservation->reservation_status == 'confirmed') ? 'readonly style="pointer-events: none;" tabindex="-1"':'' !!} autocomplete="off">
-                                                        <option>Select Expense Type</option>
+                                                    <select class="form-control" id="expense_type{{$i}}" data-placeholder="Select Sale Type.." name="expense_type{{$i}}" {!! isset($show) || isset($request) || (!auth()->user()->hasRole(['administrator']) && isset($reservation) && $reservation->reservation_status == 'confirmed') ? 'readonly style="pointer-events: none;" tabindex="-1"':'' !!} autocomplete="off">
+                                                        <option>Select Sale Type</option>
                                                         <option value="food" {{$expense->expense_type == 'food' ? 'selected' : ''}}>Food</option>
                                                         <option value="drinks" {{$expense->expense_type == 'drinks' ? 'selected' : ''}}>Drinks</option>
                                                         <option value="other" {{$expense->expense_type == 'other' ? 'selected' : ''}}>Other</option>
@@ -370,7 +370,7 @@
                                 <a href="#" class="btn btn-sm btn-info mb-4" id="add-rentalbox"><i class="fa fa-plus"></i> Add Rental</a>
                             </div>
                             <div style="display: {{isset($create) ? 'none' : 'inline-block'}};" id="expensesbutton">
-                                <a href="#" class="btn btn-sm btn-secondary mb-4" id="add-expensebox"><i class="fa fa-plus"></i> Additional Expense</a>
+                                <a href="#" class="btn btn-sm btn-secondary mb-4" id="add-expensebox"><i class="fa fa-plus"></i> Additional Sale</a>
                             </div>
                         </div>
                 @endif
@@ -448,7 +448,7 @@
                             <div class="form-row mb-2 col-lg-6">
                                 <div class="form-row mb-2 col-lg-12">
                                     <label for="payment_type">Payment Method</label>
-                                    <select name="payment_type" id="payment_type" class="form-control" {!! isset($show) || isset($request) || (isset($reservation) && $reservation->reservation_status == 'confirmed') ? 'readonly style="pointer-events: none;" tabindex="-1"':'required' !!} onchange="restrictIfPaystack({{ isset($reservation) ? $reservation->payment_method : NULL }})" autocomplete="off">
+                                    <select name="payment_type" id="payment_type" class="form-control" {!! isset($show) || isset($request) || (!auth()->user()->hasRole(['administrator']) && isset($reservation) && $reservation->reservation_status == 'confirmed') ? 'readonly style="pointer-events: none;" tabindex="-1"':'required' !!} onchange="restrictIfPaystackOTA({{ isset($reservation) ? $reservation->payment_method : NULL }})" autocomplete="off">
                                         <option value="">Select Payment Method</option>
                                         <option value="paystack" @if(isset($reservation)) {{$reservation->payment_method == 'paystack' ? 'selected="selected"' : ''}} @endif>Send Paystack Invoice</option>
                                         <option value="cash" @if(isset($reservation)) {{$reservation->payment_method == 'cash' ? 'selected="selected"' : ''}} @endif>Cash Payment</option>
@@ -462,9 +462,14 @@
                                 </div>
                                 <div class="form-row mb-2 col-lg-12">
                                     <label for="status">Reservation Status</label>
-                                    <select name="status" id="status" class="form-control" {!! isset($show) || isset($request) || (isset($reservation) && $reservation->reservation_status == 'confirmed') ? 'readonly style="pointer-events: none;" tabindex="-1"':'required' !!} autocomplete="off">
-                                        <option value="">Select Status</option>
-                                        <option value="pending" @if(isset($reservation)) {{$reservation->reservation_status == 'pending' ? 'selected="selected"' : ''}} @endif>Pending Approval</option>
+                                    <select name="status" id="status" class="form-control" {!! isset($show) || isset($request) || (isset($reservation) && ((!auth()->user()->hasRole(['administrator']) && $reservation->reservation_status == 'confirmed') && ($reservation->payment_method != 'expedia' && $reservation->payment_method != 'booking.com'))) ? 'readonly style="pointer-events: none;" tabindex="-1"':'required' !!} autocomplete="off">
+                                        @if(!isset($reservation))
+                                            <option value="">Select Status</option>
+                                            <option value="pending" @if(isset($reservation)) {{$reservation->reservation_status == 'pending' ? 'selected="selected"' : ''}} @endif>Pending Approval</option>
+                                        @elseif(isset($reservation) && $reservation->reservation_status != 'confirmed')
+                                            <option value="">Select Status</option>
+                                            <option value="pending" @if(isset($reservation)) {{$reservation->reservation_status == 'pending' ? 'selected="selected"' : ''}} @endif>Pending Approval</option>
+                                        @endif
                                         <option value="confirmed" @if(isset($reservation)) {{$reservation->reservation_status == 'confirmed' ? 'selected="selected"' : ''}} @endif>Reservation Confirmed</option>
                                         @if (!isset($create))
                                             <option value="cancelled" @if(isset($reservation)) {{$reservation->reservation_status == 'cancelled' ? 'selected="selected"' : ''}} @endif>Reservation Cancelled</option>
@@ -492,7 +497,7 @@
                                     <input type="text" class="form-control" id="signed_by" name="signed_by" placeholder="{{isset($show) || isset($update) ? 'Last':''}} Signed By {{$reservation->signed_by ?? ''}}" {{isset($show) ? 'disabled': '' }} required value="" style="{{(isset($request) ? "border: 1px solid red !important;":'')}}" autocomplete="off">
                                 </div>
                                 @if(!isset($show))
-                                    @if(isset($reservation) && (strtotime($reservation->check_in) < strtotime(date('Y-m-d', strtotime('-5 days')))))
+                                    @if(isset($reservation) && (strtotime($reservation->check_in) < strtotime(date('Y-m-d', strtotime('-10 days')))))
                                     @else
                                         <div class="form-row mt-2 col-lg-12 pull-right">
                                             <button class="btn btn-primary btn-lg btn-block" type="submit">{{isset($request) ? ($reservation->invoice_sent ? 'Update Request' : 'Send Request Reply') : (isset($update) ? 'Update Reservation' : 'Save Reservation')}}</button>
@@ -549,12 +554,21 @@
         <script>
             console.log("Not Confirmed");
         $(function () {
-            restrictIfPaystack(null);
+            restrictIfPaystack();
         });
     </script>
     @endif
     <script>
-        function restrictIfPaystack(selectval) {
+        function restrictIfPaystack() {
+            var paymenttype = $("#payment_type").val();
+            console.log(paymenttype);
+            if (paymenttype == 'paystack') {
+                $("#status").val("pending").attr('readonly','readonly').attr("style", "pointer-events: none;").attr("tabindex","-1");
+                $("#vatdiv").removeClass('col-lg-6').addClass("col-lg-12");
+                $("#otadiv").hide();
+            }
+        }
+        function restrictIfPaystackOTA(selectval) {
             var paymenttype = $("#payment_type").val();
             console.log(paymenttype);
             if (paymenttype == 'paystack') {
@@ -574,7 +588,7 @@
         }
 
         function pricePerDay(index){
-            if(($('#room'+index).val()).length < 1){
+            if($("#room"+index+" :selected").length < 1){
                 swalnotify("Error!", "Please Select Room(s) First","error");
             }else{
                 var price = $("#price_per_day"+index).val();
@@ -590,7 +604,7 @@
                 // To calculate the no. of days between two dates
                 var daydiff = timediff / (1000 * 3600 * 24);
                 $("#resdays"+index).html(daydiff);
-                var roomcount = ($("#room"+index).val()).length;
+                var roomcount = $("#room"+index+" :selected").length;
                 $("#roomnums"+index).html("("+roomcount+" room(s) selected)");
                 var totalprice = roomcount * (price * daydiff);
                 // console.log(daydiff);
@@ -600,7 +614,7 @@
                 calculateBalance();
             }
 
-        };
+        }
 
         function rentalPricePerDay(index){
             var price = $("#rental_price_per_day"+index).val();
@@ -622,7 +636,7 @@
             $('#rental_total_price'+index).val(totalprice);
             getGrandTotal();
             calculateBalance();
-        };
+        }
 
         function expensePrice(index){
             var price = $("#expense_price"+index).val();
@@ -633,7 +647,7 @@
             $('#expense_total_price'+index).val(totalprice);
             getGrandTotal();
             calculateBalance();
-        };
+        }
 
         function getGrandTotal() {
             var roomdivcount = +$('.roombox').length;
@@ -668,8 +682,7 @@
         }
 
         var today = new Date();
-
-        $('.review-old-flatpickr').flatpickr({ minDate: (today.setDate(today.getDate()-5)) })
+        $('.review-old-flatpickr').flatpickr({ minDate: (today.setDate(today.getDate()-10)) })
 
 
         function getRooms(index) {
@@ -728,7 +741,7 @@
             }
         });
         $(document.body).on('click', '.btn-remove-expensediv', function () {
-            swaltoast("Success", "Expense Form Removed", "success");
+            swaltoast("Success", "Sale Form Removed", "success");
             $(this).closest('.expensebox').remove();
             if($('.expensebox').length < 1){
                 $('#expensesbutton').hide();
@@ -962,7 +975,7 @@
             if(!$('#reservation_daterange').val()){
                 swalnotify("Error!", "Please Enter Reservation Dates First","error");
             }else{
-                swaltoast("Success", "New Expense Form Added", "success");
+                swaltoast("Success", "New Sale Form Added", "success");
                 var dates = ($("#reservation_daterange").val()).split(' to ');
                 // console.log(dates);
                 var check_in = new Date(dates[0]);
@@ -984,7 +997,7 @@
                         '<div class="col-lg-12 d-flex flex-column expensebox">'+
                             '<div class="block block-rounded flex-grow-1 d-flex flex-column">'+
                                 '<div class="block-header block-header-default">'+
-                                    '<h3 class="block-title">Additional Expense Details</h3>'+
+                                    '<h3 class="block-title">Additional Sale Details</h3>'+
                                     '<div class="block-options">'+
                                         '<button type="button" class="btn btn-sm btn-alt-danger btn-remove-expensediv">'+
                                             '<i class="si si-close"></i>'+
@@ -995,16 +1008,16 @@
                                     '<div class="col-lg-8 d-flex flex-column">'+
                                         '<div class="row">'+
                                             '<div class="form-row col-lg-12 mb-2">'+
-                                                '<label for="expense_description'+index+'">Expense Description</label>'+
+                                                '<label for="expense_description'+index+'">Sale Description</label>'+
                                                 '<div class="input-group">'+
-                                                    '<input type="text" id="expense_description'+index+'" name="expense_description'+index+'" class="form-control" value="" placeholder="Expense Description">'+
+                                                    '<input type="text" id="expense_description'+index+'" name="expense_description'+index+'" class="form-control" value="" placeholder="Sale Description">'+
                                                 '</div>'+
                                             '</div>'+
                                             '<div class="form-row mb-2 col-lg-6">'+
-                                                '<label for="expense_type">Expense Type</label>'+
+                                                '<label for="expense_type">Sale Type</label>'+
                                                 '<div class="input-group">'+
-                                                    '<select class="form-control" id="expense_type'+index+'" data-placeholder="Select Expense Type.." name="expense_type'+index+'">'+
-                                                        '<option>Select Expense Type</option>'+
+                                                    '<select class="form-control" id="expense_type'+index+'" data-placeholder="Select Sale Type.." name="expense_type'+index+'">'+
+                                                        '<option>Select Sale Type</option>'+
                                                         '<option value="food">Food</option>'+
                                                         '<option value="drinks">Drinks</option>'+
                                                         '<option value="other">Other</option>'+
@@ -1031,7 +1044,7 @@
                                             '</div>'+
 
                                             '<div class="form-row mb-2 col-lg-12">'+
-                                                '<label for="expense_total_price'+index+'">Total Expense Amount</label>'+
+                                                '<label for="expense_total_price'+index+'">Total Sale Amount</label>'+
                                                 '<div class="input-group">'+
                                                     '<div class="input-group-prepend">'+
                                                         '<span class="input-group-text input-group-text-alt">GHS</span>'+

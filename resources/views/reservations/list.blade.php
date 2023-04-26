@@ -56,7 +56,7 @@
                             <option value="{{$roomtype->id}}" {{isset($filter['room_type']) ? ($filter['room_type'] == $roomtype->id ? 'selected' : '') : ''}}>{{$roomtype->name}}</option>
                         @endforeach
                     </select>
-                    <input type="text" class="today-flatpickr form-control form-control-alt mb-2 mr-sm-2 mb-sm-2 col-lg-2" id="daterange" name="daterange" value="{{isset($filter['daterange']) ? $filter['daterange'] : ''}}" placeholder="Select Date Range" data-mode="range">
+                    <input type="text" class="review-old-flatpickr form-control form-control-alt mb-2 mr-sm-2 mb-sm-2 col-lg-2" id="daterange" name="daterange" value="{{isset($filter['daterange']) ? $filter['daterange'] : ''}}" placeholder="Select Date Range" data-mode="range">
                      {{-- data-min-date="today"> --}}
                 </div>
             </div>
@@ -98,29 +98,50 @@
     <div class="block-content block-content-full">
         <!-- DataTables init on table by adding .js-dataTable-full class, functionality is initialized in js/pages/tables_datatables.js -->
 
-        <table class="table table-bordered table-striped table-vcenter js-dataTable-report">
+        <table class="table table-bordered table-striped table-vcenter js-dataTable-report display nowrap" style="width:100%">
 			<thead>
 				<tr>
-					<th class="hidden-sm">#</th>
+					<th class="text-center">#</th>
 					<th>Guest</th>
 					<th class="hidden-sm">Check-In</th>
 					<th class="hidden-sm">Check-Out</th>
 					<th class="hidden-sm">Status</th>
+					<th class="hidden-sm">Room(s)</th>
+					<th class="hidden-sm">Room-Type(s)</th>
 					<th class="hidden-sm">Date Added</th>
 					<th class="text-center" style="width: 10%;">Actions</th>
 				</tr>
 			</thead>
 			<tbody>
-				@php
+				{{-- @php
                     $count=($all_reservations->perPage()*($all_reservations->currentPage() -1))+1;
-                @endphp
+                @endphp --}}
 				@foreach($all_reservations as $reservation)
                     <tr>
-                        <td class="text-center">{{$count++}}</td>
+                        <td class="text-center font-w600"><a href="{{route('reservations-show',$reservation->id)}}">#{{$reservation->id}}</a></td>
                         <td class="font-w600">{{$reservation->full_name}}</td>
                         <td class="hidden-sm" data-sort="{{date_format(new DateTime($reservation->check_in),'Y-m-d')}}">{{date_format(new DateTime($reservation->check_in), 'l jS F, Y')}}</td>
                         <td class="hidden-sm" data-sort="{{date_format(new DateTime($reservation->check_out),'Y-m-d')}}">{{date_format(new DateTime($reservation->check_out), 'l jS F Y')}}</td>
                         <td class="hidden-sm">@if($reservation->payment_method == 'complementary') <span class="badge badge-primary">Complementary</span> @endif @if($reservation->reservation_status == 'confirmed') <span class="badge badge-success">Confirmed</span>  @if($reservation->payment_method != 'complementary') @if($reservation->paid == 'full') <span class="badge badge-success">Fully Paid</span> @elseif($reservation->paid == 'part') <span class="badge badge-warning">Part Paid</span> @else<span class="badge badge-danger">Not Paid</span> @endif @endif  @elseif($reservation->reservation_status == 'pending') {!! strtotime($reservation->check_in) < strtotime(date('Y-m-d')) ? '<span class="badge badge-danger">Overdue</span>':'<span class="badge badge-warning">Pending</span>' !!} @elseif($reservation->reservation_status == 'rejected') <span class="badge badge-danger">Rejected</span> @else <span class="badge badge-danger">Cancelled</span> @endif</td>
+                        <td class="hidden-xs">
+                            @foreach ($reservation->details as $detail)
+                                <span class="badge badge-primary">{{$detail->room->name ?? ''}}</span>
+                            @endforeach
+                        </td>
+                        <td class="hidden-xs">
+                            @php
+                                $roomtypes = array();
+                                foreach ($reservation->details as $detail){
+                                    $roomtype = $detail->roomtype->name;
+                                    if ($roomtype) {
+                                        !in_array($roomtype,$roomtypes) ? $roomtypes[]=$roomtype : false;
+                                    }
+                                }
+                            @endphp
+                            @foreach ($roomtypes as $type)
+                                <span class="badge badge-secondary">{{$type}}</span>
+                            @endforeach
+                        </td>
                         <td class="hidden-sm" data-sort="{{date_format(new DateTime($reservation->created_at),'Y-m-d')}}">{{date_format(new DateTime($reservation->created_at), 'l jS F Y')}}</td>
                         <td class="text-center">
                             <div class="btn-group">
@@ -146,6 +167,7 @@
 @section('css_before')
     <!-- Page JS Plugins CSS -->
     <link rel="stylesheet" href="{{ asset('js/plugins/datatables/dataTables.bootstrap4.css') }}">
+    <link rel="stylesheet" href="{{ asset('js/plugins/datatables/dataTables.responsive.css') }}">
     <link rel="stylesheet" href="{{ asset('js/plugins/datatables/buttons-bs4/buttons.bootstrap4.min.css') }}">
     <link rel="stylesheet" href="{{ asset('js/plugins/flatpickr/flatpickr.min.css') }}">
 @endsection
@@ -154,6 +176,7 @@
     <!-- Page JS Plugins -->
     <script src="{{ asset('js/plugins/datatables/jquery.dataTables.min.js') }}"></script>
     <script src="{{ asset('js/plugins/datatables/dataTables.bootstrap4.min.js') }}"></script>
+    <script src="{{ asset('js/plugins/datatables/dataTables.responsive.js') }}"></script>
     <script src="{{ asset('js/plugins/datatables/buttons/dataTables.buttons.min.js') }}"></script>
     <script src="{{ asset('js/plugins/datatables/buttons/buttons.print.min.js') }}"></script>
     <script src="{{ asset('js/plugins/datatables/buttons/buttons.html5.min.js') }}"></script>
@@ -190,7 +213,9 @@
             div.innerHTML = document.getElementById('blockOfStuff').innerHTML;
             document.getElementById('DataTables_Table_0_paginate').appendChild(div);
         });
-        $('.today-flatpickr').flatpickr({ minDate: "today" })
+        var today = new Date();
+        $('.today-flatpickr').flatpickr({ minDate: "today" });
+        $('.review-old-flatpickr').flatpickr({ minDate: (today.setDate(today.getDate()-10)) })
     </script>
 
 @endsection

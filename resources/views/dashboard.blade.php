@@ -24,7 +24,7 @@
                     <div class="block block-rounded d-flex flex-column">
                         <div class="block-content block-content-full flex-grow-1 d-flex justify-content-between align-items-center">
                             <dl class="mb-0">
-                                <dt class="font-size-h2 font-w700">{{$count_today}}</dt>
+                                <dt class="font-size-h3 font-w700">{{$count_today}}</dt>
                                 <dd class="text-muted mb-0">Today</dd>
                             </dl>
                             <div class="item item-rounded bg-body">
@@ -45,7 +45,7 @@
                     <div class="block block-rounded d-flex flex-column">
                         <div class="block-content block-content-full flex-grow-1 d-flex justify-content-between align-items-center">
                             <dl class="mb-0">
-                                <dt class="font-size-h2 font-w700">{{$count_requests}}</dt>
+                                <dt class="font-size-h3 font-w700">{{$count_requests}}</dt>
                                 <dd class="text-muted mb-0">Requests</dd>
                             </dl>
                             <div class="item item-rounded bg-body">
@@ -66,7 +66,7 @@
                     <div class="block block-rounded d-flex flex-column">
                         <div class="block-content block-content-full flex-grow-1 d-flex justify-content-between align-items-center">
                             <dl class="mb-0">
-                                <dt class="font-size-h2 font-w700">{{$count_confirmed}}</dt>
+                                <dt class="font-size-h3 font-w700">{{$count_confirmed}}</dt>
                                 <dd class="text-muted mb-0">Confirmed</dd>
                             </dl>
                             <div class="item item-rounded bg-body">
@@ -87,7 +87,7 @@
                     <div class="block block-rounded d-flex flex-column">
                         <div class="block-content block-content-full flex-grow-1 d-flex justify-content-between align-items-center">
                             <dl class="mb-0">
-                                <dt class="font-size-h2 font-w700">{{$count_cancelled}}</dt>
+                                <dt class="font-size-h3 font-w700">{{$count_cancelled}}</dt>
                                 <dd class="text-muted mb-0">Cancelled</dd>
                             </dl>
                             <div class="item item-rounded bg-body">
@@ -107,101 +107,273 @@
             <!-- END Reservations Overview -->
         @endcan
 
-        {{-- <h2 class="content-heading">What’s happening today?</h2>
+        <h2 class="content-heading">What’s happening today?</h2>
+
+        <!-- Statistics -->
         <div class="row">
-            <div class="col-lg-12">
-                <!-- Block Tabs With Options Default Style -->
-                <div class="block block-rounded">
+            <div class="col-xl-8 d-flex flex-column">
+                <!-- Earnings Summary -->
+                <div class="block block-rounded flex-grow-1 d-flex flex-column">
                     <ul class="nav nav-tabs nav-tabs-block align-items-center" data-toggle="tabs" role="tablist">
                         <li class="nav-item">
-                            <a class="nav-link active" href="#btabswo-static-home">New Requests</a>
+                            <a class="nav-link active" data-toggle="tab" href="#tab-reservation-arrivals">Arrivals</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#btabswo-static-profile">Arrivals</a>
+                            <a class="nav-link" data-toggle="tab" href="#tab-reservation-stay-over">Stay-Over</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#btabswo-static-profile">In-House</a>
+                            <a class="nav-link" data-toggle="tab" href="#tab-reservation-departures">Departures</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#btabswo-static-profile">Departures</a>
+                            <a class="nav-link" data-toggle="tab" href="#tab-reservation-requests">New Requests</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#btabswo-static-profile">Cancellations</a>
+                            <a class="nav-link" data-toggle="tab" href="#tab-reservation-recents">Recent Reservations</a>
                         </li>
                         <li class="nav-item ml-auto">
                             <div class="block-options pl-3 pr-2">
                                 <button type="button" class="btn-block-option" data-toggle="block-option" data-action="fullscreen_toggle"></button>
-                                <button type="button" class="btn-block-option" data-toggle="block-option" data-action="state_toggle" data-action-mode="demo">
-                                    <i class="si si-refresh"></i>
-                                </button>
-                                <button type="button" class="btn-block-option" data-toggle="block-option" data-action="content_toggle"></button>
-                                <button type="button" class="btn-block-option" data-toggle="block-option" data-action="close">
-                                    <i class="si si-close"></i>
-                                </button>
                             </div>
                         </li>
                     </ul>
-                    <div class="block-content tab-content">
-                        <div class="tab-pane active" id="btabswo-static-home" role="tabpanel">
-                            <h4 class="font-w400">Home Content</h4>
-                            <p>...</p>
+                    <div class="tab-content block-content block-content-full flex-grow-1 d-flex"><!--align-items-center-->
+                        <div class="tab-pane active" id="tab-reservation-arrivals" role="tabpanel" style="width:100% !important; height:300px;overflow:auto;">
+                            <table class="table table-striped table-hover table-borderless table-vcenter font-size-sm mb-0">
+                                <thead style="background-color: white; position: sticky;top: -1px;">
+                                    <tr class="text-uppercase">
+                                        <th class="font-w700" style="width: 5%;">ID</th>
+                                        <th class="d-none d-sm-table-cell font-w700" style="width: 40%;">Dates</th>
+                                        <th class="font-w700" style="width: 20%;">Guest</th>
+                                        <th class="font-w700" style="width: 15%;">Status</th>
+                                        <th class="d-none d-sm-table-cell font-w700 text-right" style="width: 15%;">Room</th>
+                                        <th class="font-w700 text-center" style="width: 5%;"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($arrivals as $reservation)
+                                        @foreach($reservation->details as $detail)
+                                            <tr>
+                                                <td>
+                                                    <span class="font-w600"><a href="{{route('reservations-show',$reservation->id)}}">#{{$reservation->id}}</a></span>
+                                                </td>
+                                                <td class="d-none d-sm-table-cell">
+                                                    <span class="font-size-sm text-muted">{{$reservation->check_in}} to {{$reservation->check_out}}</span>
+                                                </td>
+                                                <td>
+                                                    <span class="font-w600 text-muted">{{$reservation->guest->full_name}}</span>
+                                                </td>
+                                                <td>
+                                                    @if($reservation->payment_method == 'complementary') <span class="font-w600 text-primary">Complementary</span> @endif @if($reservation->reservation_status == 'confirmed') <span class="font-w600 text-success">Confirmed</span>  @if($reservation->payment_method != 'complementary') @if($reservation->paid == 'full') <span class="font-w600 text-success">Fully Paid</span> @elseif($reservation->paid == 'part') <span class="font-w600 text-warning">Part Paid</span> @else<span class="font-w600 text-danger">Not Paid</span> @endif @endif  @elseif($reservation->reservation_status == 'pending') {!! strtotime($reservation->check_in) < strtotime(date('Y-m-d')) ? '<span class="font-w600 text-danger">Overdue</span>':'<span class="font-w600 text-warning">Pending</span>' !!} @elseif($reservation->reservation_status == 'rejected') <span class="font-w600 text-danger">Rejected</span> @else <span class="font-w600 text-danger">Cancelled</span> @endif
+                                                </td>
+                                                <td class="d-none d-sm-table-cell text-right">
+                                                    @if($detail->room)<span class="badge badge-secondary">{{$detail->room->name}}</span>@endif
+                                                </td>
+                                                <td class="text-center">
+                                                    <a href="{{route(($reservation->reservation_status=='pending' && $reservation->created_by==0) ? 'reservations-view-request':'reservations-edit',$reservation->id)}}" data-toggle="tooltip" data-placement="left" title="Manage">
+                                                        <i class="fa fa-fw fa-pencil-alt"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    @endforeach
+                                </tbody>
+                            </table>
                         </div>
-                        <div class="tab-pane" id="btabswo-static-profile" role="tabpanel">
-                            <h4 class="font-w400">Profile Content</h4>
-                            <p>...</p>
+                        <div class="tab-pane" id="tab-reservation-stay-over" role="tabpanel" style="width:100% !important; height:300px;overflow:auto;">
+                            <table class="table table-striped table-hover table-borderless table-vcenter font-size-sm mb-0">
+                                <thead style="background-color: white; position: sticky;top: -1px;">
+                                    <tr class="text-uppercase">
+                                        <th class="font-w700" style="width: 5%;">ID</th>
+                                        <th class="d-none d-sm-table-cell font-w700" style="width: 40%;">Dates</th>
+                                        <th class="font-w700" style="width: 20%;">Guest</th>
+                                        <th class="font-w700" style="width: 15%;">Status</th>
+                                        <th class="d-none d-sm-table-cell font-w700 text-right" style="width: 15%;">Room</th>
+                                        <th class="font-w700 text-center" style="width: 5%;"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($stay_over as $reservation)
+                                        @foreach($reservation->details as $detail)
+                                            <tr>
+                                                <td>
+                                                    <span class="font-w600"><a href="{{route('reservations-show',$reservation->id)}}">#{{$reservation->id}}</a></span>
+                                                </td>
+                                                <td class="d-none d-sm-table-cell">
+                                                    <span class="font-size-sm text-muted">{{$reservation->check_in}} to {{$reservation->check_out}}</span>
+                                                </td>
+                                                <td>
+                                                    <span class="font-w600 text-muted">{{$reservation->guest->full_name}}</span>
+                                                </td>
+                                                <td>
+                                                    @if($reservation->payment_method == 'complementary') <span class="font-w600 text-primary">Complementary</span> @endif @if($reservation->reservation_status == 'confirmed') <span class="font-w600 text-success">Confirmed</span>  @if($reservation->payment_method != 'complementary') @if($reservation->paid == 'full') <span class="font-w600 text-success">Fully Paid</span> @elseif($reservation->paid == 'part') <span class="font-w600 text-warning">Part Paid</span> @else<span class="font-w600 text-danger">Not Paid</span> @endif @endif  @elseif($reservation->reservation_status == 'pending') {!! strtotime($reservation->check_in) < strtotime(date('Y-m-d')) ? '<span class="font-w600 text-danger">Overdue</span>':'<span class="font-w600 text-warning">Pending</span>' !!} @elseif($reservation->reservation_status == 'rejected') <span class="font-w600 text-danger">Rejected</span> @else <span class="font-w600 text-danger">Cancelled</span> @endif
+                                                </td>
+                                                <td class="d-none d-sm-table-cell text-right">
+                                                    @if($detail->room)<span class="badge badge-secondary">{{$detail->room->name}}</span>@endif
+                                                </td>
+                                                <td class="text-center">
+                                                    @can('edit reservations')
+                                                        <a href="{{route(($reservation->reservation_status=='pending' && $reservation->created_by==0) ? 'reservations-view-request':'reservations-edit',$reservation->id)}}" data-toggle="tooltip" data-placement="left" title="Manage">
+                                                            <i class="fa fa-fw fa-pencil-alt"></i>
+                                                        </a>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    @endforeach
+                                </tbody>
+                            </table>
                         </div>
-                    </div>
-                </div>
-                <!-- END Block Tabs With Options Default Style -->
-            </div>
-        </div> --}}
-
-        <!-- Statistics -->
-        {{-- <div class="row">
-            <div class="col-xl-8 d-flex flex-column">
-                <!-- Earnings Summary -->
-                <div class="block block-rounded flex-grow-1 d-flex flex-column">
-                    <div class="block-header block-header-default">
-                        <h3 class="block-title">Earnings Summary</h3>
-                        <div class="block-options">
-                            <button type="button" class="btn-block-option" data-toggle="block-option" data-action="state_toggle" data-action-mode="demo">
-                                <i class="si si-refresh"></i>
-                            </button>
-                            <button type="button" class="btn-block-option">
-                                <i class="si si-settings"></i>
-                            </button>
+                        <div class="tab-pane" id="tab-reservation-departures" role="tabpanel" style="width:100% !important; height:300px;overflow:auto;">
+                            <table class="table table-striped table-hover table-borderless table-vcenter font-size-sm mb-0">
+                                <thead style="background-color: white; position: sticky;top: -1px;">
+                                    <tr class="text-uppercase">
+                                        <th class="font-w700" style="width: 5%;">ID</th>
+                                        <th class="d-none d-sm-table-cell font-w700" style="width: 40%;">Dates</th>
+                                        <th class="font-w700" style="width: 20%;">Guest</th>
+                                        <th class="font-w700" style="width: 15%;">Status</th>
+                                        <th class="d-none d-sm-table-cell font-w700 text-right" style="width: 15%;">Room</th>
+                                        <th class="font-w700 text-center" style="width: 5%;"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($departures as $reservation)
+                                        @foreach($reservation->details as $detail)
+                                            <tr>
+                                                <td>
+                                                    <span class="font-w600"><a href="{{route('reservations-show',$reservation->id)}}">#{{$reservation->id}}</a></span>
+                                                </td>
+                                                <td class="d-none d-sm-table-cell">
+                                                    <span class="font-size-sm text-muted">{{$reservation->check_in}} to {{$reservation->check_out}}</span>
+                                                </td>
+                                                <td>
+                                                    <span class="font-w600 text-muted">{{$reservation->guest->full_name}}</span>
+                                                </td>
+                                                <td>
+                                                    @if($reservation->payment_method == 'complementary') <span class="font-w600 text-primary">Complementary</span> @endif @if($reservation->reservation_status == 'confirmed') <span class="font-w600 text-success">Confirmed</span>  @if($reservation->payment_method != 'complementary') @if($reservation->paid == 'full') <span class="font-w600 text-success">Fully Paid</span> @elseif($reservation->paid == 'part') <span class="font-w600 text-warning">Part Paid</span> @else<span class="font-w600 text-danger">Not Paid</span> @endif @endif  @elseif($reservation->reservation_status == 'pending') {!! strtotime($reservation->check_in) < strtotime(date('Y-m-d')) ? '<span class="font-w600 text-danger">Overdue</span>':'<span class="font-w600 text-warning">Pending</span>' !!} @elseif($reservation->reservation_status == 'rejected') <span class="font-w600 text-danger">Rejected</span> @else <span class="font-w600 text-danger">Cancelled</span> @endif
+                                                </td>
+                                                <td class="d-none d-sm-table-cell text-right">
+                                                    @if($detail->room)<span class="badge badge-secondary">{{$detail->room->name}}</span>@endif
+                                                </td>
+                                                <td class="text-center">
+                                                    <a href="{{route(($reservation->reservation_status=='pending' && $reservation->created_by==0) ? 'reservations-view-request':'reservations-edit',$reservation->id)}}" data-toggle="tooltip" data-placement="left" title="Manage">
+                                                        <i class="fa fa-fw fa-pencil-alt"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    @endforeach
+                                </tbody>
+                            </table>
                         </div>
-                    </div>
-                    <div class="block-content block-content-full flex-grow-1 d-flex align-items-center">
-                        <!-- Earnings Chart Container -->
-                        <!-- Chart.js Chart is initialized in js/pages/be_pages_dashboard.min.js which was auto compiled from _js/pages/be_pages_dashboard.js -->
-                        <!-- For more info and examples you can check out http://www.chartjs.org/docs/ -->
-                        <canvas class="js-chartjs-earnings"></canvas>
+                        <div class="tab-pane" id="tab-reservation-requests" role="tabpanel" style="width:100% !important; height:300px;overflow:auto;">
+                            <table class="table table-striped table-hover table-borderless table-vcenter font-size-sm mb-0">
+                                <thead style="background-color: white; position: sticky;top: -1px;">
+                                    <tr class="text-uppercase">
+                                        <th class="font-w700" style="width: 5%;">ID</th>
+                                        <th class="d-none d-sm-table-cell font-w700" style="width: 40%;">Dates</th>
+                                        <th class="font-w700" style="width: 20%;">Guest</th>
+                                        <th class="font-w700" style="width: 15%;">Status</th>
+                                        <th class="d-none d-sm-table-cell font-w700 text-right" style="width: 15%;">Requested</th>
+                                        <th class="font-w700 text-center" style="width: 5%;"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($requests as $reservation)
+                                        @foreach($reservation->details as $detail)
+                                            <tr>
+                                                <td>
+                                                    <span class="font-w600"><a href="{{route('reservations-show',$reservation->id)}}">#{{$reservation->id}}</a></span>
+                                                </td>
+                                                <td class="d-none d-sm-table-cell">
+                                                    <span class="font-size-sm text-muted">{{$reservation->check_in}} to {{$reservation->check_out}}</span>
+                                                </td>
+                                                <td>
+                                                    <span class="font-w600 text-muted">{{$reservation->guest->full_name}}</span>
+                                                </td>
+                                                <td>
+                                                    @if($reservation->payment_method == 'complementary') <span class="font-w600 text-primary">Complementary</span> @endif @if($reservation->reservation_status == 'confirmed') <span class="font-w600 text-success">Confirmed</span>  @if($reservation->payment_method != 'complementary') @if($reservation->paid == 'full') <span class="font-w600 text-success">Fully Paid</span> @elseif($reservation->paid == 'part') <span class="font-w600 text-warning">Part Paid</span> @else<span class="font-w600 text-danger">Not Paid</span> @endif @endif  @elseif($reservation->reservation_status == 'pending') {!! strtotime($reservation->check_in) < strtotime(date('Y-m-d')) ? '<span class="font-w600 text-danger">Overdue</span>':'<span class="font-w600 text-warning">Pending</span>' !!} @elseif($reservation->reservation_status == 'rejected') <span class="font-w600 text-danger">Rejected</span> @else <span class="font-w600 text-danger">Cancelled</span> @endif
+                                                </td>
+                                                <td class="d-none d-sm-table-cell text-right">
+                                                    @if($detail->roomtype)<span class="badge badge-secondary">{{$detail->roomtype->name}}</span>@endif
+                                                </td>
+                                                <td class="text-center">
+                                                    <a href="{{route(($reservation->reservation_status=='pending' && $reservation->created_by==0) ? 'reservations-view-request':'reservations-edit',$reservation->id)}}" data-toggle="tooltip" data-placement="left" title="Manage">
+                                                        <i class="fa fa-fw fa-pencil-alt"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="tab-pane" id="tab-reservation-recents" role="tabpanel" style="width:100% !important; height:300px;overflow:auto;">
+                            <table class="table table-striped table-hover table-borderless table-vcenter font-size-sm mb-0">
+                                <thead style="background-color: white; position: sticky;top: -1px;">
+                                    <tr class="text-uppercase">
+                                        <th class="font-w700" style="width: 5%;">ID</th>
+                                        <th class="d-none d-sm-table-cell font-w700" style="width: 40%;">Dates</th>
+                                        <th class="font-w700" style="width: 20%;">Guest</th>
+                                        <th class="font-w700" style="width: 15%;">Status</th>
+                                        <th class="d-none d-sm-table-cell font-w700 text-right" style="width: 15%;">Room</th>
+                                        <th class="font-w700 text-center" style="width: 5%;"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($recent_reservations as $reservation)
+                                        @foreach($reservation->details as $detail)
+                                            <tr>
+                                                <td>
+                                                    <span class="font-w600"><a href="{{route('reservations-show',$reservation->id)}}">#{{$reservation->id}}</a></span>
+                                                </td>
+                                                <td class="d-none d-sm-table-cell">
+                                                    <span class="font-size-sm text-muted">{{$reservation->check_in}} to {{$reservation->check_out}}</span>
+                                                </td>
+                                                <td>
+                                                    <span class="font-w600 text-muted">{{$reservation->guest->full_name}}</span>
+                                                </td>
+                                                <td>
+                                                    @if($reservation->payment_method == 'complementary') <span class="font-w600 text-primary">Complementary</span> @endif @if($reservation->reservation_status == 'confirmed') <span class="font-w600 text-success">Confirmed</span>  @if($reservation->payment_method != 'complementary') @if($reservation->paid == 'full') <span class="font-w600 text-success">Fully Paid</span> @elseif($reservation->paid == 'part') <span class="font-w600 text-warning">Part Paid</span> @else<span class="font-w600 text-danger">Not Paid</span> @endif @endif  @elseif($reservation->reservation_status == 'pending') {!! strtotime($reservation->check_in) < strtotime(date('Y-m-d')) ? '<span class="font-w600 text-danger">Overdue</span>':'<span class="font-w600 text-warning">Pending</span>' !!} @elseif($reservation->reservation_status == 'rejected') <span class="font-w600 text-danger">Rejected</span> @else <span class="font-w600 text-danger">Cancelled</span> @endif
+                                                </td>
+                                                <td class="d-none d-sm-table-cell text-right">
+                                                    @if($detail->room)<span class="badge badge-secondary">{{$detail->room->name}}</span>@endif
+                                                </td>
+                                                <td class="text-center">
+                                                    <a href="{{route(($reservation->reservation_status=='pending' && $reservation->created_by==0) ? 'reservations-view-request':'reservations-edit',$reservation->id)}}" data-toggle="tooltip" data-placement="left" title="Manage">
+                                                        <i class="fa fa-fw fa-pencil-alt"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                     <div class="block-content bg-body-light">
                         <div class="row items-push text-center w-100">
                             <div class="col-sm-4">
                                 <dl class="mb-0">
                                     <dt class="font-size-h3 font-w700">
-                                        <i class="fa fa-arrow-up font-size-lg text-success"></i> 2.5%
+                                        @if($recent_count > $recent_count_yesterday)<i class="fa fa-arrow-up font-size-lg text-success"></i> @elseif($recent_count == $recent_count_yesterday)<i class="fa fa-arrow-right font-size-lg text-warning"></i> @else <i class="fa fa-arrow-down font-size-lg text-danger"></i> @endif {{$recent_count}}
                                     </dt>
-                                    <dd class="text-muted mb-0">Customer Growth</dd>
+                                    <dd class="text-muted mb-0">New Reservations</dd>
                                 </dl>
                             </div>
                             <div class="col-sm-4">
                                 <dl class="mb-0">
                                     <dt class="font-size-h3 font-w700">
-                                        <i class="fa fa-arrow-up font-size-lg text-success"></i> 3.8%
+                                        @if($count_sales > $count_sales_yesterday)<i class="fa fa-arrow-up font-size-lg text-success"></i> @elseif($count_sales == $count_sales_yesterday)<i class="fa fa-arrow-right font-size-lg text-warning"></i> @else <i class="fa fa-arrow-down font-size-lg text-danger"></i> @endif {{$count_sales}}
                                     </dt>
-                                    <dd class="text-muted mb-0">Page Views</dd>
+                                    <dd class="text-muted mb-0">Sales Today</dd>
                                 </dl>
                             </div>
                             <div class="col-sm-4">
                                 <dl class="mb-0">
                                     <dt class="font-size-h3 font-w700">
-                                        <i class="fa fa-arrow-up font-size-lg text-success"></i> 1.7%
+                                        @if($pending_sales > $pending_sales_yesterday)<i class="fa fa-arrow-up font-size-lg text-success"></i> @elseif($pending_sales == $pending_sales_yesterday)<i class="fa fa-arrow-right font-size-lg text-warning"></i> @else <i class="fa fa-arrow-down font-size-lg text-danger"></i> @endif {{$pending_sales}}
                                     </dt>
-                                    <dd class="text-muted mb-0">New Products</dd>
+                                    <dd class="text-muted mb-0">Pending Sales</dd>
                                 </dl>
                             </div>
                         </div>
@@ -218,63 +390,66 @@
                         <div class="block block-rounded d-flex flex-column">
                             <div class="block-content block-content-full flex-grow-1 d-flex justify-content-between">
                                 <dl class="mb-0">
-                                    <dt class="font-size-h2 font-w700">570</dt>
-                                    <dd class="text-muted mb-0">Total Orders</dd>
+                                    <dt class="font-size-h3 font-w700">GH₵ {{number_format($sum_today,2)}}</dt>
+                                    <dd class="text-muted mb-0">Today's Earnings</dd>
                                 </dl>
                                 <div>
-                                    <div class="d-inline-block px-2 py-1 rounded-lg font-size-sm font-w600 text-danger bg-danger-light">
-                                        <i class="fa fa-caret-down mr-1"></i>
-                                        2.2%
-                                    </div>
+                                    @if($sum_today > $sum_yesterday)
+                                        <div class="d-inline-block px-2 py-1 rounded-lg font-size-sm font-w600 text-success bg-success-light">
+                                            <i class="fa fa-caret-up mr-1"></i>
+                                           {{ number_format((($sum_today-$sum_yesterday)/($sum_yesterday != 0 ? $sum_yesterday : 1))*100,2)}}%
+                                        </div>
+                                    @elseif($sum_today == $sum_yesterday)
+                                        <div class="d-inline-block px-2 py-1 rounded-lg font-size-sm font-w600 text-warning bg-warning-light">
+                                            <i class="fa fa-caret-right mr-1"></i>
+                                            0.00%
+                                        </div>
+                                    @else
+                                        <div class="d-inline-block px-2 py-1 rounded-lg font-size-sm font-w600 text-danger bg-danger-light">
+                                            <i class="fa fa-caret-down mr-1"></i>
+                                           {{ number_format((($sum_today-$sum_yesterday)/($sum_yesterday != 0 ? $sum_yesterday : 1))*100,2)}}%
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
-                            <div class="block-content p-1 text-center overflow-hidden">
-                                <!-- Sparkline Line: Orders -->
-                                <span class="js-sparkline" data-type="line"
-                                        data-points="[33,29,32,37,38,30,34,28,43,45,26,45,49,39]"
-                                        data-width="100%"
-                                        data-height="70px"
-                                        data-chart-range-min="20"
-                                        data-line-color="rgba(210, 108, 122, .4)"
-                                        data-fill-color="rgba(210, 108, 122, .15)"
-                                        data-spot-color="transparent"
-                                        data-min-spot-color="transparent"
-                                        data-max-spot-color="transparent"
-                                        data-highlight-spot-color="#D26C7A"
-                                        data-highlight-line-color="#D26C7A"
-                                        data-tooltip-suffix="Orders"></span>
+                            <div class="block-content block-content-full block-content-sm font-size-sm">
+                                <a class="font-w500 d-flex align-items-center" href="{{route('reservations-today')}}">
+                                    View Reservations
+                                    <i class="fa fa-arrow-alt-circle-right ml-1 opacity-25 font-size-base"></i>
+                                </a>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-6 col-xl-12">
-                        <div class="block block-rounded d-flex flex-column">
+                        <div class="block block-rounded d-flex flex-column bg-{{$balance > 0 ? ($balance > 1000 ? 'danger' : 'warning') : 'success'}}-light">
                             <div class="block-content block-content-full flex-grow-1 d-flex justify-content-between">
                                 <dl class="mb-0">
-                                    <dt class="font-size-h2 font-w700">$5,234.21</dt>
-                                    <dd class="text-muted mb-0">Total Earnings</dd>
+                                    <dd class="text-muted mb-0">Balance Receivable</dd>
+                                    <dt class="font-size-h3 font-w700">GH₵ {{number_format($balance,2)}}</dt>
+                                    <span class="font-w600 text-{{$overall_balance > 0 ? ($overall_balance > 1000 ? 'danger' : 'warning') : 'success'}}">
+                                        Total: ₵{{number_format($overall_balance,2)}}
+                                    </span>
                                 </dl>
                                 <div>
-                                    <div class="d-inline-block px-2 py-1 rounded-lg font-size-sm font-w600 text-success bg-success-light">
-                                        <i class="fa fa-caret-up mr-1"></i>
-                                        4.2%
-                                    </div>
+                                    @if($overall_balance <= $balance)
+                                        <div class="d-inline-block px-2 py-1 rounded-lg font-size-sm font-w600 text-success-light bg-success">
+                                            <i class="fa fa-caret-down mr-1"></i>
+                                           {{ number_format((($overall_balance-($overall_balance-$balance))/(($overall_balance-$balance) != 0 ? ($overall_balance-$balance) : 1))*100,2)}}%
+                                        </div>
+                                    @elseif($balance == 0)
+                                        <div class="d-inline-block px-2 py-1 rounded-lg font-size-sm font-w600 text-warning-light bg-warning">
+                                            <i class="fa fa-caret-right mr-1"></i>
+                                            0.00%
+                                        </div>
+                                    @else
+                                        <div class="d-inline-block px-2 py-1 rounded-lg font-size-sm font-w600 text-danger-light bg-danger">
+                                            <i class="fa fa-caret-up mr-1"></i>
+                                           {{ number_format((($overall_balance-($overall_balance-$balance))/(($overall_balance-$balance) != 0 ? ($overall_balance-$balance) : 1))*100,2)}}%
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
                             <div class="block-content p-1 text-center oveflow-hidden">
-                                <!-- Sparkline Line: Earnings -->
-                                <span class="js-sparkline" data-type="line"
-                                        data-points="[716,1185,750,1365,956,890,1200,968,1158,1025,920,1190,720,1352]"
-                                        data-width="100%"
-                                        data-height="70px"
-                                        data-chart-range-min="300"
-                                        data-line-color="rgba(70,195,123, .4)"
-                                        data-fill-color="rgba(70,195,123, .15)"
-                                        data-spot-color="transparent"
-                                        data-min-spot-color="transparent"
-                                        data-max-spot-color="transparent"
-                                        data-highlight-spot-color="#46C37B"
-                                        data-highlight-line-color="#46C37B"
-                                        data-tooltip-prefix="$"></span>
                             </div>
                         </div>
                     </div>
@@ -282,38 +457,40 @@
                         <div class="block block-rounded d-flex flex-column">
                             <div class="block-content block-content-full flex-grow-1 d-flex justify-content-between">
                                 <dl class="mb-0">
-                                    <dt class="font-size-h2 font-w700">264</dt>
-                                    <dd class="text-muted mb-0">New Customers</dd>
+                                    <dt class="font-size-h3 font-w700">GH₵ {{number_format($sum_sales,2)}}</dt>
+                                    <dd class="text-muted mb-0">Today's Sales</dd>
                                 </dl>
                                 <div>
-                                    <div class="d-inline-block px-2 py-1 rounded-lg font-size-sm font-w600 text-success bg-success-light">
-                                        <i class="fa fa-caret-up mr-1"></i>
-                                        9.3%
-                                    </div>
+                                    @if($sum_sales > $sum_sales_yesterday)
+                                        <div class="d-inline-block px-2 py-1 rounded-lg font-size-sm font-w600 text-success bg-success-light">
+                                            <i class="fa fa-caret-up mr-1"></i>
+                                           {{ number_format((($sum_sales-$sum_sales_yesterday)/($sum_sales_yesterday != 0 ? $sum_sales_yesterday : 1))*100,2)}}%
+                                        </div>
+                                    @elseif($sum_sales == $sum_sales_yesterday)
+                                        <div class="d-inline-block px-2 py-1 rounded-lg font-size-sm font-w600 text-warning bg-warning-light">
+                                            <i class="fa fa-caret-right mr-1"></i>
+                                            0.00%
+                                        </div>
+                                    @else
+                                        <div class="d-inline-block px-2 py-1 rounded-lg font-size-sm font-w600 text-danger bg-danger-light">
+                                            <i class="fa fa-caret-down mr-1"></i>
+                                           {{ number_format((($sum_sales-$sum_sales_yesterday)/($sum_sales_yesterday != 0 ? $sum_sales_yesterday : 1))*100,2)}}%
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
-                            <div class="block-content p-1 text-center oveflow-hidden">
-                                <!-- Sparkline Line: New Customers -->
-                                <span class="js-sparkline" data-type="line"
-                                        data-points="[25,15,36,14,29,19,36,41,28,26,29,33,23,41]"
-                                        data-width="100%"
-                                        data-height="70px"
-                                        data-chart-range-min="0"
-                                        data-line-color="rgba(70,195,123, .4)"
-                                        data-fill-color="rgba(70,195,123, .15)"
-                                        data-spot-color="transparent"
-                                        data-min-spot-color="transparent"
-                                        data-max-spot-color="transparent"
-                                        data-highlight-spot-color="#46C37B"
-                                        data-highlight-line-color="#46C37B"
-                                        data-tooltip-prefix="$"></span>
+                            <div class="block-content block-content-full block-content-sm font-size-sm">
+                                <a class="font-w500 d-flex align-items-center" href="{{route('other.sales')}}">
+                                    View Sales
+                                    <i class="fa fa-arrow-alt-circle-right ml-1 opacity-25 font-size-base"></i>
+                                </a>
                             </div>
                         </div>
                     </div>
                 </div>
                 <!-- END Last 2 Weeks -->
             </div>
-        </div> --}}
+        </div>
         <!-- END Statistics -->
         @can('view reservations')
             <div class="row">
@@ -340,7 +517,7 @@
                                 {!! $calendar_reservation->calendar() !!}
                             @else
                                 {!! $all_calendar_reservations->calendar() !!}
-                                {!! $all_calendar_reservations->script() !!}
+                                {{-- {!! $all_calendar_reservations->script() !!} --}}
                             @endif
                         </div>
                     </div>
@@ -412,16 +589,19 @@
 @endsection
 @section('js_after')
     <!-- Page JS Plugins -->
-
     <script src="{{ asset('js/plugins/fullcalendar/main.js') }}"></script>
     <script src="{{ asset('js/plugins/fullcalendar/locales-all.min.js') }}"></script>
 
+    @if(!isset($calendar_reservation))
+        {!! $all_calendar_reservations->script() !!}
+    @endif
     <script>
         function resizecalendar() {
             $('.fc-col-header').css('width', '100%');
             $('.fc-daygrid-body').css('width', '100%');
             $('.fc-scrollgrid-sync-table').css('width', '100%');
         }
+
     </script>
 
 @endsection

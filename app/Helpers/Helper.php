@@ -62,11 +62,22 @@ class Helper
 
     public function get_calendar($list) {
         $calendar = new Calendar();
-        $calendar->addEvents($list);
+        $calendar->addEvents($list)->setCallbacks([
+            'eventMouseEnter' => 'function(info) {
+                // console.log(info);
+                var tooltip = $(info.el).tooltip({
+                    title: info.el,
+                    placement: "top",
+                    trigger: "hover",
+                    container: "body"
+                  });
+             }'
+        ]);
         if(auth()->user()->can('add reservations')){
             $calendar->setOptions([
                 'locales' => 'FullCalendar.globalLocales',
                 'locale' => 'en-gb',
+                'timeZone' => 'UTC',
                 'firstDay' => 1,
                 'displayEventTime' => false,
                 'selectable' => true,

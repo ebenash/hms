@@ -22,7 +22,7 @@
     <div class="block-content block-content-full">
         <!-- DataTables init on table by adding .js-dataTable-full class, functionality is initialized in js/pages/tables_datatables.js -->
 
-        <table class="table table-bordered table-striped table-vcenter js-dataTable-full">
+        <table class="table table-bordered table-striped table-vcenter js-dataTable-buttons">
 			<thead>
 				<tr>
 					<th class="text-center"></th>
@@ -79,6 +79,14 @@
                                                 <div class="form-group">
                                                     <div class="">Phone: <b>{{$guest->phone}}</b></div>
                                                 </div>
+                                                <div class="form-group js-gallery img-fluid-100">
+                                                    ID On File
+                                                    <div class="form-material input-group floating animated fadeIn">
+                                                        <a class="img-link img-link-zoom-in img-thumb img-lightbox" href="{{route('hms-guest-identification',($guest->id_card ?? 'no-id.jpg'))}}">
+                                                            <div class="thumbnail" style="width: 200px; height: 70px;"><img src="{{route('hms-guest-identification',($guest->id_card ?? 'no-id.jpg'))}}" height="80px"/></div>
+                                                        </a>
+                                                    </div>
+                                                </div>
                                                 <div class="form-group">
                                                     <div class="">City: <b>{{$guest->city}}</b></div>
                                                 </div>
@@ -110,7 +118,7 @@
                                             </div>
                                         </div>
                                         <div class="block-content block-content-narrow">
-                                            <form method="post" action="{{route('guests-update',$guest->id)}}" class="form-horizontal push-10-t">
+                                            <form method="post" action="{{route('guests-update',$guest->id)}}" class="form-horizontal push-10-t" enctype="multipart/form-data">
                                                 @csrf
                                                 <div class="form-group">
                                                     <label for="material-text2">Full Name <span class="text-danger" style="display: inline-block;">*</span></label>
@@ -123,6 +131,18 @@
                                                 <div class="form-group">
                                                     <label for="material-text2">Phone <span class="text-danger" style="display: inline-block;">*</span></label>
                                                     <input type="text" name="phone" class="form-control" value="{{$guest->phone}}">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="material-text2">ID Card <span class="text-danger" style="display: inline-block;">*</span></label>
+                                                    <input type="file" name="id_card" class="form-control"{{$guest->id_card ? '' : 'required'}}>
+                                                </div>
+                                                <div class="form-group js-gallery img-fluid-100">
+                                                    <label for="phone">ID On File</label>
+                                                    <div class="form-material input-group floating animated fadeIn">
+                                                        <a class="img-link img-link-zoom-in img-thumb img-lightbox" href="{{route('hms-guest-identification',($guest->id_card ?? 'no-id.jpg'))}}">
+                                                            <div class="thumbnail" style="width: 200px; height: 70px;"><img src="{{route('hms-guest-identification',($guest->id_card ?? 'no-id.jpg'))}}" height="80px"/></div>
+                                                        </a>
+                                                    </div>
                                                 </div>
                                                 <div class="form-group">
                                                     <label for="material-text2">City</label>
@@ -162,6 +182,7 @@
     <!-- Page JS Plugins CSS -->
     <link rel="stylesheet" href="{{ asset('js/plugins/datatables/dataTables.bootstrap4.css') }}">
     <link rel="stylesheet" href="{{ asset('js/plugins/datatables/buttons-bs4/buttons.bootstrap4.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('js/plugins/magnific-popup/magnific-popup.css') }}">
 @endsection
 
 @section('js_after')
@@ -176,6 +197,11 @@
 
     <!-- Page JS Code -->
     <script src="{{ asset('js/pages/tables_datatables.js') }}"></script>
+    <!-- Page JS Plugins -->
+    <script src="{{ asset('js/plugins/magnific-popup/jquery.magnific-popup.js') }}"></script>
+
+    <!-- Page JS Helpers (Slick Slider Plugin) -->
+    <script>jQuery(function(){One.helpers(['magnific-popup']);});</script>
 
     <script id="blockOfStuff" type="text/html">
         <div class="paginate" style="margin-left: auto;">

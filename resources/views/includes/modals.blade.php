@@ -43,6 +43,20 @@
                                 <!-- END Reservation -->
                             </div>
                         @endcan
+                        @can('view roomtypes')
+                            <div class="col-6">
+                                <!-- Room Type -->
+                                <a class="block block-rounded block-link-shadow bg-body mb-0" href="javascript:void(0)" data-toggle="modal" data-target="#modal-add-new-sale">
+                                    <div class="block-content text-center">
+                                        <i class="si si-wallet fa-2x text-primary"></i>
+                                        <p class="font-w600 font-size-sm mt-2 mb-3">
+                                            Add Sale
+                                        </p>
+                                    </div>
+                                </a>
+                                <!-- END Room Type -->
+                            </div>
+                        @endcan
                         @can('view rooms')
                             <div class="col-6">
                                 <!-- Rooms -->
@@ -55,20 +69,6 @@
                                     </div>
                                 </a>
                                 <!-- END Rooms -->
-                            </div>
-                        @endcan
-                        @can('view roomtypes')
-                            <div class="col-6">
-                                <!-- Room Type -->
-                                <a class="block block-rounded block-link-shadow bg-body mb-0" href="{{route('roomtypes')}}">
-                                    <div class="block-content text-center">
-                                        <i class="si si-home fa-2x text-primary"></i>
-                                        <p class="font-w600 font-size-sm mt-2 mb-3">
-                                            Room Types
-                                        </p>
-                                    </div>
-                                </a>
-                                <!-- END Room Type -->
                             </div>
                         @endcan
                     </div>
@@ -93,7 +93,7 @@
                     </div>
                     <div class="block-content block-content-narrow">
 
-                        <form method="post" action="{{route('guests-store')}}" class="form-horizontal push-10-t">
+                        <form method="post" action="{{route('guests-store')}}" class="form-horizontal push-10-t" enctype="multipart/form-data">
                             @csrf
                             <div class="form-group">
                                 <label for="material-text2">Full Name <span class="text-danger" style="display: inline-block;">*</span></label>
@@ -108,6 +108,10 @@
                                 <input type="text" name="phone" class="form-control">
                             </div>
                             <div class="form-group">
+                                <label for="material-text2">ID Card <span class="text-danger" style="display: inline-block;">*</span></label>
+                                <input type="file" name="id_card" class="form-control" required>
+                            </div>
+                            <div class="form-group">
                                 <label for="material-text2">City</label>
                                 <input type="text" name="city" class="form-control">
                             </div>
@@ -119,6 +123,97 @@
                             <div class="form-group">
                                 <label for="example-autocomplete2">Country</label>
                                 <input class="js-autocomplete form-control" type="text" id="example-autocomplete2" name="country">
+                            </div>
+                            <div class="form-group text-right">
+                                <button class="btn btn-lg btn-alt-primary" type="submit">Submit</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+@endcan
+@can('add reservations')
+    <div class="modal fade" id="modal-add-new-sale" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog  modal-dialog-popout">
+            <div class="modal-content">
+                <div class="block block-themed block-transparent mb-0">
+                    <div class="block-header bg-primary-dark">
+                        <h3 class="block-title">Add New Sale Info</h3>
+                        <div class="block-options">
+                            <button type="button" class="btn-block-option" data-dismiss="modal" aria-label="Close">
+                                <i class="si si-close"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="block-content block-content-narrow">
+
+                        <form method="post" action="{{route('sale-store')}}" class="form-horizontal push-10-t">
+                            @csrf
+                            <div class="form-group">
+                                <label for="material-text2">Description <span class="text-danger" style="display: inline-block;">*</span></label>
+                                <input type="text" name="expense_description" class="form-control" required autocomplete="off">
+                            </div>
+                            <div class="form-group">
+                                <label for="material-text2">Sale Type <span class="text-danger" style="display: inline-block;">*</span></label>
+                                <select class="form-control" id="expense_type" data-placeholder="Select Sale Type.." name="expense_type" autocomplete="off" required>
+                                    <option>Select Sale Type</option>
+                                    <option value="food">Food</option>
+                                    <option value="drinks">Drinks</option>
+                                    <option value="pool">Pool</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="material-text2">Quantity <span class="text-danger" style="display: inline-block;">*</span></label>
+                                <input type="number" name="expense_quantity" id="expense_quantity" value="1" class="form-control" required autocomplete="off">
+                            </div>
+                            <div class="form-group">
+                                <label for="material-text2">Price <span class="text-danger" style="display: inline-block;">*</span></label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text input-group-text-alt">
+                                            {{$current_user->company->currency}}
+                                        </span>
+                                    </div>
+                                    <input type="number" step="0.01" id="expense_price" name="expense_price" class="form-control text-center" required onkeyup="calcSalePrice()" placeholder="Item Price" autocomplete="off">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="material-text2">Total Amount <span class="text-danger" style="display: inline-block;">*</span></label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text input-group-text-alt">
+                                            {{$current_user->company->currency}}
+                                        </span>
+                                    </div>
+                                    <input type="number" step="0.01" id="expense_total_price" name="expense_total_price" class="form-control text-center" readonly placeholder="Total Amount" autocomplete="off">
+                                    <div class="input-group-append">
+                                        <span class="input-group-text input-group-text-alt">
+                                            <i class="fa fa-calculator"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="material-text2">Status <span class="text-danger" style="display: inline-block;">*</span></label>
+                                <select class="form-control" id="expense_status" data-placeholder="Select Status.." name="expense_status" autocomplete="off" required>
+                                    <option>Select Status</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="paid">Paid</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="material-text2">Method <span class="text-danger" style="display: inline-block;">*</span></label>
+                                <select name="expense_payment_type" id="expense_payment_type" class="form-control" required autocomplete="off">
+                                    <option value="">Select Payment Method</option>
+                                    <option value="paystack">Paystack</option>
+                                    <option value="cash">Cash Payment</option>
+                                    <option value="momo">Mobile Money</option>
+                                    <option value="pos">Card POS</option>
+                                    <option value="complementary">Complementary</option>
+                                </select>
                             </div>
                             <div class="form-group text-right">
                                 <button class="btn btn-lg btn-alt-primary" type="submit">Submit</button>

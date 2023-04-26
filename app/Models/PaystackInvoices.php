@@ -11,7 +11,7 @@ class PaystackInvoices extends Model
     // use SoftDeletes;
 
     public function guest(){
-    	return $this->belongsTo('App\Models\Guests');
+    	return $this->belongsTo('App\Models\Guests','customer','paystack_identifier');
     }
 
     public function reservation(){

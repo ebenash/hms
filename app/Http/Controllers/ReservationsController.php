@@ -68,7 +68,7 @@ class ReservationsController extends CommonController
     {
         //
         // $this->send_feedback_to_guest(4,'invoice');
-        $reservations = DB::table('reservations')->join('guests','reservations.guest_id','=','guests.id')->select('reservations.*','guests.full_name')->where('reservations.check_in','>=',date("Y-m-d", strtotime('-5 days')))->where('reservations.company_id',auth()->user()->company->id)->where('reservations.reservation_status','confirmed');
+        $reservations = Reservations::join('guests','reservations.guest_id','=','guests.id')->select('reservations.*','guests.full_name')->where('reservations.company_id',auth()->user()->company->id)->where('reservations.reservation_status','confirmed');
         $response = $request->all();
         // dd($response);
         if(isset($response['guest'])){
@@ -91,10 +91,12 @@ class ReservationsController extends CommonController
             $check_in = isset($daterange[0]) ? $daterange[0] : null;
             $check_out = isset($daterange[1]) ? $daterange[1] : null;
             if ($check_out) {
-                $reservations->where('check_in', '<', $check_out)->where('check_out', '>=', $check_in);
+                $reservations->where('check_in', '<=', $check_out)->where('check_out', '>=', $check_in);
             }else{
                 $reservations->where('check_in', '<=', $check_in)->where('check_out', '>=', $check_in);
             }
+        }else{
+            $reservations->where('reservations.check_in','>=',date("Y-m-d", strtotime('-5 days')));
         }
 
         $data = [
@@ -109,7 +111,7 @@ class ReservationsController extends CommonController
     public function today(Request $request)
     {
         //
-        $reservations = DB::table('reservations')->join('guests','reservations.guest_id','=','guests.id')->select('reservations.*','guests.full_name')->where('reservations.company_id',auth()->user()->company->id)->where('reservations.check_in',date('Y-m-d'))->where('reservations.reservation_status','confirmed');
+        $reservations = Reservations::join('guests','reservations.guest_id','=','guests.id')->select('reservations.*','guests.full_name')->where('reservations.company_id',auth()->user()->company->id)->where('reservations.check_in',date('Y-m-d'))->where('reservations.reservation_status','confirmed');
         $response = $request->all();
         // dd($response);
         if(isset($response['guest'])){
@@ -127,16 +129,16 @@ class ReservationsController extends CommonController
             $details = ReservationDetails::where("room_id",$room)->get();
             $reservations->whereIn("reservations.id",array_column($details->toArray(), 'reservations_id'));
         }
-        if(isset($response['daterange'])){
-            $daterange = explode(" to ",$response['daterange']);
-            $check_in = isset($daterange[0]) ? $daterange[0] : null;
-            $check_out = isset($daterange[1]) ? $daterange[1] : null;
-            if ($check_out) {
-                $reservations->where('check_in', '<', $check_out)->where('check_out', '>=', $check_in);
-            }else{
-                $reservations->where('check_in', '<=', $check_in)->where('check_out', '>=', $check_in);
-            }
-        }
+        // if(isset($response['daterange'])){
+        //     $daterange = explode(" to ",$response['daterange']);
+        //     $check_in = isset($daterange[0]) ? $daterange[0] : null;
+        //     $check_out = isset($daterange[1]) ? $daterange[1] : null;
+        //     if ($check_out) {
+        //         $reservations->where('check_in', '<', $check_out)->where('check_out', '>=', $check_in);
+        //     }else{
+        //         $reservations->where('check_in', '<=', $check_in)->where('check_out', '>=', $check_in);
+        //     }
+        // }
 
         $data = [
             'all_rooms' => Rooms::where('status',1)->where('company_id',auth()->user()->company->id)->orderBy('name','asc')->get(),
@@ -150,7 +152,7 @@ class ReservationsController extends CommonController
     public function requests(Request $request)
     {
         //
-        $reservations = DB::table('reservations')->join('guests','reservations.guest_id','=','guests.id')->select('reservations.*','guests.full_name')->where('reservations.check_in','>=',date("Y-m-d", strtotime('-5 days')))->where('reservations.company_id',auth()->user()->company->id)->where('reservations.reservation_status','pending')->where('reservations.created_by',0);
+        $reservations = Reservations::join('guests','reservations.guest_id','=','guests.id')->select('reservations.*','guests.full_name')->where('reservations.company_id',auth()->user()->company->id)->where('reservations.reservation_status','pending')->where('reservations.created_by',0);
         $response = $request->all();
         // dd($response);
         if(isset($response['guest'])){
@@ -173,10 +175,12 @@ class ReservationsController extends CommonController
             $check_in = isset($daterange[0]) ? $daterange[0] : null;
             $check_out = isset($daterange[1]) ? $daterange[1] : null;
             if ($check_out) {
-                $reservations->where('check_in', '<', $check_out)->where('check_out', '>=', $check_in);
+                $reservations->where('check_in', '<=', $check_out)->where('check_out', '>=', $check_in);
             }else{
                 $reservations->where('check_in', '<=', $check_in)->where('check_out', '>=', $check_in);
             }
+        }else{
+            $reservations->where('reservations.check_in','>=',date("Y-m-d", strtotime('-5 days')));
         }
 
         $data = [
@@ -191,7 +195,7 @@ class ReservationsController extends CommonController
     public function pending(Request $request)
     {
         //
-        $reservations = DB::table('reservations')->join('guests','reservations.guest_id','=','guests.id')->select('reservations.*','guests.full_name')->where('reservations.check_in','>=',date("Y-m-d", strtotime('-5 days')))->where('reservations.company_id',auth()->user()->company->id)->where('reservations.reservation_status','pending');
+        $reservations = Reservations::join('guests','reservations.guest_id','=','guests.id')->select('reservations.*','guests.full_name')->where('reservations.company_id',auth()->user()->company->id)->where('reservations.reservation_status','pending');
         $response = $request->all();
         // dd($response);
         if(isset($response['guest'])){
@@ -214,10 +218,12 @@ class ReservationsController extends CommonController
             $check_in = isset($daterange[0]) ? $daterange[0] : null;
             $check_out = isset($daterange[1]) ? $daterange[1] : null;
             if ($check_out) {
-                $reservations->where('check_in', '<', $check_out)->where('check_out', '>=', $check_in);
+                $reservations->where('check_in', '<=', $check_out)->where('check_out', '>=', $check_in);
             }else{
                 $reservations->where('check_in', '<=', $check_in)->where('check_out', '>=', $check_in);
             }
+        }else{
+            $reservations->where('reservations.check_in','>=',date("Y-m-d", strtotime('-5 days')));
         }
 
         $data = [
@@ -232,7 +238,7 @@ class ReservationsController extends CommonController
     public function cancelled(Request $request)
     {
         //
-        $reservations = DB::table('reservations')->join('guests','reservations.guest_id','=','guests.id')->select('reservations.*','guests.full_name')->where('reservations.check_in','>=',date("Y-m-d", strtotime('-5 days')))->where('reservations.company_id',auth()->user()->company->id)->where('reservations.reservation_status','cancelled');
+        $reservations = Reservations::join('guests','reservations.guest_id','=','guests.id')->select('reservations.*','guests.full_name')->where('reservations.company_id',auth()->user()->company->id)->where('reservations.reservation_status','cancelled');
         $response = $request->all();
         // dd($response);
         if(isset($response['guest'])){
@@ -255,10 +261,12 @@ class ReservationsController extends CommonController
             $check_in = isset($daterange[0]) ? $daterange[0] : null;
             $check_out = isset($daterange[1]) ? $daterange[1] : null;
             if ($check_out) {
-                $reservations->where('check_in', '<', $check_out)->where('check_out', '>=', $check_in);
+                $reservations->where('check_in', '<=', $check_out)->where('check_out', '>=', $check_in);
             }else{
                 $reservations->where('check_in', '<=', $check_in)->where('check_out', '>=', $check_in);
             }
+        }else{
+            $reservations->where('reservations.check_in','>=',date("Y-m-d", strtotime('-5 days')));
         }
 
         $data = [
@@ -273,7 +281,7 @@ class ReservationsController extends CommonController
     public function rejected(Request $request)
     {
         //
-        $reservations = DB::table('reservations')->join('guests','reservations.guest_id','=','guests.id')->select('reservations.*','guests.full_name')->where('reservations.check_in','>=',date("Y-m-d", strtotime('-5 days')))->where('reservations.company_id',auth()->user()->company->id)->where('reservations.reservation_status','rejected');
+        $reservations = Reservations::join('guests','reservations.guest_id','=','guests.id')->select('reservations.*','guests.full_name')->where('reservations.company_id',auth()->user()->company->id)->where('reservations.reservation_status','rejected');
         $response = $request->all();
         // dd($response);
         if(isset($response['guest'])){
@@ -296,10 +304,12 @@ class ReservationsController extends CommonController
             $check_in = isset($daterange[0]) ? $daterange[0] : null;
             $check_out = isset($daterange[1]) ? $daterange[1] : null;
             if ($check_out) {
-                $reservations->where('check_in', '<', $check_out)->where('check_out', '>=', $check_in);
+                $reservations->where('check_in', '<=', $check_out)->where('check_out', '>=', $check_in);
             }else{
                 $reservations->where('check_in', '<=', $check_in)->where('check_out', '>=', $check_in);
             }
+        }else{
+            $reservations->where('reservations.check_in','>=',date("Y-m-d", strtotime('-5 days')));
         }
 
         $data = [
@@ -315,7 +325,7 @@ class ReservationsController extends CommonController
     public function tomorrow(Request $request)
     {
         // dd(date('Y-m-d', strtotime('tomorrow')));
-        $reservations = DB::table('reservations')->join('guests','reservations.guest_id','=','guests.id')->select('reservations.*','guests.full_name')->where('reservations.company_id',auth()->user()->company->id)->where('check_in',date('Y-m-d', strtotime('tomorrow')))->where('reservations.reservation_status','confirmed');
+        $reservations = Reservations::join('guests','reservations.guest_id','=','guests.id')->select('reservations.*','guests.full_name')->where('reservations.company_id',auth()->user()->company->id)->where('check_in',date('Y-m-d', strtotime('tomorrow')))->where('reservations.reservation_status','confirmed');
 
         $data = [
             'all_rooms' => Rooms::where('status',1)->where('company_id',auth()->user()->company->id)->orderBy('name','asc')->get(),
@@ -361,13 +371,13 @@ class ReservationsController extends CommonController
     {
         // dd($request->all());
         $request->validate([
-            'room1' => 'required',
-            'room_type1' => 'required',
             'guest_id' => 'required',
             'reservation_daterange' => 'required',
-            'adults1' => 'required',
-            'children1' => 'required',
-            'total_price1' => 'required',
+            // 'room1' => 'required',
+            // 'room_type1' => 'required',
+            // 'adults1' => 'required',
+            // 'children1' => 'required',
+            // 'total_price1' => 'required',
             'roomtypecount' => 'required',
             'amount_paid' => 'required',
             'balance' => 'required',
@@ -419,10 +429,11 @@ class ReservationsController extends CommonController
                 # code...
                 foreach ($request->input('room'.$i) as $key => $room_id) {
                     # code...
-                    $roombooked = DB::table('reservation_details')->join('reservations','reservation_details.reservations_id','=','reservations.id')->select('reservations.check_in','reservations.check_out','reservation_details.room_id')->where('reservation_details.room_id', $room_id)->where('reservations.check_in', '<', $check_out)->where('reservations.check_out', '>', $check_in)->where('reservations.reservation_status', 'confirmed')->first();
+                    $roombooked = DB::table('reservation_details')->join('reservations','reservation_details.reservations_id','=','reservations.id')->join('guests','reservations.guest_id','=','guests.id')->select('reservations.id', 'reservation_details.id as detail_id','reservations.check_in','reservations.check_out','reservation_details.room_id','guests.full_name')->where('reservation_details.room_id', $room_id)->where('reservations.check_in', '<', $check_out)->where('reservations.check_out', '>', $check_in)->where('reservations.reservation_status', 'confirmed')->first();
                     // dd($roombooked);
                     if($roombooked){
-                        return back()->with('error','Selected Room(s) Already Booked On Specified Dates');
+                        // dd($roombooked);
+                        return back()->with('error','Selected Room(s) Already Booked By '.$roombooked->full_name.' (Reservation: #'.$roombooked->id.') On Specified Dates');
                     }else{
 
                         $total_price = $request->input('total_price'.$i);
@@ -536,10 +547,11 @@ class ReservationsController extends CommonController
                 $room_id = $request->input('room1');
                 $grand_total = $request->input('grand_total');
 
-                $roombooked = DB::table('reservation_details')->join('reservations','reservation_details.reservations_id','=','reservations.id')->select('reservations.check_in','reservations.check_out','reservation_details.room_id')->where('reservation_details.room_id', $room_id)->where('reservations.check_in', '<', $check_out)->where('reservations.check_out', '>', $check_in)->where('reservations.reservation_status', 'confirmed')->where('reservation_details.reservations_id','!=',$id)->first();
-                // dd($roombooked);
+                $roombooked = DB::table('reservation_details')->join('reservations','reservation_details.reservations_id','=','reservations.id')->join('guests','reservations.guest_id','=','guests.id')->select('reservations.id', 'reservation_details.id as detail_id','reservations.check_in','reservations.check_out','reservation_details.room_id','guests.full_name')->where('reservation_details.room_id', $room_id)->where('reservations.check_in', '<', $check_out)->where('reservations.check_out', '>', $check_in)->where('reservations.reservation_status', 'confirmed')->where('reservation_details.reservations_id','!=',$id)->first();
+                    // dd($roombooked);
                 if($roombooked){
-                    return back()->with('error','Selected Room(s) Already Booked On Specified Dates');
+                    // dd($roombooked);
+                    return back()->with('error','Selected Room(s) Already Booked By '.$roombooked->full_name.' (Reservation: #'.$roombooked->id.') On Specified Dates');
                 }else{
 
                     $reservation =[
@@ -622,16 +634,28 @@ class ReservationsController extends CommonController
     {
         //
         $limit = 1000;
-        $reservations = DB::table('reservations')->join('guests','reservations.guest_id','=','guests.id')->join('reservation_details','reservations.id','=','reservation_details.reservations_id')->leftJoin('rooms','reservation_details.room_id','=','rooms.id')->select('reservations.id','reservations.check_in', 'reservations.check_out', 'reservations.days', 'reservations.paid', 'reservations.reservation_status', 'reservations.grand_total', 'reservations.amount_paid', 'reservations.balance', 'reservations.payment_method', 'reservations.created_by', 'guests.full_name','rooms.name as roomname')->where('reservations.company_id',auth()->user()->company->id)->where('reservations.check_in','>',date("Y-m-d", strtotime('-30 days')))->orderBy('reservations.check_in','asc')->limit($limit)->get();
-        // if($reservations->count() > $limit){
-        //     $reservations->limit($limit);
-        // }
-        // $reservations=$reservations->get();
+        // $reservations = [];//$this->mysqli_fetch_normal("select `reservations`.*, `guests`.`full_name`, `rooms`.`name` as `roomname` from `reservations` inner join `guests` on `reservations`.`guest_id` = `guests`.`id` left join `rooms` on `reservations`.`room_id` = `rooms`.`id` where `reservations`.`company_id` = ".auth()->user()->company->id." and `reservations`.`check_in` > '".date("Y-m-d", strtotime('-30 days'))."' order by `reservations`.`check_in` asc limit ".$limit."");
+
+        // $reservations = DB::table('reservations')->join('guests','reservations.guest_id','=','guests.id')->join('reservation_details','reservations.id','=','reservation_details.reservations_id')->leftJoin('rooms','reservation_details.room_id','=','rooms.id')->select('reservations.id','reservations.check_in', 'reservations.check_out', 'reservations.days', 'reservations.paid', 'reservations.reservation_status', 'reservations.grand_total', 'reservations.amount_paid', 'reservations.balance', 'reservations.payment_method', 'reservations.created_by', 'guests.full_name','rooms.name as roomname')->where('reservations.company_id',auth()->user()->company->id)->where('reservations.check_in','>',date("Y-m-d", strtotime('-30 days')))->orderBy('reservations.check_in','asc')->limit($limit)->get();
+        $reservations = Reservations::where('reservations.company_id',auth()->user()->company->id)->where('reservations.check_in','>',date("Y-m-d", strtotime('-30 days')))->with(['guest','details','rentals'])->orderBy('reservations.check_in','asc')->limit($limit)->get();
 
         $callendar_reservation_list = [];
         // dd($reservations);
 
         foreach ($reservations as $key => $reservation) {
+            $rooms = "";
+            $rentals = "";
+            foreach ($reservation->details as $detail){
+                if($detail->room){
+                    $rooms .= ($rooms != "" ? ', '.$detail->room->name : $detail->room->name);
+                }
+            }
+            foreach ($reservation->rentals as $rental){
+                $rentals .= ($rentals != "" ? ', '.ucfirst($rental->rental_type) : ucfirst($rental->rental_type));
+            }
+            // dd($reservation);
+
+
             if($reservation->reservation_status == "pending"){
                 if(strtotime($reservation->check_in) < strtotime(date("Y-m-d"))){
                     $color = ['color' => '#FF0000','textColor' => '#fff','url' => (auth()->user()->can('view reservations') ? route('reservations-show',$reservation->id) : '#')];
@@ -644,11 +668,13 @@ class ReservationsController extends CommonController
                 $color = ['color' => '#fffb00','textColor' => '#46c37b','url' => (auth()->user()->can('view reservations') ? route('reservations-show',$reservation->id) : '#')];
             }else if($reservation->reservation_status == "confirmed" && $reservation->paid == "full"){
                 $color = ['color' => '#46c37b','textColor' => '#ffffff','url' => (auth()->user()->can('view reservations') ? route('reservations-show',$reservation->id) : '#')];
+            }else if($reservation->reservation_status == "confirmed" && $reservation->paid == "pending"){
+                $color = ['color' => '#fffb00','textColor' => '#FF0000','url' => (auth()->user()->can('view reservations') ? route('reservations-show',$reservation->id) : '#')];
             }else{
                 $color = ['color' => '#d26a5c','textColor' => '#ffffff','url' => (auth()->user()->can('view reservations') ? route('reservations-show',$reservation->id) : '#')];
             }
             $callendar_reservation_list[] = Calendar::event(
-                (($reservation->reservation_status == "pending" && $reservation->created_by==0) ? (strtotime($reservation->check_in) < strtotime(date("Y-m-d")) ? 'Expired Reservation Request: ' : 'Reservation Request: ') :'Reservation: ').'Room - '.($reservation->roomname ?? 'Unassigned Room Number').' ('.$reservation->full_name.')',
+                "#".$reservation->id." ".$reservation->guest->full_name."'s ".(($reservation->reservation_status == "pending" && $reservation->created_by==0) ? (strtotime($reservation->check_in) < strtotime(date("Y-m-d")) ? 'Expired Request: ' : 'Request: ') :'Reservation: ').($rooms != "" ? 'Rooms - ':'').($rooms != "" ? "[".$rooms."]" : ($rentals != "" ? "" : "Unassigned"))." ".($rentals != "" ? 'Rentals - ':'').($rentals != "" ? "[".$rentals."]" : "")." (".ucfirst($reservation->reservation_status)." - ".ucfirst($reservation->paid)." Payment) ".($reservation->payment_method ? ucfirst($reservation->payment_method) : '')."",
                 true,
                 new \DateTime($reservation->check_in),
                 new \DateTime($reservation->check_out.' +1 day'),
@@ -695,13 +721,13 @@ class ReservationsController extends CommonController
         //
         // dd($request->all());
         $request->validate([
-            'room1' => 'required',
-            'room_type1' => 'required',
             'guest_id' => 'required',
             'reservation_daterange' => 'required',
-            'adults1' => 'required',
-            'children1' => 'required',
-            'total_price1' => 'required',
+            // 'room1' => 'required',
+            // 'room_type1' => 'required',
+            // 'adults1' => 'required',
+            // 'children1' => 'required',
+            // 'total_price1' => 'required',
             'roomtypecount' => 'required',
             'amount_paid' => 'required',
             'balance' => 'required',
@@ -737,7 +763,8 @@ class ReservationsController extends CommonController
                 'amount_paid' => $request->input('amount_paid'),
                 'balance' => $request->input('balance'),
                 'payment_method' => $request->input('payment_type'),
-                'paid' => $request->input('payment_type') != 'paystack' && ($request->input('status') == 'confirmed' && $request->input('balance') == 0) ? 'full' : ($request->input('amount_paid') != 0 && $request->input('status') == 'confirmed' ? 'part': 'pending'),
+                // 'paid' => $request->input('payment_type') != 'paystack' && ($request->input('status') == 'confirmed' && $request->input('balance') == 0) ? 'full' : ($request->input('amount_paid') != 0 && $request->input('status') == 'confirmed' ? 'part': 'pending'),
+                'paid' => ($request->input('status') == 'confirmed' && $request->input('balance') == 0) ? 'full' : ($request->input('amount_paid') != 0 && $request->input('status') == 'confirmed' ? 'part': 'pending'),
                 'notes' => $request->input('notes') ?? $reservation->notes,
                 'vat_invoice_number' => $request->input('vat_invoice_number'),
                 'ota_reservation_number' => $request->input('ota_reservation_number'),
@@ -748,11 +775,11 @@ class ReservationsController extends CommonController
                 # code...
                 foreach ($request->input('room'.$i) as $key => $room_id) {
                     # code...
-                    $roombooked = DB::table('reservation_details')->join('reservations','reservation_details.reservations_id','=','reservations.id')->select('reservations.id', 'reservation_details.id as detail_id','reservations.check_in','reservations.check_out','reservation_details.room_id')->where('reservation_details.room_id', $room_id)->where('reservations.check_in', '<', $check_out)->where('reservations.check_out', '>', $check_in)->where('reservations.reservation_status', 'confirmed')->where('reservation_details.reservations_id','!=',$id)->first();
+                    $roombooked = DB::table('reservation_details')->join('reservations','reservation_details.reservations_id','=','reservations.id')->join('guests','reservations.guest_id','=','guests.id')->select('reservations.id', 'reservation_details.id as detail_id','reservations.check_in','reservations.check_out','reservation_details.room_id','guests.full_name')->where('reservation_details.room_id', $room_id)->where('reservations.check_in', '<', $check_out)->where('reservations.check_out', '>', $check_in)->where('reservations.reservation_status', 'confirmed')->where('reservation_details.reservations_id','!=',$id)->first();
                     // dd($roombooked);
                     if($roombooked){
                         // dd($roombooked);
-                        return back()->with('error','Selected Room(s) Already Booked On Specified Dates');
+                        return back()->with('error','Selected Room(s) Already Booked By '.$roombooked->full_name.' (Reservation: #'.$roombooked->id.') On Specified Dates');
                     }else{
 
                         $total_price = $request->input('total_price'.$i);
@@ -764,6 +791,7 @@ class ReservationsController extends CommonController
                             'children' => $request->input('children'.$i),
                             'price_per_day' => $request->input('price_per_day'.$i),
                             'total_price' => $total_price,
+                            'created_at' => $this->todaydatetime(),
                         ];
 
                         $reservation_details[] = $reservation_detail;
@@ -791,6 +819,7 @@ class ReservationsController extends CommonController
                         'quantity' => $request->input('rental_quantity'.$i),
                         'price' => $request->input('rental_price_per_day'.$i),
                         'total_price' => $total_price,
+                        'created_at' => $this->todaydatetime(),
                     ];
 
                     $reservation_rentals[] = $reservation_rental;
@@ -807,6 +836,7 @@ class ReservationsController extends CommonController
                     'quantity' => $request->input('expense_quantity'.$i),
                     'price' => $request->input('expense_price'.$i),
                     'total_price' => $total_price,
+                    'created_at' => $this->todaydatetime(),
                 ];
 
                 $reservation_expenses[] = $reservation_expense;

@@ -431,7 +431,7 @@
                                     </span>
                                 </dl>
                                 <div>
-                                    @if($overall_balance <= $balance)
+                                    @if($balance < 0)
                                         <div class="d-inline-block px-2 py-1 rounded-lg font-size-sm font-w600 text-success-light bg-success">
                                             <i class="fa fa-caret-down mr-1"></i>
                                            {{ number_format((($overall_balance-($overall_balance-$balance))/(($overall_balance-$balance) != 0 ? ($overall_balance-$balance) : 1))*100,2)}}%

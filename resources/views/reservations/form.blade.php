@@ -13,8 +13,6 @@
     </h1>
 @endsection
 @section('content')
-
-@section('content')
     @if(isset($request))
         <style type="text/css">
             .select2-container--default{
@@ -107,16 +105,16 @@
                                             </div>
 
                                             <div class="form-row col-lg-12 mb-2">
-                                                <label for="room">Select Room(s)</label>
+                                                <label for="room">Select Room(s) @if(isset($request)) <span class="text-danger">(Note: {{$detail->requested_number}} Room(s) Requested)</span> @endif</label>
                                                 <div class="input-group">
-                                                    <select class="form-control" data-placeholder="Select Room Type First" name="{{isset($create) || isset($update) ? 'room'.$i.'[]': 'room'.$i }}" id="room{{$i}}" {!! isset($create) || isset($update) ? 'multiple required': (isset($show) || (!auth()->user()->hasRole(['administrator']) && isset($reservation) && $reservation->reservation_status == 'confirmed') ? 'multiple readonly style="pointer-events: none;" tabindex="-1"': (strtotime($reservation->check_in) >= strtotime(date('Y-m-d', strtotime('-5 days'))) ? 'required':'disabled')) !!} style="{{(isset($request) ? "border: 1px solid red !important;":'')}}" autocomplete="off">
+                                                    <select class="js-select2 form-control" data-placeholder="Select Room Type First" name="room{{$i}}[]" id="room{{$i}}" {!! isset($create) || isset($update) || isset($request) ? 'multiple required': (isset($show) || (!auth()->user()->hasRole(['administrator']) && isset($reservation) && $reservation->reservation_status == 'confirmed') ? 'multiple readonly style="pointer-events: none;" tabindex="-1"': (strtotime($reservation->check_in) >= strtotime(date('Y-m-d', strtotime('-5 days'))) ? 'required':'disabled')) !!} style="{{(isset($request) ? "border: 1px solid red !important;":'')}}" autocomplete="off">
 
                                                         @if(isset($create))
-                                                        @elseif(isset($request))
-                                                        <option value="">Select Room</option>
+                                                        {{-- @elseif(isset($request))
+                                                            <option value="">Select Room</option>
                                                             @foreach($req_rooms as $room)
                                                                 <option value="{{$room->id}}" {{$room->id == $detail->room_id ? 'selected' : ''}}>{{$room->name}}</option>
-                                                            @endforeach
+                                                            @endforeach --}}
                                                         @else
                                                             {{-- <option>Select Room</option> --}}
                                                             @php
@@ -152,17 +150,17 @@
                                     <div class="col-lg-4 d-flex flex-column">
                                         <div class="row">
 
-                                            <div class="form-row mb-4 col-lg-12">
+                                            <div class="form-row mb-2 col-lg-12">
                                                 <label for="adults{{$i}}">Adults</label>
-                                                <input type="number" class="form-control" id="adults{{$i}}" name="adults{{$i}}" placeholder="Adults" {{isset($show) || (!auth()->user()->hasRole(['administrator']) && isset($reservation) && $reservation->reservation_status == 'confirmed') ? 'readonly':(isset($request) ? 'disabled':'required') }} value="{{$detail->adults ?? 0}}" autocomplete="off">
+                                                <input type="number" class="form-control" id="adults{{$i}}" name="adults{{$i}}" placeholder="Adults" {{isset($show) || (!auth()->user()->hasRole(['administrator']) && isset($reservation) && $reservation->reservation_status == 'confirmed') ? 'readonly':(isset($request) ? 'readonly':'required') }} value="{{$detail->adults ?? 0}}" autocomplete="off">
                                             </div>
-                                            <div class="form-row mb-4 col-lg-12">
+                                            <div class="form-row mb-2 col-lg-12">
                                                 <label for="children{{$i}}">Children</label>
-                                                <input type="number" class="form-control" id="children{{$i}}" name="children{{$i}}" placeholder="Children" {{isset($show) || (!auth()->user()->hasRole(['administrator']) && isset($reservation) && $reservation->reservation_status == 'confirmed') ? 'readonly':(isset($request) ? 'disabled':'required') }} value="{{$detail->children ?? 0}}" autocomplete="off">
+                                                <input type="number" class="form-control" id="children{{$i}}" name="children{{$i}}" placeholder="Children" {{isset($show) || (!auth()->user()->hasRole(['administrator']) && isset($reservation) && $reservation->reservation_status == 'confirmed') ? 'readonly':(isset($request) ? 'readonly':'required') }} value="{{$detail->children ?? 0}}" autocomplete="off">
                                             </div>
 
 
-                                            <div class="form-row mb-4 col-lg-12">
+                                            <div class="form-row mb-2 col-lg-12">
                                                 <label for="total_price{{$i}}">Room Total For <span id="resdays{{$i}}">{{$reservation->days ?? 'Specified'}}</span> Day(s)</label>
                                                 <div class="input-group">
                                                     <div class="input-group-prepend">
@@ -523,15 +521,28 @@
     <link rel="stylesheet" href="{{asset('js/plugins/flatpickr/flatpickr.min.css')}}">
     <style>
         .select2-selection__rendered {
-    line-height: 31px !important;
-}
-.select2-container .select2-selection--single {
-    height: 38px !important;
-}
-.select2-selection__arrow {
-    height: 36px !important;
-}
+            line-height: 31px !important;
+        }
+        .select2-container .select2-selection--single {
+            height: 38px !important;
+        }
+        .select2-selection__arrow {
+            height: 36px !important;
+        }
 
+        select[readonly].select2-hidden-accessible + .select2-container {
+            pointer-events: none;
+            touch-action: none;
+        }
+
+        select[readonly].select2-hidden-accessible + .select2-container .select2-selection {
+            background: #eee;
+            box-shadow: none;
+        }
+
+        select[readonly].select2-hidden-accessible + .select2-container .select2-selection__arrow, select[readonly].select2-hidden-accessible + .select2-container .select2-selection__clear {
+            display: none;
+        }
 
     </style>
 
@@ -553,10 +564,10 @@
     @else
         <script>
             console.log("Not Confirmed");
-        $(function () {
-            restrictIfPaystack();
-        });
-    </script>
+            $(function () {
+                restrictIfPaystack();
+            });
+        </script>
     @endif
     <script>
         function restrictIfPaystack() {
@@ -811,7 +822,7 @@
                                             '<div class="form-row col-lg-12 mb-2">'+
                                                 '<label for="room'+index+'">Select Room(s)</label>'+
                                                 '<div class="input-group">'+
-                                                    '<select class="form-control" data-placeholder="Select Room Type First" name="room'+index+'[]" id="room'+index+'" multiple required>'+
+                                                    '<select class="js-select2 form-control" data-placeholder="Select Room Type First" name="room'+index+'[]" id="room'+index+'" multiple required>'+
                                                     '</select>'+
                                                 '</div>'+
                                             '</div>'+
@@ -829,17 +840,17 @@
                                     '<div class="col-lg-4 d-flex flex-column">'+
                                         '<div class="row">'+
 
-                                            '<div class="form-row mb-4 col-lg-12">'+
+                                            '<div class="form-row mb-2 col-lg-12">'+
                                                 '<label for="adults'+index+'">Adults</label>'+
                                                 '<input type="number" class="form-control" id="adults'+index+'" name="adults'+index+'" placeholder="Adults" required value="">'+
                                             '</div>'+
-                                            '<div class="form-row mb-4 col-lg-12">'+
+                                            '<div class="form-row mb-2 col-lg-12">'+
                                                 '<label for="children'+index+'">Children</label>'+
                                                 '<input type="number" class="form-control" id="children'+index+'" name="children'+index+'" placeholder="Children" required value="">'+
                                             '</div>'+
 
 
-                                            '<div class="form-row mb-4 col-lg-12">'+
+                                            '<div class="form-row mb-2 col-lg-12">'+
                                                 '<label for="total_price'+index+'">Room Total For <span id="resdays'+index+'">Specified</span> Day(s)</label>'+
                                                 '<div class="input-group">'+
                                                     '<div class="input-group-prepend">'+
@@ -861,6 +872,7 @@
                             '</div>'+
                         '</div>'
                     );
+                    $(".js-select2").select2();
                 }
             }
 

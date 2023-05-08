@@ -77,25 +77,49 @@
                             </div>
                         </div>
                         @foreach ( $rooms as $room)
-                            <div class="row">
-                                <div class="col-1 text-center">
-                                    <label class="mt-4 mb-4">
-                                        <input type="radio" name="bookNowRoom" id="bookNowRoom{{$room->id}}" value="{{$room->id}}">
-                                    </label>
-                                </div>
-                                <div class="col-2 d-none d-sm-block">
-                                    <img src="{{asset($room->image_one ?? 'img/demos/hotel/room-1.jpg')}}" class="img-fluid" alt="">
-                                </div>
-                                <div class="col-11 col-sm-9">
-                                    <h5 class="mt-0 mb-0">{{$room->name}}</h5>
-                                    <div class="room-suite-info">
-                                        <ul>
-                                            <li><label>BEDS</label>	<span>{{$room->bed_type}}</span></li>
-                                            <li><label>RATES FROM</label> <strong>GHS {{$room->price_from}}</strong></li>
-                                        </ul>
+                            @php
+                                $i=1;
+                                $available = ceil($room->rooms->count()/2); //half of the room available
+                            @endphp
+                            @if($available > 0)
+                                <div class="row">
+                                    <div class="col-1 text-center">
+                                        <label class="mt-4 mb-4">
+                                            <input type="checkbox" name="bookNowRoom[]" id="bookNowRoom{{$room->id}}" value="{{$room->id}}">
+                                        </label>
+                                    </div>
+                                    {{-- <div class="col-1 text-center">
+                                        <label class="mt-4 mb-4">
+                                            <input type="number" name="bookNowNum" id="bookNowNum{{$room->id}}" value="1" min="1" max="999" size="3">
+                                        </label>
+                                    </div> --}}
+                                    <div class="col-2 d-none d-sm-block">
+                                        <img src="{{asset($room->image_one ?? 'img/demos/hotel/room-1.jpg')}}" class="img-fluid" alt="">
+                                    </div>
+                                    <div class="col-10 col-sm-9">
+                                        <div class="row">
+                                            <h5 class="col-10 mt-0 mb-0">{{$room->name}}</h5>
+                                            <div class="col-2 text-right">
+                                                <label for="bookNowNum{{$room->id}}">Qty:</label>
+                                                <select name="bookNowNum{{$room->id}}" id="bookNowNum{{$room->id}}">
+                                                    @while ($i <= $available)
+                                                        <option value="{{$i}}">{{$i}}</option>
+                                                        @php
+                                                            $i++;
+                                                        @endphp
+                                                    @endwhile
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="room-suite-info">
+                                            <ul>
+                                                <li><label>BEDS</label>	<span>{{$room->bed_type}}</span></li>
+                                                <li><label>RATES FROM</label> <strong>GHS {{$room->price_from}}</strong></li>
+                                            </ul>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                            @endif
                         @endforeach
                     </section>
 

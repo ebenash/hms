@@ -54,8 +54,8 @@
 					<th class="font-w600">Type</th>
 					<th class="font-w600">Reservation</th>
 					<th class="font-w600">Quantity</th>
-					<th class="font-w600">Price</th>
-					<th class="font-w600">Total Amount</th>
+					<th class="font-w600">Price (GHS)</th>
+					<th class="font-w600">Total Amount (GHS)</th>
 					<th class="font-w600">Method</th>
 					<th class="font-w600">Status</th>
 					<th class="font-w600">Recorded</th>
@@ -69,12 +69,12 @@
 				@foreach($all_sales as $sale)
                     <tr>
                         <td class="text-center"></td>
-                        <td class="hidden-xs">{{$sale->description}}</td>
+                        <td class="hidden-xs"><span title="{{$sale->description}}">{{strlen($sale->description) < 40 ? $sale->description : substr($sale->description,0,40)."..."}}</span></td>
                         <td class="hidden-xs">{{ucfirst($sale->expense_type)}}</td>
                         <td class="font-w600">@if($sale->reservations_id)<a href="{{route('reservations-show',$sale->reservations_id)}}">#{{$sale->reservations_id}}</a>@endif</td>
                         <td class="hidden-xs">{{$sale->quantity}}</td>
-                        <td class="font-w600">{{'GHS '.number_format($sale->price,2)}}</td>
-                        <td class="font-w600">{{'GHS '.number_format($sale->total_price,2)}}</td>
+                        <td class="font-w600">{{number_format($sale->price,2)}}</td>
+                        <td class="font-w600">{{number_format($sale->total_price,2)}}</td>
                         <td class="hidden-xs">{{ucfirst($sale->method)}}</td>
                         <td class="hidden-sm">
                                 @if($sale->status == 'confirmed')

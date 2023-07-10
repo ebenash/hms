@@ -304,10 +304,11 @@ class CommonController extends Controller
         if(isset($request->keyword)){
             $keyword = $request->keyword;
 
-            $guests = Guests::where("full_name","like","%".$keyword."%")->orWhere("phone","like","%".$keyword."%")->orWhere("email","like","%".$keyword."%")->where('company_id',auth()->user()->company->id)->limit($limit)->get();
+            $guests = Guests::where("full_name","like","%".$keyword."%")->orWhere("email","like","%".$keyword."%")->where('company_id',auth()->user()->company->id)->limit($limit)->get();
             $rooms = Rooms::where("name","like","%".$keyword."%")->where('company_id',auth()->user()->company->id)->limit($limit)->get();
             $roomtypes = RoomTypes::where("name","like","%".$keyword."%")->where('company_id',auth()->user()->company->id)->limit($limit)->get();
-
+            // $ressearch = Reservations::find($keyword);
+            // dd($ressearch);
             $first = true;
 
             if (count($guests) > 0) {
@@ -340,11 +341,11 @@ class CommonController extends Controller
                 $no_filter = false;
             }
 
-            // $reservations->with(['roomtype','room']);
-        }
+            if($no_filter){
+                $reservations->where('id',-1);
+            }
 
-        if($no_filter){
-            $reservations->where('id',-1);
+            $reservations->orWhere('id',$keyword);
         }
 
         $data = [

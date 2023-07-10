@@ -17,19 +17,23 @@
                 <button type="submit" class="btn btn-dark">Submit Filter</button>
             </div>
         </div>
-        <div class="block-content block-content-full form-inline">
+        <div class="block-content block-content-full">
             <!-- Form Search - Alternative Style -->
-            <div class="col-lg-12 row">
-                    <input type="text" class="form-control form-control-alt mb-2 mr-sm-2 mb-sm-2 col-lg-4" name="search" value="{{isset($filter['search']) ? $filter['search'] : ''}}" placeholder="Search">
-
-                    <select name="filter_type" id="filter_type" class="form-control form-control-alt mb-2 mr-sm-2 mb-sm-2 col-lg-3" onchange="hideTodayDates(this)">
+            <div class="row">
+                <div class="col-lg-4">
+                    <input type="text" class="form-control form-control-alt mb-2 mr-sm-2 mb-sm-2" name="search" value="{{isset($filter['search']) ? $filter['search'] : ''}}" placeholder="Search">
+                </div>
+                <div class="col-lg-3">
+                    <select name="filter_type" id="filter_type" class="form-control form-control-alt mb-2 mr-sm-2 mb-sm-2" onchange="hideTodayDates(this)">
                         <option value="">Select Filter Type</option>
                         <option value="pending" {{isset($filter['filter_type']) ? ($filter['filter_type'] == 'pending' ? 'selected' : '') : ''}}>Pending</option>
                         <option value="paid" {{isset($filter['filter_type']) ? ($filter['filter_type'] == 'paid' ? 'selected' : '') : ''}}>Paid</option>
                     </select>
-
-                    <input type="text" class="today-flatpickr form-control form-control-alt mb-2 mr-sm-2 mb-sm-2 col-lg-4" id="daterange" name="daterange" value="{{isset($filter['daterange']) ? $filter['daterange'] : date('Y-m-d')}}" placeholder="Select Date Range" data-mode="range">
-                     {{-- data-min-date="today"> --}}
+                </div>
+                <div class="col-lg-5">
+                    <input type="text" class="today-flatpickr form-control form-control-alt mb-2 mr-sm-2 mb-sm-2" id="daterange" name="daterange" value="{{isset($filter['daterange']) ? $filter['daterange'] : date('Y-m-d')}}" placeholder="Select Date Range" data-mode="range">
+                        {{-- data-min-date="today"> --}}
+                </div>
             </div>
         </div>
     </form>

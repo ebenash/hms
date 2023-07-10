@@ -54,10 +54,10 @@
     <link rel="stylesheet" href="{{ asset('homepage/assets/vendor/rs-plugin/css/navigation.css')}}">
 
     @php
-        $bg = array('bg-1.svg', 'bg-2.svg', 'bg-3.svg', 'bg-4.svg', 'bg-5.svg', 'bg-6.svg' ); // array of filenames
+        $bg = array('bg-1.svg', 'bg-2.svg', 'bg-3.svg', 'bg-4.svg', 'bg-5.svg', 'bg-6.svg','bg-7.svg', 'bg-8.svg', 'bg-9.svg', 'bg-10.svg', 'bg-11.svg', 'bg-12.svg'  ); // array of filenames
         $month = (int)date('m');
-        $i = $month > 6 ? $month - 6 : $month ;// generate random number size of the array
-        $selectedBg = $bg[$i-1]; // set variable equal to which random filename was chosen
+        // $i = $month > 6 ? $month - 6 : $month ;// generate random number size of the array
+        $selectedBg = $bg[$month-1]; // set variable equal to which random filename was chosen
 
         // dd($selectedBg);
         if (!in_array($selectedBg, $bg)){
@@ -70,7 +70,7 @@
             background-image: url("homepage/assets/img/patterns/<?php echo $selectedBg; ?>") !important;
         }
     </style>
-    @if ($selectedBg == 'bg-4.svg' || $selectedBg == 'bg-5.svg' || $selectedBg == 'bg-6.svg')
+    @if ($selectedBg != 'bg-1.svg' && $selectedBg != 'bg-2.svg' && $selectedBg != 'bg-7.svg'  && $selectedBg != 'bg-7.svg' )
         <style type="text/css">
             html.boxed {
                 background-size: 100%;

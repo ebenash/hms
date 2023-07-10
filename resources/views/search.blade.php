@@ -53,6 +53,7 @@
                 <table class="table table-striped table-vcenter">
                     <thead>
                         <tr>
+                            <th>ID</th>
                             <th style="width: 40%;">Guest</th>
                             <th class="d-none d-lg-table-cell text-center" style="width: 10%;">Status</th>
                             <th class="text-center" style="width: 20%;">Check-in</th>
@@ -63,13 +64,11 @@
                     <tbody>
                         @foreach ($search_reservations as $reservation)
                             <tr>
+                                <td class="text-center font-w600"><a href="{{route('reservations-show',$reservation->id)}}">#{{$reservation->id}}</a></td>
                                 <td>
                                     <h4 class="h5 mt-3 mb-2">
-                                        <a href="javascript:void(0)">{{$reservation->guest->full_name}}</a>
+                                        {{$reservation->guest->full_name}} [{{$reservation->details->count() ?? '0'}} Room(s)]
                                     </h4>
-                                    <p class="d-none d-sm-block text-muted">
-                                        Room: {{$reservation->details->count() ?? '0'}} Room(s)
-                                    </p>
                                 </td>
                                 <td class="d-none d-lg-table-cell text-center">
                                     <span class="badge badge-{{$reservation->reservation_status == 'confirmed' ? 'success' : ($reservation->reservation_status == 'pending' ? 'warning' : 'danger')}}">{{$reservation->reservation_status}}</span>

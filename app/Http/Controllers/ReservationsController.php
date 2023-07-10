@@ -43,60 +43,54 @@ class ReservationsController extends CommonController
     public function filter(Request $request)
     {
         //
-        // dump($request->filter_type);
+        $reservations = Reservations::join('guests','reservations.guest_id','=','guests.id')->select('reservations.*','guests.full_name')->where('reservations.company_id',auth()->user()->company->id);
+
         if ($request->filter_type == 'today') {
-            # code...
-            return redirect()->route('reservations-today',$request);
+            $reservations->where('reservations.check_in',date('Y-m-d'))->where('reservations.reservation_status','confirmed');
         }else if ($request->filter_type == 'requests') {
-            # code...
-            return redirect()->route('reservations-requests',$request);
+            $reservations->where('reservations.reservation_status','pending')->where('reservations.created_by',0);
         }else if ($request->filter_type == 'pending') {
-            # code...
-            return redirect()->route('reservations-pending',$request);
+            $reservations->where('reservations.reservation_status','pending');
         }else if ($request->filter_type == 'cancelled') {
-            # code...
-            return redirect()->route('reservations-cancelled',$request);
+            $reservations->where('reservations.reservation_status','cancelled');
         }else if ($request->filter_type == 'rejected') {
-            # code...
-            return redirect()->route('reservations-rejected',$request);
-        } else {
-            # code...
-            return redirect()->route('reservations-confirmed',$request);
+            $reservations->where('reservations.reservation_status','rejected');
+        } else  if ($request->filter_type == 'confirmed') {
+            $reservations->where('reservations.reservation_status','confirmed');
         }
-    }
-    public function confirmed(Request $request)
-    {
-        //
-        // $this->send_feedback_to_guest(4,'invoice');
-        $reservations = Reservations::join('guests','reservations.guest_id','=','guests.id')->select('reservations.*','guests.full_name')->where('reservations.company_id',auth()->user()->company->id)->where('reservations.reservation_status','confirmed');
+
         $response = $request->all();
         // dd($response);
-        if(isset($response['guest'])){
-            $search = $response['guest'];
-            $guests = Guests::select(['id'])->where('full_name', 'like', '%'.$search.'%')->get()->toArray();
-            $reservations->whereIn("guest_id",array_column($guests, 'id'));
-        }
-        if(isset($response['room_type'])){
-            $room_type = $response['room_type'];
-            $details = ReservationDetails::where("room_type_id",$room_type)->get();
-            $reservations->whereIn("reservations.id",array_column($details->toArray(), 'reservations_id'));
-        }
-        if(isset($response['room'])){
-            $room = $response['room'];
-            $details = ReservationDetails::where("room_id",$room)->get();
-            $reservations->whereIn("reservations.id",array_column($details->toArray(), 'reservations_id'));
-        }
-        if(isset($response['daterange'])){
-            $daterange = explode(" to ",$response['daterange']);
-            $check_in = isset($daterange[0]) ? $daterange[0] : null;
-            $check_out = isset($daterange[1]) ? $daterange[1] : null;
-            if ($check_out) {
-                $reservations->where('check_in', '<=', $check_out)->where('check_out', '>=', $check_in);
-            }else{
-                $reservations->where('check_in', '<=', $check_in)->where('check_out', '>=', $check_in);
+        if($response){
+            if(isset($response['guest'])){
+                $search = $response['guest'];
+                if(is_numeric($search)){
+                    $reservations->where('reservations.id',$search);
+                }else{
+                    $guests = Guests::select(['id'])->where('full_name', 'like', '%'.$search.'%')->get()->toArray();
+                    $reservations->whereIn("guest_id",array_column($guests, 'id'));
+                }
             }
-        }else{
-            $reservations->where('reservations.check_in','>=',date("Y-m-d", strtotime('-5 days')));
+            if(isset($response['room_type'])){
+                $room_type = $response['room_type'];
+                $details = ReservationDetails::where("room_type_id",$room_type)->get();
+                $reservations->whereIn("reservations.id",array_column($details->toArray(), 'reservations_id'));
+            }
+            if(isset($response['room'])){
+                $room = $response['room'];
+                $details = ReservationDetails::where("room_id",$room)->get();
+                $reservations->whereIn("reservations.id",array_column($details->toArray(), 'reservations_id'));
+            }
+            if(isset($response['daterange'])){
+                $daterange = explode(" to ",$response['daterange']);
+                $check_in = isset($daterange[0]) ? $daterange[0] : null;
+                $check_out = isset($daterange[1]) ? $daterange[1] : null;
+                if ($check_out) {
+                    $reservations->where('check_in', '<=', $check_out)->where('check_out', '>=', $check_in);
+                }else{
+                    $reservations->where('check_in', '<=', $check_in)->where('check_out', '>=', $check_in);
+                }
+            }
         }
 
         $data = [
@@ -105,40 +99,28 @@ class ReservationsController extends CommonController
             'all_reservations' => $reservations->orderBy('check_in','asc')->paginate(50),
             'filter' => $response
         ];
-        return view('reservations.list',$data)->with('confirmed','confirmed');
+        // dd($data);
+        return view('reservations.list',$data);//->with('confirmed','confirmed');
+    }
+    public function confirmed(Request $request)
+    {
+        $reservations = Reservations::join('guests','reservations.guest_id','=','guests.id')->select('reservations.*','guests.full_name')->where('reservations.company_id',auth()->user()->company->id)->where('reservations.reservation_status','confirmed')->where('reservations.check_in','>=',date("Y-m-d", strtotime('-5 days')));
+        $response['filter_type'] = 'confirmed';
+        // dd($response);
+        $data = [
+            'all_rooms' => Rooms::where('status',1)->where('company_id',auth()->user()->company->id)->orderBy('name','asc')->get(),
+            'all_roomtypes' => RoomTypes::where('company_id',auth()->user()->company->id)->get(),
+            'all_reservations' => $reservations->orderBy('check_in','asc')->paginate(50),
+            'filter' => $response
+        ];
+        return view('reservations.list',$data);
     }
 
     public function today(Request $request)
     {
         //
         $reservations = Reservations::join('guests','reservations.guest_id','=','guests.id')->select('reservations.*','guests.full_name')->where('reservations.company_id',auth()->user()->company->id)->where('reservations.check_in',date('Y-m-d'))->where('reservations.reservation_status','confirmed');
-        $response = $request->all();
-        // dd($response);
-        if(isset($response['guest'])){
-            $search = $response['guest'];
-            $guests = Guests::select(['id'])->where('full_name', 'like', '%'.$search.'%')->get()->toArray();
-            $reservations->whereIn("guest_id",array_column($guests, 'id'));
-        }
-        if(isset($response['room_type'])){
-            $room_type = $response['room_type'];
-            $details = ReservationDetails::where("room_type_id",$room_type)->get();
-            $reservations->whereIn("reservations.id",array_column($details->toArray(), 'reservations_id'));
-        }
-        if(isset($response['room'])){
-            $room = $response['room'];
-            $details = ReservationDetails::where("room_id",$room)->get();
-            $reservations->whereIn("reservations.id",array_column($details->toArray(), 'reservations_id'));
-        }
-        // if(isset($response['daterange'])){
-        //     $daterange = explode(" to ",$response['daterange']);
-        //     $check_in = isset($daterange[0]) ? $daterange[0] : null;
-        //     $check_out = isset($daterange[1]) ? $daterange[1] : null;
-        //     if ($check_out) {
-        //         $reservations->where('check_in', '<', $check_out)->where('check_out', '>=', $check_in);
-        //     }else{
-        //         $reservations->where('check_in', '<=', $check_in)->where('check_out', '>=', $check_in);
-        //     }
-        // }
+        $response['filter_type'] = 'today';
 
         $data = [
             'all_rooms' => Rooms::where('status',1)->where('company_id',auth()->user()->company->id)->orderBy('name','asc')->get(),
@@ -146,42 +128,14 @@ class ReservationsController extends CommonController
             'all_reservations' => $reservations->orderBy('check_in','asc')->paginate(50),
             'filter' => $response
         ];
-        return view('reservations.list',$data)->with('today','today');
+        return view('reservations.list',$data);
     }
 
     public function requests(Request $request)
     {
         //
-        $reservations = Reservations::join('guests','reservations.guest_id','=','guests.id')->select('reservations.*','guests.full_name')->where('reservations.company_id',auth()->user()->company->id)->where('reservations.reservation_status','pending')->where('reservations.created_by',0);
-        $response = $request->all();
-        // dd($response);
-        if(isset($response['guest'])){
-            $search = $response['guest'];
-            $guests = Guests::select(['id'])->where('full_name', 'like', '%'.$search.'%')->get()->toArray();
-            $reservations->whereIn("guest_id",array_column($guests, 'id'));
-        }
-        if(isset($response['room_type'])){
-            $room_type = $response['room_type'];
-            $details = ReservationDetails::where("room_type_id",$room_type)->get();
-            $reservations->whereIn("reservations.id",array_column($details->toArray(), 'reservations_id'));
-        }
-        if(isset($response['room'])){
-            $room = $response['room'];
-            $details = ReservationDetails::where("room_id",$room)->get();
-            $reservations->whereIn("reservations.id",array_column($details->toArray(), 'reservations_id'));
-        }
-        if(isset($response['daterange'])){
-            $daterange = explode(" to ",$response['daterange']);
-            $check_in = isset($daterange[0]) ? $daterange[0] : null;
-            $check_out = isset($daterange[1]) ? $daterange[1] : null;
-            if ($check_out) {
-                $reservations->where('check_in', '<=', $check_out)->where('check_out', '>=', $check_in);
-            }else{
-                $reservations->where('check_in', '<=', $check_in)->where('check_out', '>=', $check_in);
-            }
-        }else{
-            $reservations->where('reservations.check_in','>=',date("Y-m-d", strtotime('-5 days')));
-        }
+        $reservations = Reservations::join('guests','reservations.guest_id','=','guests.id')->select('reservations.*','guests.full_name')->where('reservations.company_id',auth()->user()->company->id)->where('reservations.reservation_status','pending')->where('reservations.check_in','>=',date("Y-m-d"))->where('reservations.created_by',0);
+        $response['filter_type'] = 'requests';
 
         $data = [
             'all_rooms' => Rooms::where('status',1)->where('company_id',auth()->user()->company->id)->orderBy('name','asc')->get(),
@@ -189,42 +143,14 @@ class ReservationsController extends CommonController
             'all_reservations' => $reservations->orderBy('check_in','asc')->paginate(50),
             'filter' => $response
         ];
-        return view('reservations.list',$data)->with('requests','requests');
+        return view('reservations.list',$data);
     }
 
     public function pending(Request $request)
     {
         //
-        $reservations = Reservations::join('guests','reservations.guest_id','=','guests.id')->select('reservations.*','guests.full_name')->where('reservations.company_id',auth()->user()->company->id)->where('reservations.reservation_status','pending');
-        $response = $request->all();
-        // dd($response);
-        if(isset($response['guest'])){
-            $search = $response['guest'];
-            $guests = Guests::select(['id'])->where('full_name', 'like', '%'.$search.'%')->get()->toArray();
-            $reservations->whereIn("guest_id",array_column($guests, 'id'));
-        }
-        if(isset($response['room_type'])){
-            $room_type = $response['room_type'];
-            $details = ReservationDetails::where("room_type_id",$room_type)->get();
-            $reservations->whereIn("reservations.id",array_column($details->toArray(), 'reservations_id'));
-        }
-        if(isset($response['room'])){
-            $room = $response['room'];
-            $details = ReservationDetails::where("room_id",$room)->get();
-            $reservations->whereIn("reservations.id",array_column($details->toArray(), 'reservations_id'));
-        }
-        if(isset($response['daterange'])){
-            $daterange = explode(" to ",$response['daterange']);
-            $check_in = isset($daterange[0]) ? $daterange[0] : null;
-            $check_out = isset($daterange[1]) ? $daterange[1] : null;
-            if ($check_out) {
-                $reservations->where('check_in', '<=', $check_out)->where('check_out', '>=', $check_in);
-            }else{
-                $reservations->where('check_in', '<=', $check_in)->where('check_out', '>=', $check_in);
-            }
-        }else{
-            $reservations->where('reservations.check_in','>=',date("Y-m-d", strtotime('-5 days')));
-        }
+        $reservations = Reservations::join('guests','reservations.guest_id','=','guests.id')->select('reservations.*','guests.full_name')->where('reservations.company_id',auth()->user()->company->id)->where('reservations.reservation_status','pending')->where('reservations.check_in','>=',date("Y-m-d", strtotime('-5 days')));
+        $response['filter_type'] = 'pending';
 
         $data = [
             'all_rooms' => Rooms::where('status',1)->where('company_id',auth()->user()->company->id)->orderBy('name','asc')->get(),
@@ -232,42 +158,14 @@ class ReservationsController extends CommonController
             'all_reservations' => $reservations->orderBy('check_in','asc')->paginate(50),
             'filter' => $response
         ];
-        return view('reservations.list',$data)->with('pending','pending');
+        return view('reservations.list',$data);
     }
 
     public function cancelled(Request $request)
     {
         //
-        $reservations = Reservations::join('guests','reservations.guest_id','=','guests.id')->select('reservations.*','guests.full_name')->where('reservations.company_id',auth()->user()->company->id)->where('reservations.reservation_status','cancelled');
-        $response = $request->all();
-        // dd($response);
-        if(isset($response['guest'])){
-            $search = $response['guest'];
-            $guests = Guests::select(['id'])->where('full_name', 'like', '%'.$search.'%')->get()->toArray();
-            $reservations->whereIn("guest_id",array_column($guests, 'id'));
-        }
-        if(isset($response['room_type'])){
-            $room_type = $response['room_type'];
-            $details = ReservationDetails::where("room_type_id",$room_type)->get();
-            $reservations->whereIn("reservations.id",array_column($details->toArray(), 'reservations_id'));
-        }
-        if(isset($response['room'])){
-            $room = $response['room'];
-            $details = ReservationDetails::where("room_id",$room)->get();
-            $reservations->whereIn("reservations.id",array_column($details->toArray(), 'reservations_id'));
-        }
-        if(isset($response['daterange'])){
-            $daterange = explode(" to ",$response['daterange']);
-            $check_in = isset($daterange[0]) ? $daterange[0] : null;
-            $check_out = isset($daterange[1]) ? $daterange[1] : null;
-            if ($check_out) {
-                $reservations->where('check_in', '<=', $check_out)->where('check_out', '>=', $check_in);
-            }else{
-                $reservations->where('check_in', '<=', $check_in)->where('check_out', '>=', $check_in);
-            }
-        }else{
-            $reservations->where('reservations.check_in','>=',date("Y-m-d", strtotime('-5 days')));
-        }
+        $reservations = Reservations::join('guests','reservations.guest_id','=','guests.id')->select('reservations.*','guests.full_name')->where('reservations.company_id',auth()->user()->company->id)->where('reservations.reservation_status','cancelled')->where('reservations.check_in','>=',date("Y-m-d", strtotime('-5 days')));
+        $response['filter_type'] = 'cancelled';
 
         $data = [
             'all_rooms' => Rooms::where('status',1)->where('company_id',auth()->user()->company->id)->orderBy('name','asc')->get(),
@@ -275,52 +173,8 @@ class ReservationsController extends CommonController
             'all_reservations' => $reservations->orderBy('check_in','asc')->paginate(50),
             'filter' => $response
         ];
-        return view('reservations.list',$data)->with('cancelled','cancelled');
+        return view('reservations.list',$data);
     }
-
-    public function rejected(Request $request)
-    {
-        //
-        $reservations = Reservations::join('guests','reservations.guest_id','=','guests.id')->select('reservations.*','guests.full_name')->where('reservations.company_id',auth()->user()->company->id)->where('reservations.reservation_status','rejected');
-        $response = $request->all();
-        // dd($response);
-        if(isset($response['guest'])){
-            $search = $response['guest'];
-            $guests = Guests::select(['id'])->where('full_name', 'like', '%'.$search.'%')->get()->toArray();
-            $reservations->whereIn("guest_id",array_column($guests, 'id'));
-        }
-        if(isset($response['room_type'])){
-            $room_type = $response['room_type'];
-            $details = ReservationDetails::where("room_type_id",$room_type)->get();
-            $reservations->whereIn("reservations.id",array_column($details->toArray(), 'reservations_id'));
-        }
-        if(isset($response['room'])){
-            $room = $response['room'];
-            $details = ReservationDetails::where("room_id",$room)->get();
-            $reservations->whereIn("reservations.id",array_column($details->toArray(), 'reservations_id'));
-        }
-        if(isset($response['daterange'])){
-            $daterange = explode(" to ",$response['daterange']);
-            $check_in = isset($daterange[0]) ? $daterange[0] : null;
-            $check_out = isset($daterange[1]) ? $daterange[1] : null;
-            if ($check_out) {
-                $reservations->where('check_in', '<=', $check_out)->where('check_out', '>=', $check_in);
-            }else{
-                $reservations->where('check_in', '<=', $check_in)->where('check_out', '>=', $check_in);
-            }
-        }else{
-            $reservations->where('reservations.check_in','>=',date("Y-m-d", strtotime('-5 days')));
-        }
-
-        $data = [
-            'all_rooms' => Rooms::where('status',1)->where('company_id',auth()->user()->company->id)->orderBy('name','asc')->get(),
-            'all_roomtypes' => RoomTypes::where('company_id',auth()->user()->company->id)->get(),
-            'all_reservations' => $reservations->orderBy('check_in','asc')->paginate(50),
-            'filter' => $response
-        ];
-        return view('reservations.list',$data)->with('rejected','rejected');
-    }
-
 
     public function tomorrow(Request $request)
     {
@@ -663,7 +517,7 @@ class ReservationsController extends CommonController
         // $reservations = [];//$this->mysqli_fetch_normal("select `reservations`.*, `guests`.`full_name`, `rooms`.`name` as `roomname` from `reservations` inner join `guests` on `reservations`.`guest_id` = `guests`.`id` left join `rooms` on `reservations`.`room_id` = `rooms`.`id` where `reservations`.`company_id` = ".auth()->user()->company->id." and `reservations`.`check_in` > '".date("Y-m-d", strtotime('-30 days'))."' order by `reservations`.`check_in` asc limit ".$limit."");
 
         // $reservations = DB::table('reservations')->join('guests','reservations.guest_id','=','guests.id')->join('reservation_details','reservations.id','=','reservation_details.reservations_id')->leftJoin('rooms','reservation_details.room_id','=','rooms.id')->select('reservations.id','reservations.check_in', 'reservations.check_out', 'reservations.days', 'reservations.paid', 'reservations.reservation_status', 'reservations.grand_total', 'reservations.amount_paid', 'reservations.balance', 'reservations.payment_method', 'reservations.created_by', 'guests.full_name','rooms.name as roomname')->where('reservations.company_id',auth()->user()->company->id)->where('reservations.check_in','>',date("Y-m-d", strtotime('-30 days')))->orderBy('reservations.check_in','asc')->limit($limit)->get();
-        $reservations = Reservations::where('reservations.company_id',auth()->user()->company->id)->where('reservations.check_in','>',date("Y-m-d", strtotime('-30 days')))->with(['guest','details','rentals'])->orderBy('reservations.check_in','asc')->limit($limit)->get();
+        $reservations = Reservations::where('reservations.company_id',auth()->user()->company->id)->where('reservations.check_in','>',date("Y-m-d", strtotime('-60 days')))->with(['guest','details','rentals'])->orderBy('reservations.check_in','asc')->limit($limit)->get();
 
         $callendar_reservation_list = [];
         // dd($reservations);

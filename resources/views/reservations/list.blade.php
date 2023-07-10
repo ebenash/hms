@@ -1,17 +1,17 @@
 @extends('layouts.app')
 @section('page-header')
     <h1 class="h3 font-w700 mb-2">
-        @if(isset($today))
+        @if(isset($filter['filter_type']) && $filter['filter_type']=='today')
             Today's Confirmed Check-Ins<small></small>
         @elseif(isset($tomorrow))
             Tomorrow's Confirmed Check-Ins<small></small>
-        @elseif(isset($requests))
+        @elseif(isset($filter['filter_type']) && $filter['filter_type']=='requests')
             Requested Reservations<small></small>
-        @elseif(isset($pending))
+        @elseif(isset($filter['filter_type']) && $filter['filter_type']=='pending')
             Pending Reservations<small></small>
-        @elseif(isset($cancelled))
+        @elseif(isset($filter['filter_type']) && $filter['filter_type']=='cancelled')
             Cancelled Reservations<small></small>
-        @elseif(isset($rejected))
+        @elseif(isset($filter['filter_type']) && $filter['filter_type']=='rejected')
             Rejected Reservations<small></small>
         @else
             Confirmed Reservations<small></small>
@@ -30,33 +30,41 @@
                 <button type="submit" class="btn btn-dark">Submit Filter</button>
             </div>
         </div>
-        <div class="block-content block-content-full form-inline"">
+        <div class="block-content block-content-full">
             <!-- Form Search - Alternative Style -->
             <div class="row">
-                <div class="col-lg-12">
-                    <select name="filter_type" id="filter_type" class="form-control form-control-alt mb-2 mr-sm-2 mb-sm-2 col-lg-3" onchange="hideTodayDates(this)">
+                <div class="col-lg-3">
+                    <select name="filter_type" id="filter_type" class="form-control form-control-alt mb-2 mr-sm-2 mb-sm-2" onchange="hideTodayDates(this)">
                         <option value="">Select Filter Type</option>
-                        <option value="today" {{isset($today) ? 'selected' : ''}}>Today's Reservations</option>
-                        <option value="requests" {{isset($requests) ? 'selected' : ''}}>Reservation Requests</option>
-                        <option value="pending" {{isset($pending) ? 'selected' : ''}}>Pending Reservation</option>
-                        <option value="confirmed" {{isset($confirmed) ? 'selected' : ''}}>Confirmed Reservations</option>
-                        <option value="cancelled" {{isset($cancelled) ? 'selected' : ''}}>Cancelled Reservations</option>
-                        <option value="rejected" {{isset($rejected) ? 'selected' : ''}}>Rejected Reservations</option>
+                        <option value="today" {{isset($filter['filter_type']) && $filter['filter_type']=='today' ? 'selected' : ''}}>Today's Reservations</option>
+                        <option value="requests" {{isset($filter['filter_type']) && $filter['filter_type']=='requests' ? 'selected' : ''}}>Reservation Requests</option>
+                        <option value="pending" {{isset($filter['filter_type']) && $filter['filter_type']=='pending' ? 'selected' : ''}}>Pending Reservation</option>
+                        <option value="confirmed" {{isset($filter['filter_type']) && $filter['filter_type']=='confirmed' ? 'selected' : ''}}>Confirmed Reservations</option>
+                        <option value="cancelled" {{isset($filter['filter_type']) && $filter['filter_type']=='cancelled' ? 'selected' : ''}}>Cancelled Reservations</option>
+                        <option value="rejected" {{isset($filter['filter_type']) && $filter['filter_type']=='rejected' ? 'selected' : ''}}>Rejected Reservations</option>
                     </select>
-                    <input type="text" class="form-control form-control-alt mb-2 mr-sm-2 mb-sm-2 col-lg-2" name="guest" value="{{isset($filter['guest']) ? $filter['guest'] : ''}}" placeholder="Guest">
-                    <select name="room" class="form-control form-control-alt mb-2 mr-sm-2 mb-sm-2 col-lg-2">
+                </div>
+                <div class="col-lg-2">
+                    <input type="text" class="form-control form-control-alt mb-2 mr-sm-2 mb-sm-2" name="guest" value="{{isset($filter['guest']) ? $filter['guest'] : ''}}" placeholder="Guest/ Res #">
+                </div>
+                <div class="col-lg-2">
+                    <select name="room" class="form-control form-control-alt mb-2 mr-sm-2 mb-sm-2">
                         <option value="">Select Room</option>
                         @foreach ($all_rooms as $room)
                             <option value="{{$room->id}}" {{isset($filter['room']) ? ($filter['room'] == $room->id ? 'selected' : '') : ''}}>{{$room->name}}</option>
                         @endforeach
                     </select>
-                    <select name="room_type" id="room_type" class="form-control form-control-alt mb-2 mr-sm-2 mb-sm-2 col-lg-2">
+                </div>
+                <div class="col-lg-2">
+                    <select name="room_type" id="room_type" class="form-control form-control-alt mb-2 mr-sm-2 mb-sm-2">
                         <option value="">Select Room Type</option>
                         @foreach ($all_roomtypes as $roomtype)
                             <option value="{{$roomtype->id}}" {{isset($filter['room_type']) ? ($filter['room_type'] == $roomtype->id ? 'selected' : '') : ''}}>{{$roomtype->name}}</option>
                         @endforeach
                     </select>
-                    <input type="text" class="review-old-flatpickr form-control form-control-alt mb-2 mr-sm-2 mb-sm-2 col-lg-2" id="daterange" name="daterange" value="{{isset($filter['daterange']) ? $filter['daterange'] : ''}}" placeholder="Select Date Range" data-mode="range">
+                </div>
+                <div class="col-lg-3">
+                    <input type="text" class="review-old-flatpickr form-control form-control-alt mb-2 mr-sm-2 mb-sm-2" id="daterange" name="daterange" value="{{isset($filter['daterange']) ? $filter['daterange'] : ''}}" placeholder="Select Date Range" data-mode="range">
                      {{-- data-min-date="today"> --}}
                 </div>
             </div>
@@ -68,17 +76,17 @@
 <div class="block block-rounded">
     <div class="block-header">
         <h3 class="block-title">
-            @if(isset($today))
+            @if(isset($filter['filter_type']) && $filter['filter_type']=='today')
                 Today's <small>Check-Ins</small>
             @elseif(isset($tomorrow))
                 Tomorrow's <small>Check-Ins</small>
-            @elseif(isset($requests))
+            @elseif(isset($filter['filter_type']) && $filter['filter_type']=='requests')
                 Reservation <small>Requests</small>
-            @elseif(isset($pending))
+            @elseif(isset($filter['filter_type']) && $filter['filter_type']=='pending')
                 Pending <small>Reservations</small>
-            @elseif(isset($cancelled))
+            @elseif(isset($filter['filter_type']) && $filter['filter_type']=='cancelled')
                 Cancelled <small>Requests</small>
-            @elseif(isset($rejected))
+            @elseif(isset($filter['filter_type']) && $filter['filter_type']=='rejected')
                 Rejected <small>Requests</small>
             @else
                 Confirmed <small>Reservations</small>
@@ -87,7 +95,7 @@
 
 		<div class="pull-right">
 			@can('add reservations')<a href="javascript:void(0)" data-toggle="modal" data-target="#modal-view-add-reservation" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> Add New Reservation</a>@endcan
-			@if(isset($today))
+			@if(isset($filter['filter_type']) && $filter['filter_type']=='today')
 			    <a href="{{route('reservations-tomorrow')}}" class="btn btn-sm btn-primary"><i class="fa fa-calendar-check"></i> View Tomorrow's Check-Ins</a>
 			@endif
 			@if(isset($tomorrow))
@@ -215,7 +223,8 @@
         });
         var today = new Date();
         $('.today-flatpickr').flatpickr({ minDate: "today" });
-        $('.review-old-flatpickr').flatpickr({ minDate: (today.setDate(today.getDate()-10)) })
+        $('.review-old-flatpickr').flatpickr()
+        // $('.review-old-flatpickr').flatpickr({ minDate: (today.setDate(today.getDate()-30)) })
     </script>
 
 @endsection

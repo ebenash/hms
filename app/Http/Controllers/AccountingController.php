@@ -49,18 +49,6 @@ class AccountingController extends CommonController
     public function sale_filter(Request $request)
     {
         //
-        return redirect()->route('other.sales',$request);
-    }
-
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function other_sales(Request $request)
-    {
-        //
-
         $response = $request->all();
 
         $sales = ReservationExpenses::leftJoin('reservations','reservations.id','=','reservation_expenses.reservations_id')->select(DB::raw('reservation_expenses.id, reservation_expenses.reservations_id as reservations_id, IFNULL(reservation_expenses.status,reservations.paid) as paid, IFNULL(reservation_expenses.status,reservations.reservation_status) as status, IFNULL(reservation_expenses.method,reservations.payment_method) as method, reservation_expenses.created_at,reservation_expenses.expense_type,reservation_expenses.description,reservation_expenses.quantity,reservation_expenses.price,reservation_expenses.total_price'));
@@ -101,6 +89,32 @@ class AccountingController extends CommonController
             $sales->where('reservation_expenses.created_at', '<=', date('Y-m-d 23:59:59'))->where('reservation_expenses.created_at', '>=', date('Y-m-d 00:00:00'));
             $today = true;
         }
+
+        $paginate = 100;
+        $data = [
+            'filter' => $response,
+            'today' => $today,
+            'all_sales' => $sales
+            ->orderBy('reservation_expenses.created_at','desc')
+            // ->get()
+            ->paginate($paginate)
+        ];
+        // dd($data);
+        return view('accounting.sales',$data);
+    }
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function other_sales(Request $request)
+    {
+        //
+        $response = $request->all();
+
+        $sales = ReservationExpenses::leftJoin('reservations','reservations.id','=','reservation_expenses.reservations_id')->select(DB::raw('reservation_expenses.id, reservation_expenses.reservations_id as reservations_id, IFNULL(reservation_expenses.status,reservations.paid) as paid, IFNULL(reservation_expenses.status,reservations.reservation_status) as status, IFNULL(reservation_expenses.method,reservations.payment_method) as method, reservation_expenses.created_at,reservation_expenses.expense_type,reservation_expenses.description,reservation_expenses.quantity,reservation_expenses.price,reservation_expenses.total_price'))->where('reservation_expenses.created_at', '<=', date('Y-m-d 23:59:59'))->where('reservation_expenses.created_at', '>=', date('Y-m-d 00:00:00'));
+        $today = true;
 
         $paginate = 100;
         $data = [

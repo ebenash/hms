@@ -59,17 +59,10 @@
                             <h3 class="block-title">{{isset($reservation) ? 'Invoice Number: #'.$reservation->id : ''}}</h3>
                         </div>
                         <div class="block-content block-content-full flex-grow-1 d-flex align-items-center row">
-                            {{-- <div class="form-row mb-2 col-lg-12">
-                                <label for="check_in">Check In Date</label>
-                                <input type="text" class="review-old-flatpickr form-control {{isset($show) ? '':(isset($request) ? '':'bg-white') }}" id="check_in" name="check_in" placeholder="Choose check-in date.." {{isset($show) ? 'disabled':(isset($request) ? 'disabled':'required') }} data-min-date="today" value="{{isset($reservation) ? date_format(date_create($reservation->check_in),'Y-m-d') : ''}}" autocomplete="off">
-                            </div>
-                            <div class="form-row mb-2 col-lg-12">
-                                <label for="check_out">Check Out Date</label>
-                                <input type="text" class="review-old-flatpickr form-control {{isset($show) ? '':(isset($request) ? '':'bg-white') }}" id="check_out" name="check_out" placeholder="Choose check-out date.." {{isset($show) ? 'disabled':(isset($request) ? 'disabled':'required') }} data-min-date="today" value="{{isset($reservation) ? date_format(date_create($reservation->check_out),'Y-m-d') : ''}}" autocomplete="off">
-                            </div> --}}
                             <div class="form-row mb-2 col-lg-12">
                                 <label for="check_out">Reservation Dates</label>
-                                <input type="text" class="review-old-flatpickr form-control {{isset($show) || isset($request) || (!auth()->user()->hasRole(['administrator']) && isset($reservation) && $reservation->reservation_status == 'confirmed') ? '':'bg-white' }}" id="reservation_daterange" name="reservation_daterange" placeholder="Choose check-out and check-out date range.." {!!(isset($show) || isset($request) || (!auth()->user()->hasRole(['administrator']) && isset($reservation) && $reservation->reservation_status == 'confirmed')) ? 'readonly style="pointer-events: none;" tabindex="-1"':'required' !!} data-min-date="today" value="{{isset($reservation) ? date_format(date_create($reservation->check_in),'Y-m-d').' to '.date_format(date_create($reservation->check_out),'Y-m-d')  : ''}}" placeholder="Select Date Range" data-mode="range" autocomplete="off">
+                                {{-- {{dd(date_format(date_create($reservation->check_in),'Y-m-d').' to '.date_format(date_create($reservation->check_out),'Y-m-d'))}} --}}
+                                <input type="text" class="review-old-flatpickr form-control {{isset($show) || isset($request) || (!auth()->user()->hasRole(['administrator']) && isset($reservation) && $reservation->reservation_status == 'confirmed') ? '':'bg-white' }}" id="reservation_daterange" name="reservation_daterange" placeholder="Choose check-out and check-out date range.." {!!(isset($show) || isset($request) || (!auth()->user()->hasRole(['administrator']) && isset($reservation) && $reservation->reservation_status == 'confirmed')) ? 'readonly style="pointer-events: none;" tabindex="-1"':'required' !!} value="{{isset($reservation) ? date_format(date_create($reservation->check_in),'Y-m-d').' to '.date_format(date_create($reservation->check_out),'Y-m-d')  : ''}}" placeholder="Select Date Range" data-mode="range" autocomplete="off">
                                  {{-- data-min-date="today"> --}}
                             </div>
                         </div>
@@ -87,6 +80,11 @@
                             <div class="block block-rounded flex-grow-1 d-flex flex-column">
                                 <div class="block-header block-header-default">
                                     <h3 class="block-title">Room Details</h3>
+                                    @if (isset($update))
+                                        <button type="button" class="btn btn-sm btn-alt-danger btn-remove-roomdiv">
+                                            <i class="si si-close"></i>
+                                        </button>
+                                    @endif
                                 </div>
                                 <div class="block-content block-content-full flex-grow-1 d-flex row">
                                     <div class="col-lg-8 d-flex flex-column">
@@ -200,6 +198,11 @@
                             <div class="block block-rounded flex-grow-1 d-flex flex-column">
                                 <div class="block-header block-header-default">
                                     <h3 class="block-title">Rental Details</h3>
+                                    @if (isset($update))
+                                        <button type="button" class="btn btn-sm btn-alt-danger btn-remove-rentaldiv">
+                                            <i class="si si-close"></i>
+                                        </button>
+                                    @endif
                                 </div>
                                 <div class="block-content block-content-full flex-grow-1 d-flex align-items-center row">
                                     <div class="col-lg-6 d-flex flex-column">
@@ -285,6 +288,11 @@
                             <div class="block block-rounded flex-grow-1 d-flex flex-column">
                                 <div class="block-header block-header-default">
                                     <h3 class="block-title">Additional Sale Details</h3>
+                                    @if (isset($update))
+                                        <button type="button" class="btn btn-sm btn-alt-danger btn-remove-expensediv">
+                                            <i class="si si-close"></i>
+                                        </button>
+                                    @endif
                                 </div>
                                 <div class="block-content block-content-full flex-grow-1 d-flex align-items-center row">
                                     <div class="col-lg-6 d-flex flex-column">
@@ -495,7 +503,7 @@
                                     <input type="text" class="form-control" id="signed_by" name="signed_by" placeholder="{{isset($show) || isset($update) ? 'Last':''}} Signed By {{$reservation->signed_by ?? ''}}" {{isset($show) ? 'disabled': '' }} required value="" style="{{(isset($request) ? "border: 1px solid red !important;":'')}}" autocomplete="off">
                                 </div>
                                 @if(!isset($show))
-                                    @if(isset($reservation) && (strtotime($reservation->check_in) < strtotime(date('Y-m-d', strtotime('-10 days')))))
+                                    @if(isset($reservation) && (strtotime($reservation->check_in) < strtotime(date('Y-m-d', strtotime('-100 days')))))
                                     @else
                                         <div class="form-row mt-2 col-lg-12 pull-right">
                                             <button class="btn btn-primary btn-lg btn-block" type="submit">{{isset($request) ? ($reservation->invoice_sent ? 'Update Request' : 'Send Request Reply') : (isset($update) ? 'Update Reservation' : 'Save Reservation')}}</button>
@@ -693,7 +701,8 @@
         }
 
         var today = new Date();
-        $('.review-old-flatpickr').flatpickr({ minDate: (today.setDate(today.getDate()-10)) })
+        $('.review-old-flatpickr').flatpickr()
+        // $('.review-old-flatpickr').flatpickr({ minDate: (today.setDate(today.getDate()-10)) })
 
 
         function getRooms(index) {

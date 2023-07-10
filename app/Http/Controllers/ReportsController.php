@@ -36,12 +36,6 @@ class ReportsController extends CommonController
     public function reportfilter(Request $request)
     {
         //
-        return redirect()->route('reports',$request);
-    }
-
-    public function index(Request $request)
-    {
-        //
         $response = $request->all();
         // dd($response);
         if(!empty($response)){
@@ -129,6 +123,17 @@ class ReportsController extends CommonController
         }else{
             $data['reports'] = Reservations::where('company_id',auth()->user()->company->id)->orderBy('check_in','desc')->paginate(1);
         }
+        // dd($data);
+        return view('reports.filter',$data)->with('success','Report Generated');
+    }
+
+    public function index(Request $request)
+    {
+        //
+        $response = $request->all();
+        // dd($response);
+        $data['reports'] = Reservations::where('company_id',auth()->user()->company->id)->orderBy('check_in','desc')->paginate(1);
+
         // dd($data);
         return view('reports.filter',$data)->with('success','Report Generated');
     }

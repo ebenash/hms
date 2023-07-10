@@ -55,8 +55,8 @@ Route::prefix('admin')->group(function(){
     Route::get('/reservations/pending', 'ReservationsController@pending')->name('reservations-pending');
     Route::get('/reservations/confirmed', 'ReservationsController@confirmed')->name('reservations-confirmed');
     Route::get('/reservations/cancelled', 'ReservationsController@cancelled')->name('reservations-cancelled');
-    Route::get('/reservations/rejected', 'ReservationsController@rejected')->name('reservations-rejected');
     Route::post('/reservations/filter', 'ReservationsController@filter')->name('reservations-filter');
+    Route::get('/reservations/filter', 'ReservationsController@today')->name('reservations-filter-fallback');
     Route::get('/reservations/create/guest/{id}', 'ReservationsController@create_with_guest')->name('reservations-create-guest');
     Route::get('/reservations/request/{id}', 'ReservationsController@view_request')->name('reservations-view-request');
     Route::post('/reservations/request/update/{id}', 'ReservationsController@request_update')->name('reservations-update-request');
@@ -70,6 +70,7 @@ Route::prefix('admin')->group(function(){
     Route::post('/accounting/sale/store', 'AccountingController@sale_store')->name('sale-store');
     Route::post('/accounting/sale/update/{id}', 'AccountingController@sale_update')->name('sale-update');
     Route::post('/accounting/sale/filter', 'AccountingController@sale_filter')->name('sale-filter');
+    Route::get('/accounting/sale/filter', 'AccountingController@other_sales')->name('sale-filter-fallback');
     Route::delete('/accounting/sale/delete/{id}', 'AccountingController@sale_destroy')->name('sale-destroy');
     Route::get('/reports', 'ReportsController@index')->name('reports');
     Route::post('/reports', 'ReportsController@reportfilter')->name('reports-filter');
@@ -86,6 +87,7 @@ Route::prefix('admin')->group(function(){
     Route::post('/user/update/{id}', 'Auth\UserController@update')->name('user-update');
     Route::post('/notifications/read/{id}', 'CommonController@handle_notification')->name('handle-notification');
     Route::post('/search', 'CommonController@global_search')->name('global-search');
+    Route::get('/search', 'DashboardController@index')->name('global-search-fallback');
     Route::post('/hotel-phones/store', 'HotelNotificationPhonesController@store')->name('phone-store');
     Route::post('/hotel-phones/update/{id}', 'HotelNotificationPhonesController@update')->name('phone-update');
     Route::resource('hotel-phones','HotelNotificationPhonesController', [

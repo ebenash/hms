@@ -29,7 +29,10 @@ class Reservations extends Model
     }
 
     public function payments(){
-    	return $this->hasMany('App\Models\Payments');
+    	return $this->hasMany('App\Models\Payments','payment_type_id')->where('payments.payment_type', '=', 'reservation');
+    }
+    public function success_payments(){
+    	return $this->hasMany('App\Models\Payments','payment_type_id')->where('payments.payment_type', '=', 'reservation')->where('payments.status', '=', 'success');
     }
 
     public function user(){

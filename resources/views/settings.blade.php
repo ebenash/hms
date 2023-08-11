@@ -131,66 +131,65 @@
                         <tbody>
                             @php $count=1; @endphp
                             @foreach($all_phones as $phone)
-                            <tr>
-                                <td class="text-center">{{$count++}}</td>
-                                <td class="font-w600">{{$phone->phone_name}}</td>
-                                <td class="hidden-xs">{{$phone->phone_number}}</td>
-                                <td class="hidden-xs">@if($phone->status == 1) <span class="badge badge-success">Active</span>  @else <span class="badge badge-danger">Inactive</span> @endif</td>
-                                <td class="hidden-xs">{{date_format(new DateTime($phone->created_at), 'l jS F, Y')}}</td>
-                                <td class="text-center">
-                                    @php
-                                        $deleteurl = route('phone-destroy',$phone->id);
-                                        $successurl = route('settings-tab','phones');
-                                    @endphp
-                                    <div class="btn-group">
-                                        <div style="display: inline-block;"><a href="#" class="btn btn-sm btn-primary"  data-toggle="modal" data-target="#modal-edit{{$phone->id}}" title="Edit Phone"> <i class="fa fa-edit"></i> </a></div>
-                                        <div style="display: inline-block;"><button class="btn btn-sm btn-danger" type="button" data-toggle="tooltip" title="Remove Phone" onclick="confimdelete('{{$deleteurl}}','{{$successurl}}')"><i class="fa fa-times"> </i></button></div>
-                                    </div>
-                                </td>
-                                <div class="modal fade" id="modal-edit{{$phone->id}}" tabindex="-1" role="dialog" aria-hidden="true">
-                                    <div class="modal-dialog  modal-dialog-popout">
-                                        <div class="modal-content">
-                                            <div class="block block-themed block-transparent remove-margin-b">
-                                                <div class="block-header bg-primary-dark">
-                                                    <h3 class="block-title">Update Phone</h3>
-                                                    <div class="block-options">
-                                                        <button type="button" class="btn-block-option" data-dismiss="modal" aria-label="Close">
-                                                            <i class="si si-close"></i>
-                                                        </button>
+                                <tr>
+                                    <td class="text-center">{{$count++}}</td>
+                                    <td class="font-w600">{{$phone->phone_name}}</td>
+                                    <td class="hidden-xs">{{$phone->phone_number}}</td>
+                                    <td class="hidden-xs">@if($phone->status == 1) <span class="badge badge-success">Active</span>  @else <span class="badge badge-danger">Inactive</span> @endif</td>
+                                    <td class="hidden-xs">{{date_format(new DateTime($phone->created_at), 'l jS F, Y')}}</td>
+                                    <td class="text-center">
+                                        @php
+                                            $deleteurl = route('phone-destroy',$phone->id);
+                                            $successurl = route('settings-tab','phones');
+                                        @endphp
+                                        <div class="btn-group">
+                                            <div style="display: inline-block;"><a href="#" class="btn btn-sm btn-primary"  data-toggle="modal" data-target="#modal-edit{{$phone->id}}" title="Edit Phone"> <i class="fa fa-edit"></i> </a></div>
+                                            <div style="display: inline-block;"><button class="btn btn-sm btn-danger" type="button" data-toggle="tooltip" title="Remove Phone" onclick="confimdelete('{{$deleteurl}}','{{$successurl}}')"><i class="fa fa-times"> </i></button></div>
+                                        </div>
+                                    </td>
+                                    <div class="modal fade" id="modal-edit{{$phone->id}}" tabindex="-1" role="dialog" aria-hidden="true">
+                                        <div class="modal-dialog  modal-dialog-popout">
+                                            <div class="modal-content">
+                                                <div class="block block-themed block-transparent remove-margin-b">
+                                                    <div class="block-header bg-primary-dark">
+                                                        <h3 class="block-title">Update Phone</h3>
+                                                        <div class="block-options">
+                                                            <button type="button" class="btn-block-option" data-dismiss="modal" aria-label="Close">
+                                                                <i class="si si-close"></i>
+                                                            </button>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                                <div class="block-content">
-                                                    <form method="post" action="{{route('phone-update',$phone->id)}}" class="form-horizontal push-10-t">
-                                                        {{ csrf_field() }}
-                                                        <div class="form-group">
-                                                            <label for="material-text2">Phone Name <span class="text-danger" style="display: inline-block;">*</span></label>
-                                                            <input type="text" name="phone_name" class="form-control" value="{{$phone->phone_name}}">
-                                                        </div>
-                                                        <div class="form-group">
-                                                            <label for="material-text2">Phone Number <span class="text-danger" style="display: inline-block;">*</span></label>
-                                                            <input type="text" name="phone_number" class="form-control" value="{{$phone->phone_number}}">
-                                                        </div>
+                                                    <div class="block-content">
+                                                        <form method="post" action="{{route('phone-update',$phone->id)}}" class="form-horizontal push-10-t">
+                                                            {{ csrf_field() }}
+                                                            <div class="form-group">
+                                                                <label for="material-text2">Phone Name <span class="text-danger" style="display: inline-block;">*</span></label>
+                                                                <input type="text" name="phone_name" class="form-control" value="{{$phone->phone_name}}">
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label for="material-text2">Phone Number <span class="text-danger" style="display: inline-block;">*</span></label>
+                                                                <input type="text" name="phone_number" class="form-control" value="{{$phone->phone_number}}">
+                                                            </div>
 
-                                                        <div class="form-group">
-                                                            <label for="material-text2">Phone Status <span class="text-danger" style="display: inline-block;">*</span></label>
-                                                            <select name="status" class="form-control">
-                                                                <option value="1" {{$phone->status == 1 ? 'selected' : ''}}>Available</option>
-                                                                <option value="0" {{$phone->status == 0 ? 'selected' : ''}}>Inactive</option>
-                                                            </select>
-                                                        </div>
-                                                        <div class="modal-footer">
-                                                            <button class="btn btn-lg btn-alt-primary" type="button" data-dismiss="modal">Close</button>
-                                                            <button class="btn btn-lg btn-primary" type="submit"><i class="fa fa-calendar-check-o"></i> Submit</button>
-                                                        </div>
-                                                    </form>
+                                                            <div class="form-group">
+                                                                <label for="material-text2">Phone Status <span class="text-danger" style="display: inline-block;">*</span></label>
+                                                                <select name="status" class="form-control">
+                                                                    <option value="1" {{$phone->status == 1 ? 'selected' : ''}}>Available</option>
+                                                                    <option value="0" {{$phone->status == 0 ? 'selected' : ''}}>Inactive</option>
+                                                                </select>
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button class="btn btn-lg btn-alt-primary" type="button" data-dismiss="modal">Close</button>
+                                                                <button class="btn btn-lg btn-primary" type="submit"><i class="fa fa-calendar-check-o"></i> Submit</button>
+                                                            </div>
+                                                        </form>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            </tr>
+                                </tr>
                             @endforeach
-
                         </tbody>
                     </table>
                 </div>
@@ -360,7 +359,6 @@
                                 @endcan
                             </tr>
                             @endforeach
-
                         </tbody>
                     </table>
                 </div>

@@ -72,6 +72,7 @@ class pageTablesDatatables {
             ],
             columnDefs: [
                 // { targets: [0, 1], visible: false },
+                { responsivePriority: 2, targets: -1 }
             ],
             searching: false,
             autoWidth: !1,

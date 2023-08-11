@@ -26,6 +26,7 @@ Route::get('/contact', function () {
 Route::get('/rooms', 'RoomTypesController@homepage_rooms')->name('home.rooms');
 Route::get('/room/details/{id}', 'RoomTypesController@homepage_room_details')->name('home.roomdetails');
 Route::get('/reservation', 'ReservationsController@homepage_reservation')->name('home.reservation');
+Route::post('/reservation', 'ReservationsController@homepage_availability_filter')->name('home.reservation.availability');
 Route::post('/reservation/store', 'ReservationsController@homepage_reservation_store')->name('home.reservation.store');
 
 Route::get('/reservation/payment/{id}', 'CommonController@payStackPaymentApi')->name('paystack-payment-url');
@@ -55,6 +56,7 @@ Route::prefix('admin')->group(function(){
     Route::get('/reservations/pending', 'ReservationsController@pending')->name('reservations-pending');
     Route::get('/reservations/confirmed', 'ReservationsController@confirmed')->name('reservations-confirmed');
     Route::get('/reservations/cancelled', 'ReservationsController@cancelled')->name('reservations-cancelled');
+    Route::post('/reservations/cancel/{id}', 'ReservationsController@cancel_reservation')->name('reservations-cancel');
     Route::post('/reservations/filter', 'ReservationsController@filter')->name('reservations-filter');
     Route::get('/reservations/filter', 'ReservationsController@today')->name('reservations-filter-fallback');
     Route::get('/reservations/create/guest/{id}', 'ReservationsController@create_with_guest')->name('reservations-create-guest');
@@ -65,6 +67,7 @@ Route::prefix('admin')->group(function(){
     Route::post('/rooms/update/{id}', 'RoomsController@update')->name('rooms-update');
     Route::post('/rooms/getrooms/{id}', 'RoomsController@get_rooms')->name('get-rooms');
     Route::post('/payments/store', 'PaymentsController@store')->name('payments-store');
+    Route::delete('/payments/delete/{id}', 'PaymentsController@destroy')->name('payments-delete');
     Route::get('/accounting/paystack-invoices', 'AccountingController@paystack_invoices')->name('paystack.invoices');
     Route::get('/accounting/other-sales', 'AccountingController@other_sales')->name('other.sales');
     Route::post('/accounting/sale/store', 'AccountingController@sale_store')->name('sale-store');
@@ -163,6 +166,7 @@ Route::prefix('admin')->group(function(){
         ]
     ]);
 
+    Route::post('/feedback', 'DashboardController@feedback')->name('feedback');
 
     Route::get('/hms-uploads/{file}', [ function ($file) {
 

@@ -24,7 +24,7 @@ class CreateReservationsTable extends Migration
             $table->decimal('grand_total',15,2)->nullable();
             $table->decimal('amount_paid',7,2)->nullable();
             $table->decimal('balance',7,2)->nullable();
-            $table->string('payment_method',50)->nullable();
+            $table->string('reservation_type',50)->default('default');
             $table->string('invoice_sent',5)->default(false);
             $table->string('paid',10)->default("pending");
             $table->text('notes')->nullable();

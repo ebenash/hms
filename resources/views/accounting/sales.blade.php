@@ -70,10 +70,11 @@
 				@php
                     $count=($all_sales->perPage()*($all_sales->currentPage() -1))+1;
                 @endphp
+
 				@foreach($all_sales as $sale)
                     <tr>
                         <td class="text-center"></td>
-                        <td class="hidden-xs"><span title="{{$sale->description}}">{{strlen($sale->description) < 40 ? $sale->description : substr($sale->description,0,40)."..."}}</span></td>
+                        <td class="hidden-xs"><span title="{{$sale->description}}">{{$sale->description}}</span></td>
                         <td class="hidden-xs">{{ucfirst($sale->expense_type)}}</td>
                         <td class="font-w600">@if($sale->reservations_id)<a href="{{route('reservations-show',$sale->reservations_id)}}">#{{$sale->reservations_id}}</a>@endif</td>
                         <td class="hidden-xs">{{$sale->quantity}}</td>
@@ -81,22 +82,30 @@
                         <td class="font-w600">{{number_format($sale->total_price,2)}}</td>
                         <td class="hidden-xs">{{ucfirst($sale->method)}}</td>
                         <td class="hidden-sm">
-                                @if($sale->status == 'confirmed')
-                                    <span class="badge badge-success">Confirmed</span>
-                                    @if($sale->reservation->paid == 'full')
-                                        <span class="badge badge-success">Paid</span>
-                                    @elseif($sale->reservation->paid == 'part')
+                            @if($sale->reservation_type == 'complementary')
+                                <span class="badge badge-primary">Complementary</span>
+                            @endif
+                            @if($sale->status == 'confirmed')
+                                @php
+                                    $amtpaid = $sale->reservation->success_payments->sum('amount')/100;
+                                @endphp
+                                <span class="badge badge-success">Confirmed</span>
+                                @if($sale->reservation_type != 'complementary')
+                                    @if($amtpaid >= $sale->grand_total)
+                                        <span class="badge badge-success">Fully Paid</span>
+                                    @elseif(($amtpaid > 0) && ($amtpaid < $sale->grand_total))
                                         <span class="badge badge-warning">Part Paid</span>
                                     @else
                                         <span class="badge badge-danger">Not Paid</span>
                                     @endif
-                                @elseif($sale->status == 'paid')
-                                    <span class="badge badge-success">Paid</span>
-                                @elseif($sale->status == 'pending')
-                                    <span class="badge badge-warning">Pending</span>
-                                @else
-                                    <span class="badge badge-danger">{{ucfirst($sale->status)}}</span>
                                 @endif
+                            @elseif($sale->status == 'paid')
+                                <span class="badge badge-success">Paid</span>
+                            @elseif($sale->status == 'pending')
+                                <span class="badge badge-warning">Pending</span>
+                            @else
+                                <span class="badge badge-danger">{{ucfirst($sale->status)}}</span>
+                            @endif
                         </td>
                         <td class="hidden-xs">{{$sale->created_at}}</td>
                         <td class="text-center">

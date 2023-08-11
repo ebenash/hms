@@ -13,4 +13,8 @@ class Payments extends Model
     public function reservation(){
     	return $this->belongsTo('App\Models\Reservations');
     }
+
+    public function sale(){
+    	return $this->belongsTo('App\Models\ReservationDetails');
+    }
 }

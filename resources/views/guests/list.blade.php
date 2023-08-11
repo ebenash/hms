@@ -49,7 +49,7 @@
                                     // $successurl = route('settings-tab','users');
                                 @endphp
                                 @can('view guests')<div style="display: inline-block;"><a href="#" class="btn btn-sm btn-alt-primary" data-toggle="modal" data-target="#modal-view{{$guest->id}}" title="View Guest"> <i class="fa fa-eye"></i></a></div> @endcan
-                                @can('edit guests')<div style="display: inline-block;"><a href="#" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#modal-edit{{$guest->id}}" title="View Guest"> <i class="fa fa-edit"></i></a></div> @endcan
+                                @can('edit guests')<div style="display: inline-block;"><a href="#" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#modal-edit{{$guest->id}}" title="Edit Guest"> <i class="fa fa-edit"></i></a></div> @endcan
                                 @can('remove guests')<div style="display: inline-block;"><button class="btn btn-sm btn-danger" type="button" data-toggle="tooltip" title="Remove Guest" onclick="confimdelete('{{$deleteurl}}')"><i class="fa fa-times"> </i></button></div> @endcan
                             </div>
                         </td>

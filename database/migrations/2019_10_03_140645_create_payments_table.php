@@ -19,7 +19,8 @@ class CreatePaymentsTable extends Migration
             $table->string('currency',5);
             $table->decimal('amount',16,2);
             $table->string('status',25)->default('pending');
-            $table->integer('reservation_id');
+            $table->string('payment_type',25);
+            $table->integer('payment_type_id');
             $table->string('authorization_url')->nullable();
             $table->string('access_code',100)->nullable();
             $table->string('reference',100)->nullable();
@@ -34,6 +35,8 @@ class CreatePaymentsTable extends Migration
             $table->text('customer')->nullable();
             $table->string('plan')->nullable();
             $table->string('fees',25)->nullable();
+            $table->string('vat_invoice_number',100)->nullable();
+            $table->string('received_by',100)->nullable();
             $table->decimal('requested_amount',16,2)->nullable();
             $table->timestamps();
         });

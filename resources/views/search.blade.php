@@ -84,6 +84,7 @@
                                         {{-- <button type="button" class="btn btn-sm btn-secondary" data-toggle="tooltip" title="Edit Reservation">
                                             <i class="fa fa-pencil-alt"></i>
                                         </button> --}}
+                                        @can('edit reservations')<a href="{{route(($reservation->reservation_status=='pending' && $reservation->created_by==0) ? 'reservations-view-request':'reservations-edit',$reservation->id)}}" class="btn btn-sm btn-primary" data-toggle="tooltip" title="{{($reservation->reservation_status=='pending' && $reservation->created_by==0) ? 'Respond To Reservation Request':'Edit Reservation'}}"> <i class="fa fa-edit"></i> </a> @endcan
                                     </div>
                                 </td>
                             </tr>

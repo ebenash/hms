@@ -6,6 +6,9 @@
                 @yield('page-header')
             </div>
             <div class="mt-3 mt-sm-0 ml-sm-3">
+                <a href="{{route('settings')}}" id="feedbackbutton" class="btn btn-sm btn-alt-primary has-ripple rounded-pill" data-toggle="modal" data-target="#feedbackModal">
+                    <i class="fa fa-comment"></i> Send Feedback
+                </a>
                 <a href="{{route('settings')}}" class="btn btn-sm btn-alt-primary">
                     <i class="fa fa-cog"></i>
                 </a>

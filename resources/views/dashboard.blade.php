@@ -151,6 +151,9 @@
                                 </thead>
                                 <tbody>
                                     @foreach($arrivals as $reservation)
+                                        @php
+                                            $amtpaid = $reservation->success_payments->sum('amount')/100;
+                                        @endphp
                                         @foreach($reservation->details as $detail)
                                             <tr>
                                                 <td>
@@ -163,7 +166,7 @@
                                                     <span class="font-w600 text-muted">{{$reservation->guest->full_name}}</span>
                                                 </td>
                                                 <td>
-                                                    @if($reservation->payment_method == 'complementary') <span class="font-w600 text-primary">Complementary</span> @endif @if($reservation->reservation_status == 'confirmed') <span class="font-w600 text-success">Confirmed</span>  @if($reservation->payment_method != 'complementary') @if($reservation->paid == 'full') <span class="font-w600 text-success">Fully Paid</span> @elseif($reservation->paid == 'part') <span class="font-w600 text-warning">Part Paid</span> @else<span class="font-w600 text-danger">Not Paid</span> @endif @endif  @elseif($reservation->reservation_status == 'pending') {!! strtotime($reservation->check_in) < strtotime(date('Y-m-d')) ? '<span class="font-w600 text-danger">Overdue</span>':'<span class="font-w600 text-warning">Pending</span>' !!} @elseif($reservation->reservation_status == 'rejected') <span class="font-w600 text-danger">Rejected</span> @else <span class="font-w600 text-danger">Cancelled</span> @endif
+                                                    @if($reservation->reservation_type == 'complementary') <span class="text-primary">Complementary</span> @endif @if($reservation->reservation_status == 'confirmed') <span class="text-success">Confirmed</span>  @if($reservation->reservation_type != 'complementary') @if($amtpaid >= $reservation->grand_total) <span class="text-success">Fully Paid</span> @elseif(($amtpaid > 0) && ($amtpaid < $reservation->grand_total)) <span class="text-warning">Part Paid</span> @else<span class="text-danger">Not Paid</span> @endif @endif  @elseif($reservation->reservation_status == 'pending') {!! strtotime($reservation->check_in) < strtotime(date('Y-m-d')) ? '<span class="text-danger">Overdue</span>':'<span class="text-warning">Pending</span>' !!} @elseif($reservation->reservation_status == 'rejected') <span class="text-danger">Rejected</span> @else <span class="text-danger">Cancelled</span> @endif
                                                 </td>
                                                 <td class="d-none d-sm-table-cell text-right">
                                                     @if($detail->room)<span class="badge badge-secondary">{{$detail->room->name}}</span>@endif
@@ -193,6 +196,9 @@
                                 </thead>
                                 <tbody>
                                     @foreach($stay_over as $reservation)
+                                        @php
+                                            $amtpaid = $reservation->success_payments->sum('amount')/100;
+                                        @endphp
                                         @foreach($reservation->details as $detail)
                                             <tr>
                                                 <td>
@@ -202,10 +208,10 @@
                                                     <span class="font-size-sm text-muted">{{$reservation->check_in}} to {{$reservation->check_out}}</span>
                                                 </td>
                                                 <td>
-                                                    <span class="font-w600 text-muted">{{$reservation->guest->full_name}}</span>
+                                                    <span class="font-w600 text-muted">{{$reservation->guest->full_name ?? ''}}</span>
                                                 </td>
                                                 <td>
-                                                    @if($reservation->payment_method == 'complementary') <span class="font-w600 text-primary">Complementary</span> @endif @if($reservation->reservation_status == 'confirmed') <span class="font-w600 text-success">Confirmed</span>  @if($reservation->payment_method != 'complementary') @if($reservation->paid == 'full') <span class="font-w600 text-success">Fully Paid</span> @elseif($reservation->paid == 'part') <span class="font-w600 text-warning">Part Paid</span> @else<span class="font-w600 text-danger">Not Paid</span> @endif @endif  @elseif($reservation->reservation_status == 'pending') {!! strtotime($reservation->check_in) < strtotime(date('Y-m-d')) ? '<span class="font-w600 text-danger">Overdue</span>':'<span class="font-w600 text-warning">Pending</span>' !!} @elseif($reservation->reservation_status == 'rejected') <span class="font-w600 text-danger">Rejected</span> @else <span class="font-w600 text-danger">Cancelled</span> @endif
+                                                     @if($reservation->reservation_type == 'complementary') <span class="text-primary">Complementary</span> @endif @if($reservation->reservation_status == 'confirmed') <span class="text-success">Confirmed</span>  @if($reservation->reservation_type != 'complementary') @if($amtpaid >= $reservation->grand_total) <span class="text-success">Fully Paid</span> @elseif(($amtpaid > 0) && ($amtpaid < $reservation->grand_total)) <span class="text-warning">Part Paid</span> @else<span class="text-danger">Not Paid</span> @endif @endif  @elseif($reservation->reservation_status == 'pending') {!! strtotime($reservation->check_in) < strtotime(date('Y-m-d')) ? '<span class="text-danger">Overdue</span>':'<span class="text-warning">Pending</span>' !!} @elseif($reservation->reservation_status == 'rejected') <span class="text-danger">Rejected</span> @else <span class="text-danger">Cancelled</span> @endif
                                                 </td>
                                                 <td class="d-none d-sm-table-cell text-right">
                                                     @if($detail->room)<span class="badge badge-secondary">{{$detail->room->name}}</span>@endif
@@ -237,6 +243,9 @@
                                 </thead>
                                 <tbody>
                                     @foreach($departures as $reservation)
+                                        @php
+                                            $amtpaid = $reservation->success_payments->sum('amount')/100;
+                                        @endphp
                                         @foreach($reservation->details as $detail)
                                             <tr>
                                                 <td>
@@ -246,10 +255,10 @@
                                                     <span class="font-size-sm text-muted">{{$reservation->check_in}} to {{$reservation->check_out}}</span>
                                                 </td>
                                                 <td>
-                                                    <span class="font-w600 text-muted">{{$reservation->guest->full_name}}</span>
+                                                    <span class="font-w600 text-muted">{{$reservation->guest->full_name ?? ''}}</span>
                                                 </td>
                                                 <td>
-                                                    @if($reservation->payment_method == 'complementary') <span class="font-w600 text-primary">Complementary</span> @endif @if($reservation->reservation_status == 'confirmed') <span class="font-w600 text-success">Confirmed</span>  @if($reservation->payment_method != 'complementary') @if($reservation->paid == 'full') <span class="font-w600 text-success">Fully Paid</span> @elseif($reservation->paid == 'part') <span class="font-w600 text-warning">Part Paid</span> @else<span class="font-w600 text-danger">Not Paid</span> @endif @endif  @elseif($reservation->reservation_status == 'pending') {!! strtotime($reservation->check_in) < strtotime(date('Y-m-d')) ? '<span class="font-w600 text-danger">Overdue</span>':'<span class="font-w600 text-warning">Pending</span>' !!} @elseif($reservation->reservation_status == 'rejected') <span class="font-w600 text-danger">Rejected</span> @else <span class="font-w600 text-danger">Cancelled</span> @endif
+                                                     @if($reservation->reservation_type == 'complementary') <span class="text-primary">Complementary</span> @endif @if($reservation->reservation_status == 'confirmed') <span class="text-success">Confirmed</span>  @if($reservation->reservation_type != 'complementary') @if($amtpaid >= $reservation->grand_total) <span class="text-success">Fully Paid</span> @elseif(($amtpaid > 0) && ($amtpaid < $reservation->grand_total)) <span class="text-warning">Part Paid</span> @else<span class="text-danger">Not Paid</span> @endif @endif  @elseif($reservation->reservation_status == 'pending') {!! strtotime($reservation->check_in) < strtotime(date('Y-m-d')) ? '<span class="text-danger">Overdue</span>':'<span class="text-warning">Pending</span>' !!} @elseif($reservation->reservation_status == 'rejected') <span class="text-danger">Rejected</span> @else <span class="text-danger">Cancelled</span> @endif
                                                 </td>
                                                 <td class="d-none d-sm-table-cell text-right">
                                                     @if($detail->room)<span class="badge badge-secondary">{{$detail->room->name}}</span>@endif
@@ -279,6 +288,9 @@
                                 </thead>
                                 <tbody>
                                     @foreach($requests as $reservation)
+                                        @php
+                                            $amtpaid = $reservation->success_payments->sum('amount')/100;
+                                        @endphp
                                         @foreach($reservation->details as $detail)
                                             <tr>
                                                 <td>
@@ -288,10 +300,10 @@
                                                     <span class="font-size-sm text-muted">{{$reservation->check_in}} to {{$reservation->check_out}}</span>
                                                 </td>
                                                 <td>
-                                                    <span class="font-w600 text-muted">{{$reservation->guest->full_name}}</span>
+                                                    <span class="font-w600 text-muted">{{$reservation->guest->full_name ?? ''}}</span>
                                                 </td>
                                                 <td>
-                                                    @if($reservation->payment_method == 'complementary') <span class="font-w600 text-primary">Complementary</span> @endif @if($reservation->reservation_status == 'confirmed') <span class="font-w600 text-success">Confirmed</span>  @if($reservation->payment_method != 'complementary') @if($reservation->paid == 'full') <span class="font-w600 text-success">Fully Paid</span> @elseif($reservation->paid == 'part') <span class="font-w600 text-warning">Part Paid</span> @else<span class="font-w600 text-danger">Not Paid</span> @endif @endif  @elseif($reservation->reservation_status == 'pending') {!! strtotime($reservation->check_in) < strtotime(date('Y-m-d')) ? '<span class="font-w600 text-danger">Overdue</span>':'<span class="font-w600 text-warning">Pending</span>' !!} @elseif($reservation->reservation_status == 'rejected') <span class="font-w600 text-danger">Rejected</span> @else <span class="font-w600 text-danger">Cancelled</span> @endif
+                                                     @if($reservation->reservation_type == 'complementary') <span class="text-primary">Complementary</span> @endif @if($reservation->reservation_status == 'confirmed') <span class="text-success">Confirmed</span>  @if($reservation->reservation_type != 'complementary') @if($amtpaid >= $reservation->grand_total) <span class="text-success">Fully Paid</span> @elseif(($amtpaid > 0) && ($amtpaid < $reservation->grand_total)) <span class="text-warning">Part Paid</span> @else<span class="text-danger">Not Paid</span> @endif @endif  @elseif($reservation->reservation_status == 'pending') {!! strtotime($reservation->check_in) < strtotime(date('Y-m-d')) ? '<span class="text-danger">Overdue</span>':'<span class="text-warning">Pending</span>' !!} @elseif($reservation->reservation_status == 'rejected') <span class="text-danger">Rejected</span> @else <span class="text-danger">Cancelled</span> @endif
                                                 </td>
                                                 <td class="d-none d-sm-table-cell text-right">
                                                     @if($detail->roomtype)<span class="badge badge-secondary">{{$detail->roomtype->name}}</span>@endif
@@ -321,7 +333,11 @@
                                 </thead>
                                 <tbody>
                                     @foreach($recent_reservations as $reservation)
+                                        @php
+                                            $amtpaid = $reservation->success_payments->sum('amount')/100;
+                                        @endphp
                                         @foreach($reservation->details as $detail)
+                                        {{-- {{dump($detail)}} --}}
                                             <tr>
                                                 <td>
                                                     <span class="font-w600"><a href="{{route('reservations-show',$reservation->id)}}">#{{$reservation->id}}</a></span>
@@ -330,10 +346,10 @@
                                                     <span class="font-size-sm text-muted">{{$reservation->check_in}} to {{$reservation->check_out}}</span>
                                                 </td>
                                                 <td>
-                                                    <span class="font-w600 text-muted">{{$reservation->guest->full_name}}</span>
+                                                    <span class="font-w600 text-muted">{{$reservation->guest->full_name ?? ''}}</span>
                                                 </td>
                                                 <td>
-                                                    @if($reservation->payment_method == 'complementary') <span class="font-w600 text-primary">Complementary</span> @endif @if($reservation->reservation_status == 'confirmed') <span class="font-w600 text-success">Confirmed</span>  @if($reservation->payment_method != 'complementary') @if($reservation->paid == 'full') <span class="font-w600 text-success">Fully Paid</span> @elseif($reservation->paid == 'part') <span class="font-w600 text-warning">Part Paid</span> @else<span class="font-w600 text-danger">Not Paid</span> @endif @endif  @elseif($reservation->reservation_status == 'pending') {!! strtotime($reservation->check_in) < strtotime(date('Y-m-d')) ? '<span class="font-w600 text-danger">Overdue</span>':'<span class="font-w600 text-warning">Pending</span>' !!} @elseif($reservation->reservation_status == 'rejected') <span class="font-w600 text-danger">Rejected</span> @else <span class="font-w600 text-danger">Cancelled</span> @endif
+                                                     @if($reservation->reservation_type == 'complementary') <span class="text-primary">Complementary</span> @endif @if($reservation->reservation_status == 'confirmed') <span class="text-success">Confirmed</span>  @if($reservation->reservation_type != 'complementary') @if($amtpaid >= $reservation->grand_total) <span class="text-success">Fully Paid</span> @elseif(($amtpaid > 0) && ($amtpaid < $reservation->grand_total)) <span class="text-warning">Part Paid</span> @else<span class="text-danger">Not Paid</span> @endif @endif  @elseif($reservation->reservation_status == 'pending') {!! strtotime($reservation->check_in) < strtotime(date('Y-m-d')) ? '<span class="text-danger">Overdue</span>':'<span class="text-warning">Pending</span>' !!} @elseif($reservation->reservation_status == 'rejected') <span class="text-danger">Rejected</span> @else <span class="text-danger">Cancelled</span> @endif
                                                 </td>
                                                 <td class="d-none d-sm-table-cell text-right">
                                                     @if($detail->room)<span class="badge badge-secondary">{{$detail->room->name}}</span>@endif

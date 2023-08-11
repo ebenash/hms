@@ -106,7 +106,7 @@
     <div class="block-content block-content-full">
         <!-- DataTables init on table by adding .js-dataTable-full class, functionality is initialized in js/pages/tables_datatables.js -->
 
-        <table class="table table-bordered table-striped table-vcenter js-dataTable-report display nowrap" style="width:100%">
+        <table class="table table-bordered table-striped table-vcenter js-dataTable-reservations display nowrap" style="width:100%">
 			<thead>
 				<tr>
 					<th class="text-center">#</th>
@@ -125,12 +125,15 @@
                     $count=($all_reservations->perPage()*($all_reservations->currentPage() -1))+1;
                 @endphp --}}
 				@foreach($all_reservations as $reservation)
+                    @php
+                        $amtpaid = $reservation->success_payments->sum('amount')/100;
+                    @endphp
                     <tr>
                         <td class="text-center font-w600"><a href="{{route('reservations-show',$reservation->id)}}">#{{$reservation->id}}</a></td>
                         <td class="font-w600">{{$reservation->full_name}}</td>
-                        <td class="hidden-sm" data-sort="{{date_format(new DateTime($reservation->check_in),'Y-m-d')}}">{{date_format(new DateTime($reservation->check_in), 'l jS F, Y')}}</td>
-                        <td class="hidden-sm" data-sort="{{date_format(new DateTime($reservation->check_out),'Y-m-d')}}">{{date_format(new DateTime($reservation->check_out), 'l jS F Y')}}</td>
-                        <td class="hidden-sm">@if($reservation->payment_method == 'complementary') <span class="badge badge-primary">Complementary</span> @endif @if($reservation->reservation_status == 'confirmed') <span class="badge badge-success">Confirmed</span>  @if($reservation->payment_method != 'complementary') @if($reservation->paid == 'full') <span class="badge badge-success">Fully Paid</span> @elseif($reservation->paid == 'part') <span class="badge badge-warning">Part Paid</span> @else<span class="badge badge-danger">Not Paid</span> @endif @endif  @elseif($reservation->reservation_status == 'pending') {!! strtotime($reservation->check_in) < strtotime(date('Y-m-d')) ? '<span class="badge badge-danger">Overdue</span>':'<span class="badge badge-warning">Pending</span>' !!} @elseif($reservation->reservation_status == 'rejected') <span class="badge badge-danger">Rejected</span> @else <span class="badge badge-danger">Cancelled</span> @endif</td>
+                        <td class="hidden-sm" data-sort="{{date_format(new DateTime($reservation->check_in),'Y-m-d')}}">{{date_format(new DateTime($reservation->check_in), 'jS F, Y')}}</td>
+                        <td class="hidden-sm" data-sort="{{date_format(new DateTime($reservation->check_out),'Y-m-d')}}">{{date_format(new DateTime($reservation->check_out), 'jS F Y')}}</td>
+                        <td class="hidden-sm">@if($reservation->reservation_type == 'complementary') <span class="badge badge-primary">Complementary</span> @endif @if($reservation->reservation_status == 'confirmed') <span class="badge badge-success">Confirmed</span>  @if($reservation->reservation_type != 'complementary') @if($amtpaid >= $reservation->grand_total) <span class="badge badge-success">Fully Paid</span> @elseif(($amtpaid > 0) && ($amtpaid < $reservation->grand_total)) <span class="badge badge-warning">Part Paid</span> @else<span class="badge badge-danger">Not Paid</span> @endif @endif  @elseif($reservation->reservation_status == 'pending') {!! strtotime($reservation->check_in) < strtotime(date('Y-m-d')) ? '<span class="badge badge-danger">Overdue</span>':'<span class="badge badge-warning">Pending</span>' !!} @elseif($reservation->reservation_status == 'rejected') <span class="badge badge-danger">Rejected</span> @else <span class="badge badge-danger">Cancelled</span> @endif</td>
                         <td class="hidden-xs">
                             @foreach ($reservation->details as $detail)
                                 <span class="badge badge-primary">{{$detail->room->name ?? ''}}</span>
@@ -214,6 +217,25 @@
 
     <script type="text/javascript">
         $(function () {
+            jQuery(".js-dataTable-reservations").dataTable({
+                pageLength: 200,
+                responsive: true,
+                scrollX: true,
+                lengthMenu: [
+                    [50, 100, 200, 500],
+                    [50, 100, 200, 500]
+                ],
+                order: [[3, 'asc']],
+                columnDefs: [
+                    // { targets: [0, 1], visible: false },
+                    { responsivePriority: 2, targets: -1 }
+                ],
+                searching: false,
+                autoWidth: !1,
+                buttons: [{ extend: "colvis", className: "btn btn-sm btn-alt-primary" }, { extend: "copy", className: "btn btn-sm btn-alt-primary" }, { extend: "csv", className: "btn btn-sm btn-alt-primary" }, { extend: "pdf", className: "btn btn-sm btn-alt-primary" }, { extend: "print", className: "btn btn-sm btn-alt-primary" }],
+                dom: "<'row'<'col-sm-12'<'text-left py-2 mb-2'B>>><'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>><'row'<'col-sm-12'tr>><'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>"
+            })
+
             $('#DataTables_Table_0_info').html("Page {{$all_reservations->currentPage()}} of {{$all_reservations->lastPage()}}");
             $('#DataTables_Table_0_paginate').html("");
             var div = document.createElement('div');

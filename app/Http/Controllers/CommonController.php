@@ -554,6 +554,20 @@ class CommonController extends Controller
                         'integration' => $result->data->integration,
                         'created_at' => $this->todaydatetime(),
                     ]);
+
+                    DB::table('payments')->insert([
+                        'provider' => 'paystack',
+                        'currency' => $result->data->currency,
+                        'status' =>  $result->data->status,
+                        'payment_type' =>  'reservation',
+                        'payment_type_id' => $reservation_id ?? null,
+                        'amount' => $grand_total*100,
+                        'requested_amount' => $grand_total*100,
+                        'access_code' => $result->data->request_code,
+                        'received_by' => 'Paystack',
+                        'created_at' => $this->todaydatetime(),
+                    ]);
+
                     if($reservation_id){
                         DB::table('reservations')->where('id',$reservation_id)->update(['invoice_sent'=> true]);
                     }
@@ -613,7 +627,8 @@ class CommonController extends Controller
                             DB::table('payments')->insert([
                                 'currency' => $reservation->currency,
                                 'provider' => 'paystack',
-                                'reservation_id' => $reservation->id,
+                                'payment_type' =>'reservation',
+                                'payment_type_id' => $reservation->id,
                                 'amount' => $reservation->grand_total*100,
                                 'requested_amount' => $reservation->grand_total*100,
                                 'authorization_url' => $result->data->authorization_url,
@@ -787,16 +802,38 @@ class CommonController extends Controller
                     if ($event->data->paid) {
                         DB::table('reservations')->where('id',$invoice->reservation_id)->update([
                             'reservation_status' => 'confirmed',
-                            'paid' => 'full',
-                            'amount_paid' => (($event->data->amount ?? 0)/100),
-                            'balance' => 0,
+                        ]);
+                        DB::table('payments')->where('payment_type_id',$invoice->reservation_id)->where('access_code',$invoice->request_code)->update([
+                            'status' => $event->data->status,
                         ]);
                         $reservation = Reservations::where('id',$invoice->reservation_id)->with('guest')->first();
                         Notification::route('mail', $reservation->guest->email)->notify(new GuestPaymentNotification($reservation));
                     }
                 }
+
+                $transferdata = [
+                    'customer_id' => $event->data->customer,
+                    'access_code' => $invoice->request_code,
+                ];
+                $filechecklog = storage_path('logs/requestchargecheck.log');
+                file_put_contents($filechecklog, json_encode($transferdata));
+
                 $smstext = "A Payment has been made for Invoice #".($event->data->invoice_number ?? "Undefined")." on Paystack. Invoice Amount: GHS ".(($event->data->amount ?? 0)/100).".";
             }else if($event->event == "charge.success"){
+                $filechecklog = storage_path('logs/requestchargecheck.log');
+                if(file_exists($filechecklog)){
+                    $content = file_get_contents($filechecklog);
+                    // dd($event);
+                    if ($content != '') {
+                        $transferdata = json_decode($content);
+                        if($transferdata->customer_id = $event->data->customer->id){
+                            DB::table('payments')->where('access_code',$transferdata->access_code)->update([
+                                'reference' => $event->data->reference,
+                            ]);
+                            file_put_contents($filechecklog, '');
+                        }
+                    }
+                }
                 $smstext = "A new payment has been made on Paystack. reference:".($event->data->reference ?? "Undefined").". Amount Paid: GHS ".(($event->data->amount ?? 0)/100).". Paid By: ".($event->data->customer->first_name ?? "Undefined")." ".($event->data->customer->last_name ?? "Undefined")." at ".($event->data->paid_at ?? "Undefined").".";
             }else if($event->event == "paymentrequest.pending"){
                 $smstext = "New Invoice #".($event->data->invoice_number ?? "Undefined")." has been submitted to a customer and is pending payment.";
@@ -864,20 +901,23 @@ class CommonController extends Controller
     {
         //
 
-        $yesterdays_reservations = Reservations::join('guests','reservations.guest_id','=','guests.id')->select('reservations.id','reservations.check_in', 'reservations.check_out', 'reservations.days', 'reservations.paid', 'reservations.reservation_status', 'reservations.grand_total', 'reservations.amount_paid', 'reservations.balance', 'reservations.payment_method', 'reservations.created_by', 'guests.full_name','reservations.vat_invoice_number')->where('reservations.reservation_status','confirmed')->where('reservations.check_in','=',date("Y-m-d",strtotime("-1 day")))->with('details')->orderBy('reservations.check_in','asc')->get();
-        $yesterdays_reservation_details = DB::table('reservations')->join('guests','reservations.guest_id','=','guests.id')->join('reservation_details','reservations.id','=','reservation_details.reservations_id')->join('rooms','reservation_details.room_id','=','rooms.id')->join('room_types','room_types.id','=','rooms.room_type_id')->select('reservations.id','reservations.check_in', 'reservations.check_out', 'reservations.days', 'reservations.paid', 'reservations.reservation_status', 'reservations.grand_total', 'reservations.amount_paid', 'reservations.balance', 'reservations.payment_method', 'reservations.created_by', 'guests.full_name','rooms.name as room_name','reservation_details.price_per_day','room_types.name as room_type')->where('reservations.reservation_status','confirmed')->where('reservations.check_in','=',date("Y-m-d",strtotime("-1 day")))->orderBy('reservations.check_in','asc')->get();
+        $yesterdays_reservations = Reservations::join('guests','reservations.guest_id','=','guests.id')->select('reservations.id','reservations.check_in', 'reservations.check_out', 'reservations.days', 'reservations.paid', 'reservations.reservation_status', 'reservations.grand_total', 'reservations.reservation_type', 'reservations.created_by', 'guests.full_name')->where('reservations.reservation_status','confirmed')->where('reservations.check_in','=',date("Y-m-d",strtotime("-1 day")))->with('details')->orderBy('reservations.check_in','asc')->get();
+        $yesterdays_reservation_details = DB::table('reservations')->join('guests','reservations.guest_id','=','guests.id')->join('reservation_details','reservations.id','=','reservation_details.reservations_id')->join('rooms','reservation_details.room_id','=','rooms.id')->join('room_types','room_types.id','=','rooms.room_type_id')->select('reservations.id','reservations.check_in', 'reservations.check_out', 'reservations.days', 'reservations.paid', 'reservations.reservation_status', 'reservations.grand_total', 'reservations.reservation_type', 'reservations.created_by', 'guests.full_name','rooms.name as room_name','reservation_details.price_per_day','room_types.name as room_type')->where('reservations.check_in','=',date("Y-m-d",strtotime("-1 day")))->where('reservations.reservation_status','confirmed')->orderBy('reservations.check_in','asc')->get();
 
-        $stay_over_reservations = Reservations::join('guests','reservations.guest_id','=','guests.id')->select('reservations.id','reservations.check_in', 'reservations.check_out', 'reservations.days', 'reservations.paid', 'reservations.reservation_status', 'reservations.grand_total', 'reservations.amount_paid', 'reservations.balance', 'reservations.payment_method', 'reservations.created_by', 'guests.full_name','reservations.vat_invoice_number')->where('reservations.reservation_status','confirmed')->where('reservations.check_in','<=',date("Y-m-d"))->where('reservations.check_out','>',date("Y-m-d"))->with('details')->orderBy('reservations.check_in','asc')->get();
-        $stay_over_reservation_details = DB::table('reservations')->join('guests','reservations.guest_id','=','guests.id')->join('reservation_details','reservations.id','=','reservation_details.reservations_id')->join('rooms','reservation_details.room_id','=','rooms.id')->join('room_types','room_types.id','=','rooms.room_type_id')->select('reservations.id','reservations.check_in', 'reservations.check_out', 'reservations.days', 'reservations.paid', 'reservations.reservation_status', 'reservations.grand_total', 'reservations.amount_paid', 'reservations.balance', 'reservations.payment_method', 'reservations.created_by', 'guests.full_name','rooms.name as room_name','reservation_details.price_per_day','room_types.name as room_type')->where('reservations.reservation_status','confirmed')->where('reservations.check_in','<=',date("Y-m-d"))->where('reservations.check_out','>',date("Y-m-d"))->orderBy('reservations.check_in','asc')->get();
+        $yesterdays_payments = Payments::where('payments.created_at', '<=', date('Y-m-d 23:59:59',strtotime("-1 day")))->where('payments.created_at', '>=', date('Y-m-d 00:00:00',strtotime("-1 day")))->orderBy('payments.created_at','desc')->get();
 
-        $checking_in_reservations = Reservations::join('guests','reservations.guest_id','=','guests.id')->select('reservations.id','reservations.check_in', 'reservations.check_out', 'reservations.days', 'reservations.paid', 'reservations.reservation_status', 'reservations.grand_total', 'reservations.amount_paid', 'reservations.balance', 'reservations.payment_method', 'reservations.created_by', 'guests.full_name','reservations.vat_invoice_number')->where('reservations.reservation_status','confirmed')->where('reservations.check_in','=',date("Y-m-d"))->with('details')->orderBy('reservations.check_in','asc')->get();
-        $checking_in_reservation_details = DB::table('reservations')->join('guests','reservations.guest_id','=','guests.id')->join('reservation_details','reservations.id','=','reservation_details.reservations_id')->join('rooms','reservation_details.room_id','=','rooms.id')->join('room_types','room_types.id','=','rooms.room_type_id')->select('reservations.id','reservations.check_in', 'reservations.check_out', 'reservations.days', 'reservations.paid', 'reservations.reservation_status', 'reservations.grand_total', 'reservations.amount_paid', 'reservations.balance', 'reservations.payment_method', 'reservations.created_by', 'guests.full_name','rooms.name as room_name','reservation_details.price_per_day','room_types.name as room_type')->where('reservations.reservation_status','confirmed')->where('reservations.check_in','=',date("Y-m-d"))->orderBy('reservations.check_in','asc')->get();
-        // dd($stay_over_reservations);
+        $stay_over_reservations = Reservations::join('guests','reservations.guest_id','=','guests.id')->select('reservations.id','reservations.check_in', 'reservations.check_out', 'reservations.days', 'reservations.paid', 'reservations.reservation_status', 'reservations.grand_total', 'reservations.reservation_type', 'reservations.created_by', 'guests.full_name')->where('reservations.reservation_status','confirmed')->where('reservations.check_in','<=',date("Y-m-d"))->where('reservations.check_out','>',date("Y-m-d"))->with('details')->orderBy('reservations.check_in','asc')->get();
+        $stay_over_reservation_details = DB::table('reservations')->join('guests','reservations.guest_id','=','guests.id')->join('reservation_details','reservations.id','=','reservation_details.reservations_id')->join('rooms','reservation_details.room_id','=','rooms.id')->join('room_types','room_types.id','=','rooms.room_type_id')->select('reservations.id','reservations.check_in', 'reservations.check_out', 'reservations.days', 'reservations.paid', 'reservations.reservation_status', 'reservations.grand_total', 'reservations.reservation_type', 'reservations.created_by', 'guests.full_name','rooms.name as room_name','reservation_details.price_per_day','room_types.name as room_type')->where('reservations.reservation_status','confirmed')->where('reservations.check_in','<=',date("Y-m-d"))->where('reservations.check_out','>',date("Y-m-d"))->orderBy('reservations.check_in','asc')->get();
 
-        $checking_out_reservations = Reservations::join('guests','reservations.guest_id','=','guests.id')->select('reservations.id','reservations.check_in', 'reservations.check_out', 'reservations.days', 'reservations.paid', 'reservations.reservation_status', 'reservations.grand_total', 'reservations.amount_paid', 'reservations.balance', 'reservations.payment_method', 'reservations.created_by', 'guests.full_name','reservations.vat_invoice_number')->where('reservations.reservation_status','confirmed')->where('reservations.check_out','=',date("Y-m-d"))->with('details')->orderBy('reservations.check_in','asc')->get();
-        $checking_out_reservation_details = DB::table('reservations')->join('guests','reservations.guest_id','=','guests.id')->join('reservation_details','reservations.id','=','reservation_details.reservations_id')->join('rooms','reservation_details.room_id','=','rooms.id')->join('room_types','room_types.id','=','rooms.room_type_id')->select('reservations.id','reservations.check_in', 'reservations.check_out', 'reservations.days', 'reservations.paid', 'reservations.reservation_status', 'reservations.grand_total', 'reservations.amount_paid', 'reservations.balance', 'reservations.payment_method', 'reservations.created_by', 'guests.full_name','rooms.name as room_name','reservation_details.price_per_day','room_types.name as room_type')->where('reservations.reservation_status','confirmed')->where('reservations.check_out','=',date("Y-m-d"))->orderBy('reservations.check_in','asc')->get();
+        $checking_in_reservations = Reservations::join('guests','reservations.guest_id','=','guests.id')->select('reservations.id','reservations.check_in', 'reservations.check_out', 'reservations.days', 'reservations.paid', 'reservations.reservation_status', 'reservations.grand_total', 'reservations.reservation_type', 'reservations.created_by', 'guests.full_name')->where('reservations.reservation_status','confirmed')->where('reservations.check_in','=',date("Y-m-d"))->with('details')->orderBy('reservations.check_in','asc')->get();
+        $checking_in_reservation_details = DB::table('reservations')->join('guests','reservations.guest_id','=','guests.id')->join('reservation_details','reservations.id','=','reservation_details.reservations_id')->join('rooms','reservation_details.room_id','=','rooms.id')->join('room_types','room_types.id','=','rooms.room_type_id')->select('reservations.id','reservations.check_in', 'reservations.check_out', 'reservations.days', 'reservations.paid', 'reservations.reservation_status', 'reservations.grand_total', 'reservations.reservation_type', 'reservations.created_by', 'guests.full_name','rooms.name as room_name','reservation_details.price_per_day','room_types.name as room_type')->where('reservations.reservation_status','confirmed')->where('reservations.check_in','=',date("Y-m-d"))->orderBy('reservations.check_in','asc')->get();
+        // dd($yesterdays_payments);
+
+        $checking_out_reservations = Reservations::join('guests','reservations.guest_id','=','guests.id')->select('reservations.id','reservations.check_in', 'reservations.check_out', 'reservations.days', 'reservations.paid', 'reservations.reservation_status', 'reservations.grand_total', 'reservations.reservation_type', 'reservations.created_by', 'guests.full_name')->where('reservations.reservation_status','confirmed')->where('reservations.check_out','=',date("Y-m-d"))->with('details')->orderBy('reservations.check_in','asc')->get();
+        $checking_out_reservation_details = DB::table('reservations')->join('guests','reservations.guest_id','=','guests.id')->join('reservation_details','reservations.id','=','reservation_details.reservations_id')->join('rooms','reservation_details.room_id','=','rooms.id')->join('room_types','room_types.id','=','rooms.room_type_id')->select('reservations.id','reservations.check_in', 'reservations.check_out', 'reservations.days', 'reservations.paid', 'reservations.reservation_status', 'reservations.grand_total', 'reservations.reservation_type', 'reservations.created_by', 'guests.full_name','rooms.name as room_name','reservation_details.price_per_day','room_types.name as room_type')->where('reservations.reservation_status','confirmed')->where('reservations.check_out','=',date("Y-m-d"))->orderBy('reservations.check_in','asc')->get();
         // dd($reservation_details);
 
+        $yesterdays_payments_count=0;
         $yesterdays_res_count=0;
         $yesterdays_detail_count=0;
         $stay_over_res_count=0;
@@ -887,6 +927,7 @@ class CommonController extends Controller
         $checking_out_res_count=0;
         $checking_out_detail_count=0;
 
+        $yesterdays_payments_body="";
         $yesterdays_res_body="";
         $yesterdays_detail_body="";
         $stay_over_res_body="";
@@ -897,7 +938,7 @@ class CommonController extends Controller
         $checking_out_detail_body="";
 
         foreach($yesterdays_reservations as $reservation){
-            $yesterdays_res_body.="<tr><td>".($yesterdays_res_count+1)."</td><td>".($reservation->full_name ?? "")."</td><td>".($reservation->details->count() ?? 0)."</td><td>".($reservation->days ?? 0)."</td><td>".ucfirst($reservation->payment_method ?? "Undefined")."</td><td>GHS ".(number_format($reservation->grand_total,2) ?? 0.00)."</td><td>GHS ".(number_format($reservation->amount_paid,2) ?? 0.00)."</td><td>GHS ".(number_format($reservation->balance,2) ?? 0.00)."</td><td>".($reservation->vat_invoice_number ?? "Undefined")."</td></tr>";
+            $yesterdays_res_body.="<tr><td>".($reservation->id)."</td><td>".($reservation->full_name ?? "")."</td><td>".($reservation->details->count() ?? 0)."</td><td>".($reservation->days ?? 0)."</td><td>".ucfirst($reservation->reservation_type ?? "Undefined")."</td><td>GHS ".(number_format($reservation->grand_total,2) ?? 0.00)."</td></tr>";
             $yesterdays_res_count++;
         }
         foreach($yesterdays_reservation_details as $detail){
@@ -905,8 +946,13 @@ class CommonController extends Controller
             $yesterdays_detail_count++;
         }
 
+        foreach($yesterdays_payments as $payment){
+            $yesterdays_payments_body.="<tr><td>".($yesterdays_payments_count+1)."</td><td>".ucfirst($payment->payment_type_id ?? 'Undefined')."</td><td>".($payment->provider ?? 'Undefined')."</td><td>".ucfirst($payment->payment_type ?? "Undefined")."</td><td>GHS ".(number_format(($payment->amount/100),2) ?? 0.00)."</td></tr>";
+            $yesterdays_payments_count++;
+        }
+
         foreach($stay_over_reservations as $reservation){
-            $stay_over_res_body.="<tr><td>".($stay_over_res_count+1)."</td><td>".($reservation->full_name ?? "")."</td><td>".($reservation->details->count() ?? 0)."</td><td>".($reservation->check_in ?? "Undefined")."</td><td>".($reservation->check_out ?? "Undefined")."</td><td>GHS ".(number_format($reservation->amount_paid,2) ?? 0.00)."</td><td>GHS ".(number_format($reservation->balance,2) ?? 0.00)."</td></tr>";
+            $stay_over_res_body.="<tr><td>".($reservation->id)."</td><td>".($reservation->full_name ?? "")."</td><td>".($reservation->details->count() ?? 0)."</td><td>".($reservation->check_in ?? "Undefined")."</td><td>".($reservation->check_out ?? "Undefined")."</td></tr>";
             $stay_over_res_count++;
         }
         foreach($stay_over_reservation_details as $detail){
@@ -915,7 +961,7 @@ class CommonController extends Controller
         }
 
         foreach($checking_in_reservations as $reservation){
-            $checking_in_res_body.="<tr><td>".($checking_in_res_count+1)."</td><td>".($reservation->full_name ?? "")."</td><td>".($reservation->details->count() ?? 0)."</td><td>".($reservation->check_in ?? "Undefined")."</td><td>".($reservation->check_out ?? "Undefined")."</td><td>".ucfirst($reservation->payment_method ?? "Undefined")."</td><td>GHS ".(number_format($reservation->grand_total,2) ?? 0.00)."</td><td>GHS ".(number_format($reservation->amount_paid,2) ?? 0.00)."</td><td>GHS ".(number_format($reservation->balance,2) ?? 0.00)."</td></tr>";
+            $checking_in_res_body.="<tr><td>".($reservation->id)."</td><td>".($reservation->full_name ?? "")."</td><td>".($reservation->details->count() ?? 0)."</td><td>".($reservation->check_in ?? "Undefined")."</td><td>".($reservation->check_out ?? "Undefined")."</td><td>".ucfirst($reservation->reservation_type ?? "Undefined")."</td><td>GHS ".(number_format($reservation->grand_total,2) ?? 0.00)."</td></tr>";
             $checking_in_res_count++;
         }
         foreach($checking_in_reservation_details as $detail){
@@ -924,7 +970,7 @@ class CommonController extends Controller
         }
 
         foreach($checking_out_reservations as $reservation){
-            $checking_out_res_body.="<tr><td>".($checking_out_res_count+1)."</td><td>".($reservation->full_name ?? "")."</td><td>".($reservation->details->count() ?? 0)."</td><td>".($reservation->check_in ?? "Undefined")."</td><td>".($reservation->check_out ?? "Undefined")."</td><td>".ucfirst($reservation->payment_method ?? "Undefined")."</td><td>GHS ".(number_format($reservation->grand_total,2) ?? 0.00)."</td><td>GHS ".(number_format($reservation->amount_paid,2) ?? 0.00)."</td><td>GHS ".(number_format($reservation->balance,2) ?? 0.00)."</td></tr>";
+            $checking_out_res_body.="<tr><td>".($reservation->id)."</td><td>".($reservation->full_name ?? "")."</td><td>".($reservation->details->count() ?? 0)."</td><td>".($reservation->check_in ?? "Undefined")."</td><td>".($reservation->check_out ?? "Undefined")."</td><td>".ucfirst($reservation->reservation_type ?? "Undefined")."</td><td>GHS ".(number_format($reservation->grand_total,2) ?? 0.00)."</td></tr>";
             $checking_out_res_count++;
         }
         foreach($checking_out_reservation_details as $detail){
@@ -937,6 +983,9 @@ class CommonController extends Controller
         $summary['yesterdays_res_count'] = $yesterdays_res_count;
         $summary['yesterdays_detail_body'] = $yesterdays_detail_body;
         $summary['yesterdays_detail_count'] = $yesterdays_detail_count;
+
+        $summary['yesterdays_payments_body'] = $yesterdays_payments_body;
+        $summary['yesterdays_payments_count'] = $yesterdays_payments_count;
 
         $summary['stay_over_res_body'] = $stay_over_res_body;
         $summary['stay_over_res_count'] = $stay_over_res_count;

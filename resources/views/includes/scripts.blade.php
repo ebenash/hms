@@ -65,7 +65,7 @@
             buttonsStyling: !1,
             // icon: 'warning',
             showCancelButton: true,
-            confirmButtonText: 'Yes, delete it!',
+            confirmButtonText: 'Yes, Please Proceed!',
             customClass: {
                 confirmButton: "btn btn-lg btn-primary m-1",
                 cancelButton: "btn btn-lg btn-alt-primary m-1",
@@ -86,36 +86,70 @@
             }
         });
     }
-    function confimdelete(link,success = null) {
-        swalconfirm("Are you sure?","Once deleted, you will not be able to recover this record!","warning")
-        .then((willDelete) => {
-            if (willDelete.isConfirmed) {
-                $.ajax({
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
-                    url: link,
-                    type: 'POST',
-                    data: '_method=DELETE',
-                    success: function (response) {
-                        if (response) {
-                           swalnotify("Done!", "Your record has been deleted!","success").then((okay) => {
-                               if (success) {
-                                    return location.href = success;
-                               } else {
-                                    return location.reload();
-                               }
+        function confimdelete(link,success = null) {
+            // console.log(success);
+            swalconfirm("Are you sure?","Once deleted, you will not be able to recover this record!","warning")
+            .then((willDelete) => {
+                if (willDelete.isConfirmed) {
+                    $.ajax({
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                        url: link,
+                        type: 'POST',
+                        data: '_method=DELETE',
+                        success: function (response) {
+                            if (response) {
+                            swalnotify("Done!", "Your record has been deleted!","success").then((okay) => {
+                                if (success) {
+                                        return location.href = success;
+                                } else {
+                                        return location.reload();
+                                }
 
-                           });
-                        } else {
-                           swalnotify("Error!", "There was an error performing the delete! Please try again later","error");
-                        }
-                    }.bind(this)
-                })
-            } else {
-                swalnotify("Cancelled!", "Delete was cancelled!", "error");
-            }
-        });
+                            });
+                            } else {
+                            swalnotify("Error!", "There was an error performing the delete! Please try again later","error");
+                            }
+                        }.bind(this)
+                    })
+                } else {
+                    swalnotify("Cancelled!", "Delete was cancelled!", "error");
+                }
+            });
+        }
+
+        function cancelReservation(link,success = null) {
+            // console.log(success);
+            swalconfirm("Cancel Reservation?","Are you sure you want to cancel this reservation?","warning")
+            .then((willCanel) => {
+                if (willCanel.isConfirmed) {
+                    $.ajax({
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                        url: link,
+                        type: 'POST',
+                        data: '_method=POST',
+                        success: function (response) {
+                            if (response) {
+                            swalnotify("Done!", "Your record has been cancelled!","success").then((okay) => {
+                                if (success) {
+                                        return location.href = success;
+                                } else {
+                                        return location.reload();
+                                }
+
+                            });
+                            } else {
+                            swalnotify("Error!", "There was an error performing the cancel! Please try again later","error");
+                            }
+                        }.bind(this)
+                    })
+                } else {
+                    swalnotify("Cancelled!", "Delete was cancelled!", "error");
+                }
+            });
         }
 
         $(".table").addClass("compact nowrap w-100");

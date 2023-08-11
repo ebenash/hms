@@ -26,7 +26,7 @@ class ReservationsFactory extends Factory
             'discount' => null,
             'currency' => 'GHS',
             'grand_total' => $this->faker->numberBetween(500,1500),
-            'payment_method' => 'paystack',
+            'reservation_type' => 'default',
             'company_id' => 1,
             'created_by' => 1,
         ];

@@ -104,15 +104,16 @@ class ReservationsController extends CommonController
     }
     public function confirmed(Request $request)
     {
-        $reservations = Reservations::join('guests','reservations.guest_id','=','guests.id')->select('reservations.*','guests.full_name')->where('reservations.company_id',auth()->user()->company->id)->where('reservations.reservation_status','confirmed')->where('reservations.check_in','>=',date("Y-m-d", strtotime('-5 days')));
+        $reservations = Reservations::join('guests','reservations.guest_id','=','guests.id')->select('reservations.*','guests.full_name')->where('reservations.company_id',auth()->user()->company->id)->where('reservations.reservation_status','confirmed')->where('reservations.check_in','>=',date("Y-m-d"))->orderBy('check_in','asc');
         $response['filter_type'] = 'confirmed';
-        // dd($response);
+        // dd($reservations->get());
         $data = [
             'all_rooms' => Rooms::where('status',1)->where('company_id',auth()->user()->company->id)->orderBy('name','asc')->get(),
             'all_roomtypes' => RoomTypes::where('company_id',auth()->user()->company->id)->get(),
-            'all_reservations' => $reservations->orderBy('check_in','asc')->paginate(50),
+            'all_reservations' => $reservations->paginate(50),
             'filter' => $response
         ];
+        // dd($data);
         return view('reservations.list',$data);
     }
 
@@ -149,7 +150,7 @@ class ReservationsController extends CommonController
     public function pending(Request $request)
     {
         //
-        $reservations = Reservations::join('guests','reservations.guest_id','=','guests.id')->select('reservations.*','guests.full_name')->where('reservations.company_id',auth()->user()->company->id)->where('reservations.reservation_status','pending')->where('reservations.check_in','>=',date("Y-m-d", strtotime('-5 days')));
+        $reservations = Reservations::join('guests','reservations.guest_id','=','guests.id')->select('reservations.*','guests.full_name')->where('reservations.company_id',auth()->user()->company->id)->where('reservations.reservation_status','pending')->where('reservations.check_in','>=',date("Y-m-d"));
         $response['filter_type'] = 'pending';
 
         $data = [
@@ -233,11 +234,11 @@ class ReservationsController extends CommonController
             // 'children1' => 'required',
             // 'total_price1' => 'required',
             'roomtypecount' => 'required',
-            'amount_paid' => 'required',
-            'balance' => 'required',
+            // 'amount_paid' => 'required',
+            // 'balance' => 'required',
             'grand_total' => 'required',
-            'payment_type' => 'required',
-            'status' => 'required',
+            'reservation_type' => 'required',
+            // 'status' => 'required',
             'signed_by' => 'required',
         ]);
 
@@ -262,22 +263,32 @@ class ReservationsController extends CommonController
                 'check_in' => $check_in,
                 'check_out' => $check_out,
                 'days' => $days,
-                'reservation_status' => $request->input('status'),
+                'reservation_status' => $request->input('reservation_type') == 'expedia' || $request->input('reservation_type') == 'booking.com' || $request->input('reservation_type') == 'complementary' || $request->input('reservation_type') == 'special' ? 'confirmed' : 'pending',
                 'currency' => "GHS",
                 'grand_total' => $request->input('grand_total'),
-                'amount_paid' => $request->input('amount_paid'),
-                'balance' => $request->input('balance'),
-                'payment_method' => $request->input('payment_type'),
+                'reservation_type' => $request->input('reservation_type'),
                 'invoice_sent' => false,
-                'paid' => $request->input('payment_type') != 'paystack' && ($request->input('status') == 'confirmed' && $request->input('balance') == 0) ? 'full' : ($request->input('amount_paid') != 0 && $request->input('status') == 'confirmed' ? 'part': 'pending'),
+                'paid' => $request->input('reservation_type') != 'paystack' && ($request->input('status') == 'confirmed' && $request->input('balance') == 0) ? 'full' : ($request->input('amount_paid') != 0 && $request->input('status') == 'confirmed' ? 'part': 'pending'),
                 'notes' => $request->input('notes') ?? "",
-                'vat_invoice_number' => $request->input('vat_invoice_number'),
                 'ota_reservation_number' => $request->input('ota_reservation_number'),
-                'signed_by' => $request->input('signed_by'),
+                'signed_by' => ucwords(strtolower($request->input('signed_by'))),
                 'company_id' => auth()->user()->company->id,
                 'created_by' => auth()->user()->id,
                 'created_at' => $this->todaydatetime(),
             ]);
+
+            if($request->input('reservation_type') == 'expedia'){
+                DB::table('payments')->insert([
+                    'currency' => 'GHS',
+                    'provider' => 'expedia',
+                    'payment_type' => 'reservation',
+                    'payment_type_id' => $reservation_id,
+                    'amount' => $request->input('grand_total')*100,
+                    'received_by' => 'Expedia Collect',
+                    'status' => 'success',
+                    'created_at' => $this->todaydatetime(),
+                ]);
+            }
 
             for ($i=1; $i < $request->input('roomtypecount')+1; $i++) {
                 # code...
@@ -363,7 +374,7 @@ class ReservationsController extends CommonController
 
             DB::commit();
 
-            if($request->input('payment_type') == 'paystack'){
+            if($request->input('reservation_type') == 'paystack'){
                 $this->send_feedback_to_guest($reservation_id,'invoice');
             }
 
@@ -373,7 +384,7 @@ class ReservationsController extends CommonController
             return back()->with('error','Could Not Record Reservation.');
         }
         // dd("Well");
-        return redirect()->route('reservations-calendar')->with('success','Reservation Record Saved Successfully');
+        return redirect()->route('reservations-edit',$reservation_id)->with('success','Reservation Record Saved Successfully');
     }
     public function request_update(Request $request, $id)
     {
@@ -402,11 +413,10 @@ class ReservationsController extends CommonController
 
                 $reservation =[
                     'grand_total' => $grand_total,
-                    'balance' => $request->input('balance'),
-                    'amount_paid' => $request->input('amount_paid'),
-                    'signed_by' => $request->input('signed_by'),
-                    'signed_by' => $resrequest->signed_by != "" ? ", ".$request->input('signed_by') : $request->input('signed_by'),
+                    'signed_by' => ucwords(strtolower($request->input('signed_by'))),
                 ];
+
+                // dd($reservation);
 
                 $reservation_details = array();
 
@@ -414,7 +424,7 @@ class ReservationsController extends CommonController
                     # code...
                     // $reservation_details = array();
                     $resdetails = ReservationDetails::where('reservations_id',$id)->where('room_type_id',$request->input('room_type'.$i))->whereNull('room_id')->get();
-                    // dump($resdetails);
+                    // dd($resdetails);
                     if (count($request->input('room'.$i)) != $resdetails->count()) {
                         return back()->with('error','Selected Number Of Rooms for '.($resdetails->first()->roomtype->name ?? 'Entry').' Does Not Match Number Of Rooms Requested By Guest');
                     }
@@ -452,17 +462,19 @@ class ReservationsController extends CommonController
                     DB::table('reservation_details')->where('reservations_id',$id)->delete();
                     DB::table('reservation_details')->insert($reservation_details);
                 }
-                DB::commit();
 
                 if(!$resrequest->invoice_sent){
                     $feedbacksent = $this->send_feedback_to_guest($id,'invoice');
                 }else{
                     $feedbacksent = true;
                 }
+
+                DB::commit();
+
                 if($feedbacksent){
-                    return redirect()->route('reservations-calendar')->with('success','Reservation Record Updated Successfully');
+                    return redirect()->route('reservations-edit',$id)->with('success','Reservation Record Updated Successfully');
                 }else{
-                    return redirect()->route('reservations-calendar')->with('warning','Reservation Record Updated But Could Not Send Feedback To Guest.');
+                    return redirect()->route('reservations-edit',$id)->with('warning','Reservation Record Updated But Could Not Send Feedback To Guest.');
                 }
             }
 
@@ -485,7 +497,7 @@ class ReservationsController extends CommonController
         $data = [
             'all_rooms' => Rooms::where('status',1)->where('company_id',auth()->user()->company->id)->orderBy('name','asc')->get(),
             'all_roomtypes' => RoomTypes::where('company_id',auth()->user()->company->id)->get(),
-            'reservation' => Reservations::where('id',$id)->with(['details','rentals','expenses'])->first(),
+            'reservation' => Reservations::where('id',$id)->with(['details','rentals','expenses','payments','success_payments'])->first(),
             'distinctdetails' => ReservationDetails::where('reservations_id',$id)->groupBy('room_type_id')->get(),
             'show' => 'show'
         ];
@@ -516,13 +528,15 @@ class ReservationsController extends CommonController
         $limit = 1000;
         // $reservations = [];//$this->mysqli_fetch_normal("select `reservations`.*, `guests`.`full_name`, `rooms`.`name` as `roomname` from `reservations` inner join `guests` on `reservations`.`guest_id` = `guests`.`id` left join `rooms` on `reservations`.`room_id` = `rooms`.`id` where `reservations`.`company_id` = ".auth()->user()->company->id." and `reservations`.`check_in` > '".date("Y-m-d", strtotime('-30 days'))."' order by `reservations`.`check_in` asc limit ".$limit."");
 
-        // $reservations = DB::table('reservations')->join('guests','reservations.guest_id','=','guests.id')->join('reservation_details','reservations.id','=','reservation_details.reservations_id')->leftJoin('rooms','reservation_details.room_id','=','rooms.id')->select('reservations.id','reservations.check_in', 'reservations.check_out', 'reservations.days', 'reservations.paid', 'reservations.reservation_status', 'reservations.grand_total', 'reservations.amount_paid', 'reservations.balance', 'reservations.payment_method', 'reservations.created_by', 'guests.full_name','rooms.name as roomname')->where('reservations.company_id',auth()->user()->company->id)->where('reservations.check_in','>',date("Y-m-d", strtotime('-30 days')))->orderBy('reservations.check_in','asc')->limit($limit)->get();
+        // $reservations = DB::table('reservations')->join('guests','reservations.guest_id','=','guests.id')->join('reservation_details','reservations.id','=','reservation_details.reservations_id')->leftJoin('rooms','reservation_details.room_id','=','rooms.id')->select('reservations.id','reservations.check_in', 'reservations.check_out', 'reservations.days', 'reservations.paid', 'reservations.reservation_status', 'reservations.grand_total', 'reservations.amount_paid', 'reservations.balance', 'reservations.reservation_type', 'reservations.created_by', 'guests.full_name','rooms.name as roomname')->where('reservations.company_id',auth()->user()->company->id)->where('reservations.check_in','>',date("Y-m-d", strtotime('-30 days')))->orderBy('reservations.check_in','asc')->limit($limit)->get();
         $reservations = Reservations::where('reservations.company_id',auth()->user()->company->id)->where('reservations.check_in','>',date("Y-m-d", strtotime('-60 days')))->with(['guest','details','rentals'])->orderBy('reservations.check_in','asc')->limit($limit)->get();
 
         $callendar_reservation_list = [];
         // dd($reservations);
 
         foreach ($reservations as $key => $reservation) {
+            $amtpaid = $reservation->success_payments->sum('amount')/100;
+
             $rooms = "";
             $rentals = "";
             foreach ($reservation->details as $detail){
@@ -536,25 +550,25 @@ class ReservationsController extends CommonController
             // dd($reservation);
 
 
-            if($reservation->reservation_status == "pending"){
+            if($reservation->reservation_type == "complementary"){
+                $color = ['color' => '#20368b;','textColor' => '#ffffff','url' => (auth()->user()->can('view reservations') ? route('reservations-show',$reservation->id) : '#')];
+            }elseif($reservation->reservation_status == "pending"){
                 if(strtotime($reservation->check_in) < strtotime(date("Y-m-d"))){
                     $color = ['color' => '#FF0000','textColor' => '#fff','url' => (auth()->user()->can('view reservations') ? route('reservations-show',$reservation->id) : '#')];
                 }else{
                     $color = ['color' => '#f3b760','textColor' => '#FF0000','url' => (auth()->user()->can('respond to reservation requests') ? ($reservation->created_by==0 ? route('reservations-view-request',$reservation->id) : route('reservations-show',$reservation->id)) : route('reservations-show',$reservation->id))];
                 }
-            }else if($reservation->payment_method == "complementary"){
-                $color = ['color' => '#20368b;','textColor' => '#ffffff','url' => (auth()->user()->can('view reservations') ? route('reservations-show',$reservation->id) : '#')];
-            }else if($reservation->reservation_status == "confirmed" && $reservation->paid == "part"){
+            }else if($reservation->reservation_status == "confirmed" && ($amtpaid > 0 && $amtpaid < $reservation->grand_total)){
                 $color = ['color' => '#fffb00','textColor' => '#46c37b','url' => (auth()->user()->can('view reservations') ? route('reservations-show',$reservation->id) : '#')];
-            }else if($reservation->reservation_status == "confirmed" && $reservation->paid == "full"){
+            }else if($reservation->reservation_status == "confirmed" && $amtpaid >= $reservation->grand_total){
                 $color = ['color' => '#46c37b','textColor' => '#ffffff','url' => (auth()->user()->can('view reservations') ? route('reservations-show',$reservation->id) : '#')];
-            }else if($reservation->reservation_status == "confirmed" && $reservation->paid == "pending"){
+            }else if($reservation->reservation_status == "confirmed" && $amtpaid <= 0){
                 $color = ['color' => '#fffb00','textColor' => '#FF0000','url' => (auth()->user()->can('view reservations') ? route('reservations-show',$reservation->id) : '#')];
             }else{
                 $color = ['color' => '#d26a5c','textColor' => '#ffffff','url' => (auth()->user()->can('view reservations') ? route('reservations-show',$reservation->id) : '#')];
             }
             $callendar_reservation_list[] = Calendar::event(
-                "#".$reservation->id." ".$reservation->guest->full_name."'s ".(($reservation->reservation_status == "pending" && $reservation->created_by==0) ? (strtotime($reservation->check_in) < strtotime(date("Y-m-d")) ? 'Expired Request: ' : 'Request: ') :'Reservation: ').($rooms != "" ? 'Rooms - ':'').($rooms != "" ? "[".$rooms."]" : ($rentals != "" ? "" : "Unassigned"))." ".($rentals != "" ? 'Rentals - ':'').($rentals != "" ? "[".$rentals."]" : "")." (".ucfirst($reservation->reservation_status)." - ".ucfirst($reservation->paid)." Payment) ".($reservation->payment_method ? ucfirst($reservation->payment_method) : '')."",
+                "#".$reservation->id." ".$reservation->guest->full_name."'s ".(($reservation->reservation_status == "pending" && $reservation->created_by==0) ? (strtotime($reservation->check_in) < strtotime(date("Y-m-d")) ? 'Expired Request: ' : 'Request: ') :'Reservation: ').($rooms != "" ? 'Rooms - ':'').($rooms != "" ? "[".$rooms."]" : ($rentals != "" ? "" : "Unassigned"))." ".($rentals != "" ? 'Rentals - ':'').($rentals != "" ? "[".$rentals."]" : "")." (".ucfirst($reservation->reservation_status)." - ".($amtpaid >= $reservation->grand_total ? 'Full' : ($amtpaid <= 0 ? 'Pending' : 'Part'))." Payment) ".($reservation->reservation_type ? ucfirst($reservation->reservation_type) : '')."",
                 true,
                 new \DateTime($reservation->check_in),
                 new \DateTime($reservation->check_out.' +1 day'),
@@ -609,11 +623,11 @@ class ReservationsController extends CommonController
             // 'children1' => 'required',
             // 'total_price1' => 'required',
             'roomtypecount' => 'required',
-            'amount_paid' => 'required',
-            'balance' => 'required',
+            // 'amount_paid' => 'required',
+            // 'balance' => 'required',
             'grand_total' => 'required',
-            'payment_type' => 'required',
-            'status' => 'required',
+            'reservation_type' => 'required',
+            // 'status' => 'required',
             'signed_by' => 'required',
         ]);
 
@@ -638,17 +652,14 @@ class ReservationsController extends CommonController
                 'check_in' => $check_in,
                 'check_out' => $check_out,
                 'days' => $days,
-                'reservation_status' => $request->input('status'),
+                'reservation_status' => $request->input('reservation_type') == 'expedia' || $request->input('reservation_type') == 'booking.com' || $request->input('reservation_type') == 'complementary' || $request->input('reservation_type') == 'special' ? 'confirmed' : $reservation->reservation_status,
                 'grand_total' => $request->input('grand_total'),
-                'amount_paid' => $request->input('amount_paid'),
-                'balance' => $request->input('balance'),
-                'payment_method' => $request->input('payment_type'),
-                // 'paid' => $request->input('payment_type') != 'paystack' && ($request->input('status') == 'confirmed' && $request->input('balance') == 0) ? 'full' : ($request->input('amount_paid') != 0 && $request->input('status') == 'confirmed' ? 'part': 'pending'),
+                'reservation_type' => $request->input('reservation_type'),
+                // 'paid' => $request->input('reservation_type') != 'paystack' && ($request->input('status') == 'confirmed' && $request->input('balance') == 0) ? 'full' : ($request->input('amount_paid') != 0 && $request->input('status') == 'confirmed' ? 'part': 'pending'),
                 'paid' => ($request->input('status') == 'confirmed' && $request->input('balance') == 0) ? 'full' : ($request->input('amount_paid') != 0 && $request->input('status') == 'confirmed' ? 'part': 'pending'),
                 'notes' => $request->input('notes') ?? $reservation->notes,
-                'vat_invoice_number' => $request->input('vat_invoice_number'),
                 'ota_reservation_number' => $request->input('ota_reservation_number'),
-                'signed_by' => $reservation->signed_by.", ".$request->input('signed_by'),
+                'signed_by' => ucwords(strtolower($reservation->signed_by.", ".$request->input('signed_by'))),
             ]);
 
             for ($i=1; $i < $request->input('roomtypecount')+1; $i++) {
@@ -723,16 +734,17 @@ class ReservationsController extends CommonController
                 $totalamount += $total_price;
             }
 
+            DB::table('reservation_details')->where('reservations_id',$id)->delete();
+            DB::table('reservation_rentals')->where('reservations_id',$id)->delete();
+            DB::table('reservation_expenses')->where('reservations_id',$id)->delete();
+
             if(count($reservation_details) > 0){
-                DB::table('reservation_details')->where('reservations_id',$id)->delete();
                 DB::table('reservation_details')->insert($reservation_details);
             }
             if(count($reservation_rentals) > 0){
-                DB::table('reservation_rentals')->where('reservations_id',$id)->delete();
                 DB::table('reservation_rentals')->insert($reservation_rentals);
             }
             if(count($reservation_expenses) > 0){
-                DB::table('reservation_expenses')->where('reservations_id',$id)->delete();
                 DB::table('reservation_expenses')->insert($reservation_expenses);
             }
 
@@ -758,8 +770,28 @@ class ReservationsController extends CommonController
         //
         try{
             DB::beginTransaction();
+            DB::table('payments')->where('payment_type_id',$id)->where('payment_type','sale')->delete();
             DB::table('reservation_details')->where('reservations_id',$id)->delete();
+            DB::table('reservation_rentals')->where('reservations_id',$id)->delete();
+            DB::table('reservation_expenses')->where('reservations_id',$id)->delete();
             DB::table('reservations')->where('id',$id)->delete();
+            DB::commit();
+            return true;
+        }catch(\Exception $e){
+            $this->ExceptionHandler($e);
+            DB::rollback();
+            return false;
+        }
+    }
+
+    public function cancel_reservation($id)
+    {
+        //
+        try{
+            DB::beginTransaction();
+            DB::table('reservations')->where('id',$id)->update([
+                'reservation_status' => 'cancelled'
+            ]);
             DB::commit();
             return true;
         }catch(\Exception $e){
@@ -877,6 +909,45 @@ class ReservationsController extends CommonController
         return view('homepage.reservation',$data);
     }
 
+
+
+    public function homepage_availability_filter(Request $request)
+    {
+        //
+        $request->validate([
+            'bookNowArrival' => 'required|date_format:"d/m/Y"',
+            'bookNowDeparture' => 'required|date_format:"d/m/Y"|after:bookNowArrival',
+            'bookNowAdults' => 'required',
+            'bookNowKids' => 'required'
+        ]);
+
+        $response = $request->all();
+        // dd($response);
+        if(!empty($response)){
+            $check_in = date_format(date_create(str_replace('/', '-',$request->input('bookNowArrival'))),"Y/m/d H:i:s");
+            $check_out = date_format(date_create(str_replace('/', '-',$request->input('bookNowDeparture'))),"Y/m/d H:i:s");
+            $notavailable = Rooms::join('reservation_details','rooms.id','=','reservation_details.room_id')->join('reservations','reservation_details.reservations_id','=','reservations.id')->where('rooms.status', 1)->where('reservations.reservation_status', 'confirmed')->select('rooms.id','reservations.check_in','reservations.check_out')->where('check_in', '<', $check_out)->where('check_out', '>=', $check_in)->get();
+
+            $notavailids = array_column($notavailable->toArray(), 'id');
+            $available = Rooms::join('room_types','rooms.room_type_id','=','room_types.id')->where('rooms.status', 1)->select('room_types.id','room_types.bed_type','room_types.name as room_type','room_types.category','room_types.price_from','room_types.image_one',DB::raw('count(1) as count'))->whereNotIn('rooms.id',$notavailids)->groupBy('room_type');
+
+            $data = [
+                'filter' => $this->objectify([
+                    'bookNowArrival'=> $response['bookNowArrival'] ?? "",
+                    'bookNowDeparture'=> $response['bookNowDeparture'] ?? null,
+                    'bookNowAdults'=> $response['bookNowAdults'] ?? null,
+                    'bookNowKids'=> $response['bookNowKids'] ?? null,
+                ]),
+                'available' => $available->orderBy('room_types.price_from','asc')->get(),
+                'ref'=>$response['refRoomType'] ?? null
+            ];
+            // dd($data);
+            return view('homepage.reservation',$data);
+        }else{
+            return view('homepage.reservation')->with('warning','No Reservation Data Provided');
+        }
+    }
+
     public function homepage_reservation_store(Request $request)
     {
         //
@@ -933,9 +1004,7 @@ class ReservationsController extends CommonController
                 'reservation_status' => $request->input('status'),
                 'currency' => "GHS",
                 'grand_total' => null,
-                'amount_paid' => null,
-                'balance' => null,
-                'payment_method' => 'paystack',
+                'reservation_type' => 'default',
                 'reservation_status' => 'pending',
                 'paid' => 'pending',
                 'invoice_sent' => false,

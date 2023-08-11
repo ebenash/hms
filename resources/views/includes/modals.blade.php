@@ -149,13 +149,13 @@
                     </div>
                     <div class="block-content block-content-narrow">
 
-                        <form method="post" action="{{route('sale-store')}}" class="form-horizontal push-10-t">
+                        <form method="post" action="{{route('sale-store')}}" class="form-horizontal push-10-t row">
                             @csrf
-                            <div class="form-group">
-                                <label for="material-text2">Description <span class="text-danger" style="display: inline-block;">*</span></label>
-                                <input type="text" name="expense_description" class="form-control" required autocomplete="off">
+                            <div class="form-row mb-2 col-lg-12">
+                                <label for="material-text2">Description <small>(Max 50 characters)</small><span class="text-danger" style="display: inline-block;">*</span></label>
+                                <input type="text" name="expense_description" class="form-control" required autocomplete="off" maxlength="50">
                             </div>
-                            <div class="form-group">
+                            <div class="form-row mb-2 col-lg-6">
                                 <label for="material-text2">Sale Type <span class="text-danger" style="display: inline-block;">*</span></label>
                                 <select class="form-control" id="expense_type" data-placeholder="Select Sale Type.." name="expense_type" autocomplete="off" required>
                                     <option>Select Sale Type</option>
@@ -165,11 +165,11 @@
                                     <option value="other">Other</option>
                                 </select>
                             </div>
-                            <div class="form-group">
+                            <div class="form-row mb-2 col-lg-6">
                                 <label for="material-text2">Quantity <span class="text-danger" style="display: inline-block;">*</span></label>
                                 <input type="number" name="expense_quantity" id="expense_quantity" value="1" class="form-control" required autocomplete="off">
                             </div>
-                            <div class="form-group">
+                            <div class="form-row mb-2 col-lg-6">
                                 <label for="material-text2">Price <span class="text-danger" style="display: inline-block;">*</span></label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
@@ -180,7 +180,7 @@
                                     <input type="number" step="0.01" id="expense_price" name="expense_price" class="form-control text-center" required onkeyup="calcSalePrice()" placeholder="Item Price" autocomplete="off">
                                 </div>
                             </div>
-                            <div class="form-group">
+                            <div class="form-row mb-2 col-lg-6">
                                 <label for="material-text2">Total Amount <span class="text-danger" style="display: inline-block;">*</span></label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
@@ -196,15 +196,15 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="form-group">
+                            <div class="form-row mb-2 col-lg-6">
                                 <label for="material-text2">Status <span class="text-danger" style="display: inline-block;">*</span></label>
-                                <select class="form-control" id="expense_status" data-placeholder="Select Status.." name="expense_status" autocomplete="off" required>
+                                <select class="form-control" id="expense_status" readonly style="pointer-events: none;" tabindex="-1" data-placeholder="Select Status.." name="expense_status" autocomplete="off" required>
                                     <option>Select Status</option>
                                     <option value="pending">Pending</option>
-                                    <option value="paid">Paid</option>
+                                    <option value="paid" selected="selected">Paid</option>
                                 </select>
                             </div>
-                            <div class="form-group">
+                            <div class="form-row mb-2 col-lg-6">
                                 <label for="material-text2">Method <span class="text-danger" style="display: inline-block;">*</span></label>
                                 <select name="expense_payment_type" id="expense_payment_type" class="form-control" required autocomplete="off">
                                     <option value="">Select Payment Method</option>
@@ -215,7 +215,20 @@
                                     <option value="complementary">Complementary</option>
                                 </select>
                             </div>
-                            <div class="form-group text-right">
+
+                            <div class="form-row mb-2 col-lg-6">
+                                <label for="expense_reference">Reference Number</label>
+                                <input type="text" class="form-control" id="expense_reference" name="expense_reference" placeholder="Reference Number" autocomplete="off">
+                            </div>
+                            <div class="form-row mb-2 col-lg-6">
+                                <label for="expense_vat_invoice_number">Receipt Number</label>
+                                <input type="text" class="form-control" id="expense_vat_invoice_number" name="expense_vat_invoice_number" placeholder="Receipt/VAT Invoice Number" autocomplete="off">
+                            </div>
+                            <div class="form-row mb-2 col-lg-12">
+                                <label for="expense_received_by">Received By</label>
+                                <input type="text" class="form-control" id="expense_received_by" name="expense_received_by" placeholder="Payment Received By" autocomplete="off">
+                            </div>
+                            <div class="form-row mb-2 col-lg-12 text-right">
                                 <button class="btn btn-lg btn-alt-primary" type="submit">Submit</button>
                             </div>
                         </form>
@@ -319,3 +332,77 @@
         </div>
     </div>
 @endcan
+
+
+<div id="noIDModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="noIDModalTitle" aria-hidden="true">
+    <div class="modal-dialog  modal-dialog-popout">
+        <div class="modal-content">
+            <div class="block block-themed block-transparent mb-0">
+                <div class="block-content block-content-narrow">
+                    <div aria-labelledby="swal2-title" aria-describedby="swal2-content" class="swal2-popup swal2-modal swal2-icon-warning swal2-show" tabindex="-1" role="dialog" aria-live="assertive" aria-modal="true" style="display: flex;">
+                        <div class="swal2-header">
+                            <ul class="swal2-progress-steps" style="display: none;"></ul>
+                            <div class="swal2-icon swal2-error" style="display: none;"></div>
+                            <div class="swal2-icon swal2-question" style="display: none;"></div>
+                            <div class="swal2-icon swal2-warning swal2-icon-show" style="display: flex;">
+                                <div class="swal2-icon-content">!</div>
+                            </div>
+                            <div class="swal2-icon swal2-info" style="display: none;"></div>
+                            <div class="swal2-icon swal2-success" style="display: none;"></div>
+                            <img class="swal2-image" style="display: none;">
+                            <h2 class="swal2-title" id="swal2-title" style="display: flex;">ID Card Missing</h2>
+                            <button type="button" class="swal2-close" style="display: none;" aria-label="Close this dialog">×</button>
+                        </div>
+                        <div class="swal2-content">
+                            <div id="swal2-content" class="swal2-html-container" style="display: block;">
+                                The selected guest does not have an ID Card saved. Please request one from the the guest.
+                            </div>
+                        </div>
+                        <div class="swal2-actions">
+                            <button type="button" class="btn  btn-primary" data-dismiss="modal">OK</button>
+                        </div>
+                        <div class="swal2-footer" style="display: none;"></div>
+                        <div class="swal2-timer-progress-bar-container">
+                            <div class="swal2-timer-progress-bar" style="display: none;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="feedbackModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="feedbackModalTitle" aria-hidden="true">
+    <div class="modal-dialog  modal-dialog-popout">
+        <div class="modal-content">
+            <div class="block block-themed block-transparent mb-0">
+                <div class="block-header bg-primary-dark">
+                    <h3 class="block-title">Send App/Guest Feedback</h3>
+                    <div class="block-options">
+                        <button type="button" class="btn-block-option" data-dismiss="modal" aria-label="Close">
+                            <i class="si si-close"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="block-content block-content-narrow">
+                    <form method="POST" action="{{route('feedback')}}" enctype="multipart/form-data">
+                        @csrf
+                        <div class="form-group">
+                            <label class="label" for="name">Feedback Message  <span style="color:red">*</span></label>
+                            <textarea name="feedback" class="form-control" rows="5" required="required"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="material-text2">Reported By <span class="text-danger" style="display: inline-block;">*</span></label>
+                            <input type="text" name="reported_by" class="form-control" required autocomplete="off" maxlength="50">
+                        </div>
+                        <div class="form-group text-right">
+                            <button type="button" class="btn  btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="submit" class="btn  btn-primary">Send</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -51,7 +51,7 @@ class AccountingController extends CommonController
         //
         $response = $request->all();
 
-        $sales = ReservationExpenses::leftJoin('reservations','reservations.id','=','reservation_expenses.reservations_id')->select(DB::raw('reservation_expenses.id, reservation_expenses.reservations_id as reservations_id, IFNULL(reservation_expenses.status,reservations.paid) as paid, IFNULL(reservation_expenses.status,reservations.reservation_status) as status, IFNULL(reservation_expenses.method,reservations.payment_method) as method, reservation_expenses.created_at,reservation_expenses.expense_type,reservation_expenses.description,reservation_expenses.quantity,reservation_expenses.price,reservation_expenses.total_price'));
+        $sales = ReservationExpenses::leftJoin('reservations','reservations.id','=','reservation_expenses.reservations_id')->select(DB::raw('reservation_expenses.id, reservation_expenses.reservations_id as reservations_id, IFNULL(reservations.grand_total, 0) as grand_total, IFNULL(reservation_expenses.status,reservations.paid) as paid, IFNULL(reservation_expenses.status,reservations.reservation_status) as status, IFNULL(reservation_expenses.method,"View Payments in Reservation") as method, reservation_expenses.created_at,reservation_expenses.expense_type,reservation_expenses.description,reservation_expenses.quantity,reservation_expenses.price,reservation_expenses.total_price, IFNULL(reservations.reservation_type,"sale") as reservation_type'));
             // ->where('reservations.reservation_status','confirmed')->orWhere('reservation_expenses.status','paid')
             // ->get()
         if($request->all()){
@@ -72,7 +72,7 @@ class AccountingController extends CommonController
             if(isset($response['search'])){
                 $search = $response['search'];
                 $sales->where(function ($query) use ($search){
-                    $query->where('reservation_expenses.description', 'like', '%'.$search.'%')->orWhere('reservation_expenses.expense_type', 'like', '%'.$search.'%')->orWhere('reservation_expenses.method', 'like', '%'.$search.'%')->orWhere('reservations.payment_method', 'like', '%'.$search.'%');
+                    $query->where('reservation_expenses.description', 'like', '%'.$search.'%')->orWhere('reservation_expenses.expense_type', 'like', '%'.$search.'%')->orWhere('reservation_expenses.method', 'like', '%'.$search.'%')->orWhere('reservations.reservation_type', 'like', '%'.$search.'%');
                 });
             }
             if (isset($response['filter_type']) && $response['filter_type'] == 'paid') {
@@ -113,7 +113,7 @@ class AccountingController extends CommonController
         //
         $response = $request->all();
 
-        $sales = ReservationExpenses::leftJoin('reservations','reservations.id','=','reservation_expenses.reservations_id')->select(DB::raw('reservation_expenses.id, reservation_expenses.reservations_id as reservations_id, IFNULL(reservation_expenses.status,reservations.paid) as paid, IFNULL(reservation_expenses.status,reservations.reservation_status) as status, IFNULL(reservation_expenses.method,reservations.payment_method) as method, reservation_expenses.created_at,reservation_expenses.expense_type,reservation_expenses.description,reservation_expenses.quantity,reservation_expenses.price,reservation_expenses.total_price'))->where('reservation_expenses.created_at', '<=', date('Y-m-d 23:59:59'))->where('reservation_expenses.created_at', '>=', date('Y-m-d 00:00:00'));
+        $sales = ReservationExpenses::leftJoin('reservations','reservations.id','=','reservation_expenses.reservations_id')->select(DB::raw('reservation_expenses.id, reservation_expenses.reservations_id as reservations_id, IFNULL(reservations.grand_total, 0) as grand_total, IFNULL(reservation_expenses.status,reservations.paid) as paid, IFNULL(reservation_expenses.status,reservations.reservation_status) as status, IFNULL(reservation_expenses.method,"View Payments in Reservation") as method, reservation_expenses.created_at,reservation_expenses.expense_type,reservation_expenses.description,reservation_expenses.quantity,reservation_expenses.price,reservation_expenses.total_price, IFNULL(reservations.reservation_type,"sale") as reservation_type'))->where('reservation_expenses.created_at', '<=', date('Y-m-d 23:59:59'))->where('reservation_expenses.created_at', '>=', date('Y-m-d 00:00:00'));
         $today = true;
 
         $paginate = 100;
@@ -168,18 +168,43 @@ class AccountingController extends CommonController
             'expense_total_price' => 'required',
             'expense_status' => 'required',
             'expense_payment_type' => 'required',
+            'expense_received_by' => 'required',
         ]);
 
-        $sale = new ReservationExpenses;
-        $sale->expense_type = $request->input('expense_type');
-        $sale->description = $request->input('expense_description');
-        $sale->quantity = $request->input('expense_quantity');
-        $sale->price = $request->input('expense_price');
-        $sale->total_price = $request->input('expense_total_price');
-        $sale->status = $request->input('expense_status');
-        $sale->method = $request->input('expense_payment_type');
-        $sale->created_at = $this->todaydatetime();
-        $sale->save();
+        try{
+            DB::beginTransaction();
+            $sale_id = DB::table('reservation_expenses')->insertGetId([
+                'expense_type' => $request->input('expense_type'),
+                'description' => $request->input('expense_description'),
+                'quantity' => $request->input('expense_quantity'),
+                'price' => $request->input('expense_price'),
+                'total_price' => $request->input('expense_total_price'),
+                'method' => $request->input('expense_payment_type'),
+                'status' => $request->input('expense_status'),
+                'created_at' => $this->todaydatetime(),
+            ]);
+
+            if($request->input('expense_status') == 'paid'){
+                DB::table('payments')->insert([
+                    'currency' => 'GHS',
+                    'provider' => $request->input('expense_payment_type'),
+                    'payment_type' => 'sale',
+                    'payment_type_id' => $sale_id,
+                    'amount' => $request->input('expense_total_price')*100,
+                    'reference' => $request->input('expense_reference'),
+                    'vat_invoice_number' => $request->input('expense_vat_invoice_number'),
+                    'received_by' => $request->input('expense_received_by'),
+                    'status' => 'success',
+                    'created_at' => $this->todaydatetime(),
+                ]);
+            }
+            DB::commit();
+
+        }catch(\Exception $e){
+            $this->ExceptionHandler($e);
+            DB::rollback();
+            return back()->with('error','Could Not Record Sale.');
+        }
 
         return redirect()->route('other.sales')->with('success','Sale Record Saved Successfully');
     }
@@ -266,6 +291,7 @@ class AccountingController extends CommonController
         //
         try{
             DB::table('reservation_expenses')->where('id',$id)->delete();
+            DB::table('payments')->where('payment_type_id',$id)->where('payment_type','sale')->delete();
             return true;
         }catch(\Exception $e){
             $this->ExceptionHandler($e);

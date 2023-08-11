@@ -52,5 +52,24 @@
             padding-top: 5px;
         }
 
+
+        /* #feedbackbutton {
+            position: fixed;
+            bottom: 30px;
+            right: 90px;
+            animation: shadow-pulse 1s 5;
+            z-index: 11;
+        }
+
+        @media (max-width: 1300px) {
+            #feedbackbutton {
+                position: fixed;
+                bottom: 45px;
+                right: 80px;
+                animation: shadow-pulse 1s 5;
+                z-index: 11;
+            }
+        } */
+
     </style>
 </head>

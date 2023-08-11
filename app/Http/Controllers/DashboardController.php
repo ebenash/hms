@@ -4,10 +4,14 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Reservations;
+use App\Models\Payments;
 use Illuminate\Support\Facades\Auth;
 use App\Helpers\Helper;
 use Illuminate\Support\Facades\DB;
 use Acaronlex\LaravelCalendar\Calendar;
+use App\Models\Feedback;
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\FeedbackNotification;
 
 class DashboardController extends CommonController
 {
@@ -31,7 +35,8 @@ class DashboardController extends CommonController
         //Quickly Check If Invoices Have Been Paid
         // dd($this->send_daily_admin_report());
 
-        $confirmed_reservations = Reservations::where('reservation_status','confirmed')->orderBy('created_at','desc');
+        $confirmed_reservations = Reservations::where('reservation_status','confirmed')->orderBy('created_at','desc')->with('payments','success_payments');
+        $grandconfirmed = Reservations::where('reservation_status','confirmed')->orderBy('created_at','desc')->with('payments','success_payments');
         $requests = Reservations::where('reservations.reservation_status','pending')->where('reservations.created_by',0)->where('reservations.created_at', '<=', date('Y-m-d 23:59:59'))->where('reservations.created_at', '>=', date('Y-m-d 00:00:00'))->with(['details']);
         $arrivals = Reservations::where('reservations.reservation_status','confirmed')->where('reservations.check_in', date('Y-m-d'))->with(['details']);
         $departures = Reservations::where('reservations.reservation_status','confirmed')->where('reservations.check_out', date('Y-m-d'))->with(['details']);
@@ -81,13 +86,15 @@ class DashboardController extends CommonController
         $limit = 1000;
         // $reservations = [];//$this->mysqli_fetch_normal("select `reservations`.*, `guests`.`full_name`, `rooms`.`name` as `roomname` from `reservations` inner join `guests` on `reservations`.`guest_id` = `guests`.`id` left join `rooms` on `reservations`.`room_id` = `rooms`.`id` where `reservations`.`company_id` = ".auth()->user()->company->id." and `reservations`.`check_in` > '".date("Y-m-d", strtotime('-30 days'))."' order by `reservations`.`check_in` asc limit ".$limit."");
 
-        // $reservations = DB::table('reservations')->join('guests','reservations.guest_id','=','guests.id')->join('reservation_details','reservations.id','=','reservation_details.reservations_id')->leftJoin('rooms','reservation_details.room_id','=','rooms.id')->select('reservations.id','reservations.check_in', 'reservations.check_out', 'reservations.days', 'reservations.paid', 'reservations.reservation_status', 'reservations.grand_total', 'reservations.amount_paid', 'reservations.balance', 'reservations.payment_method', 'reservations.created_by', 'guests.full_name','rooms.name as roomname')->where('reservations.company_id',auth()->user()->company->id)->where('reservations.check_in','>',date("Y-m-d", strtotime('-30 days')))->orderBy('reservations.check_in','asc')->limit($limit)->get();
+        // $reservations = DB::table('reservations')->join('guests','reservations.guest_id','=','guests.id')->join('reservation_details','reservations.id','=','reservation_details.reservations_id')->leftJoin('rooms','reservation_details.room_id','=','rooms.id')->select('reservations.id','reservations.check_in', 'reservations.check_out', 'reservations.days', 'reservations.paid', 'reservations.reservation_status', 'reservations.grand_total', 'reservations.amount_paid', 'reservations.balance', 'reservations.reservation_type', 'reservations.created_by', 'guests.full_name','rooms.name as roomname')->where('reservations.company_id',auth()->user()->company->id)->where('reservations.check_in','>',date("Y-m-d", strtotime('-30 days')))->orderBy('reservations.check_in','asc')->limit($limit)->get();
         $calendar_reservations = Reservations::where('reservations.company_id',auth()->user()->company->id)->where('reservations.check_in','>',date("Y-m-d", strtotime('-60 days')))->with(['guest','details','rentals'])->orderBy('reservations.check_in','asc')->limit($limit)->get();
 
         $callendar_reservation_list = [];
         // dd($calendar_reservations);
 
         foreach ($calendar_reservations as $key => $reservation) {
+            $amtpaid = $reservation->success_payments->sum('amount')/100;
+
             $rooms = "";
             $rentals = "";
             foreach ($reservation->details as $detail){
@@ -101,25 +108,25 @@ class DashboardController extends CommonController
             // dd($reservation);
 
 
-            if($reservation->reservation_status == "pending"){
+            if($reservation->reservation_type == "complementary"){
+                $color = ['color' => '#20368b;','textColor' => '#ffffff','url' => (auth()->user()->can('view reservations') ? route('reservations-show',$reservation->id) : '#')];
+            }else if($reservation->reservation_status == "pending"){
                 if(strtotime($reservation->check_in) < strtotime(date("Y-m-d"))){
                     $color = ['color' => '#FF0000','textColor' => '#fff','url' => (auth()->user()->can('view reservations') ? route('reservations-show',$reservation->id) : '#')];
                 }else{
                     $color = ['color' => '#f3b760','textColor' => '#FF0000','url' => (auth()->user()->can('respond to reservation requests') ? ($reservation->created_by==0 ? route('reservations-view-request',$reservation->id) : route('reservations-show',$reservation->id)) : route('reservations-show',$reservation->id))];
                 }
-            }else if($reservation->payment_method == "complementary"){
-                $color = ['color' => '#20368b;','textColor' => '#ffffff','url' => (auth()->user()->can('view reservations') ? route('reservations-show',$reservation->id) : '#')];
-            }else if($reservation->reservation_status == "confirmed" && $reservation->paid == "part"){
+            }else if($reservation->reservation_status == "confirmed" && ($amtpaid > 0 && $amtpaid < $reservation->grand_total)){
                 $color = ['color' => '#fffb00','textColor' => '#46c37b','url' => (auth()->user()->can('view reservations') ? route('reservations-show',$reservation->id) : '#')];
-            }else if($reservation->reservation_status == "confirmed" && $reservation->paid == "full"){
+            }else if($reservation->reservation_status == "confirmed" && $amtpaid >= $reservation->grand_total){
                 $color = ['color' => '#46c37b','textColor' => '#ffffff','url' => (auth()->user()->can('view reservations') ? route('reservations-show',$reservation->id) : '#')];
-            }else if($reservation->reservation_status == "confirmed" && $reservation->paid == "pending"){
+            }else if($reservation->reservation_status == "confirmed" && $amtpaid <= 0){
                 $color = ['color' => '#fffb00','textColor' => '#FF0000','url' => (auth()->user()->can('view reservations') ? route('reservations-show',$reservation->id) : '#')];
             }else{
                 $color = ['color' => '#d26a5c','textColor' => '#ffffff','url' => (auth()->user()->can('view reservations') ? route('reservations-show',$reservation->id) : '#')];
             }
             $callendar_reservation_list[] = Calendar::event(
-                "#".$reservation->id." ".$reservation->guest->full_name."'s ".(($reservation->reservation_status == "pending" && $reservation->created_by==0) ? (strtotime($reservation->check_in) < strtotime(date("Y-m-d")) ? 'Expired Request: ' : 'Request: ') :'Reservation: ').($rooms != "" ? 'Rooms - ':'').($rooms != "" ? "[".$rooms."]" : ($rentals != "" ? "" : "Unassigned"))." ".($rentals != "" ? 'Rentals - ':'').($rentals != "" ? "[".$rentals."]" : "")." (".ucfirst($reservation->reservation_status)." - ".ucfirst($reservation->paid)." Payment) ".($reservation->payment_method ? ucfirst($reservation->payment_method) : '')."",
+                "#".$reservation->id." ".$reservation->guest->full_name."'s ".(($reservation->reservation_status == "pending" && $reservation->created_by==0) ? (strtotime($reservation->check_in) < strtotime(date("Y-m-d")) ? 'Expired Request: ' : 'Request: ') :'Reservation: ').($rooms != "" ? 'Rooms - ':'').($rooms != "" ? "[".$rooms."]" : ($rentals != "" ? "" : "Unassigned"))." ".($rentals != "" ? 'Rentals - ':'').($rentals != "" ? "[".$rentals."]" : "")." (".ucfirst($reservation->reservation_status)." - ".($amtpaid >= $reservation->grand_total ? 'Full' : ($amtpaid <= 0 ? 'Pending' : 'Part'))." Payment) ".($reservation->reservation_type ? ucfirst($reservation->reservation_type) : '')."",
                 true,
                 new \DateTime($reservation->check_in),
                 new \DateTime($reservation->check_out.' +1 day'),
@@ -127,6 +134,17 @@ class DashboardController extends CommonController
                 $color
             );
         }
+
+        $overallsumgrandselect = $grandconfirmed->where('reservations.check_in','<=',date("Y-m-d"))->where('reservations.reservation_type','!=','complementary');
+        $overallsumgrand = $overallsumgrandselect->sum('grand_total');
+        $overallgrandids = array_column($overallsumgrandselect->get()->toArray(),'id');
+        $overallsumpaid = Payments::whereIn('payment_type_id',$overallgrandids)->where('payment_type', '=', 'reservation')->sum('amount');
+        // dd($confirmed_reservations->limit(10)->get());
+        $sumgrandselect =$grandconfirmed->where('reservations.check_in', '<=', date('Y-m-d'))->where('reservations.check_out', '>=', date('Y-m-d'))->where('reservations.reservation_type','!=','complementary');
+        $sumgrand = $sumgrandselect->sum('grand_total');
+        $grandids = array_column($sumgrandselect->get()->toArray(),'id');
+        $sumpaid = Payments::whereIn('payment_type_id',$grandids)->where('payment_type', '=', 'reservation')->sum('amount');
+        // dd($sumgrand);
 
         $reservations_data = [
             'count_today' => $count_today,
@@ -141,8 +159,8 @@ class DashboardController extends CommonController
             'arrivals' => $arrivals->limit(50)->get(),
             'departures' => $departures->limit(50)->get(),
             'stay_over' => $stay_over->limit(50)->get(),
-            'overall_balance' => $confirmed_reservations->where('reservations.check_in','<=',date("Y-m-d"))->where('reservations.payment_method','!=','complementary')->sum('balance'),
-            'balance' => $confirmed_reservations->where('reservations.check_in', '<=', date('Y-m-d'))->where('reservations.check_out', '>=', date('Y-m-d'))->where('reservations.payment_method','!=','complementary')->sum('balance'),
+            'overall_balance' => $overallsumgrand-($overallsumpaid/100.00),
+            'balance' => $sumgrand-($sumpaid/100.00),
             'recent_reservations' => $confirmed_reservations->where('created_at', '<=', date('Y-m-d 23:59:59'))->where('created_at', '>=', date('Y-m-d 00:00:00'))->limit(50)->get(),
             'recent_count' => $confirmed_reservations->count(),
             'recent_count_yesterday' => $confirmed_reservations->where('created_at', '<=', date('Y-m-d 23:59:59', strtotime('-1 days')))->where('created_at', '>=', date('Y-m-d 00:00:00', strtotime('-1 days')))->count(),
@@ -156,5 +174,25 @@ class DashboardController extends CommonController
         // dd($reservations_data);
 
         return view('dashboard',$reservations_data);
+    }
+
+
+    public function feedback(Request $request)
+    {
+        $reported_by = $request->input('reported_by');
+        $feedback = $request->input('feedback');
+
+        $newfeedback = new Feedback();
+        $newfeedback->reported_by = $reported_by;
+        $newfeedback->feedback = $feedback;
+        $newfeedback->save();
+
+        try{
+            Notification::route('mail', 'info@royalelmounthotel.com')->notify(new FeedbackNotification($reported_by,$feedback));
+            return back()->with('success','Feedback Sent.');
+        } catch (\Exception $e) {
+            $this->writelog("Feedback Notification Error: ".$e."\n",1);
+            return back()->with('error','Error Sending Feedback. Please Try Again.');
+        }
     }
 }

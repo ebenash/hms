@@ -69,6 +69,16 @@
         html.boxed {
             background-image: url("homepage/assets/img/patterns/<?php echo $selectedBg; ?>") !important;
         }
+
+        .loader {
+            position: fixed;
+            left: 0px;
+            top: 0px;
+            width: 100%;
+            height: 100%;
+            z-index: 9999;
+            background: url('../../media/loading/home-loader.gif') 50% 50% no-repeat rgb(249,249,249,0.7);
+        }
     </style>
     @if ($selectedBg != 'bg-1.svg' && $selectedBg != 'bg-2.svg' && $selectedBg != 'bg-7.svg'  && $selectedBg != 'bg-7.svg' )
         <style type="text/css">

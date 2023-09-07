@@ -86,149 +86,156 @@
             }
         });
     }
-        function confimdelete(link,success = null) {
-            // console.log(success);
-            swalconfirm("Are you sure?","Once deleted, you will not be able to recover this record!","warning")
-            .then((willDelete) => {
-                if (willDelete.isConfirmed) {
-                    $.ajax({
-                        headers: {
-                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                        },
-                        url: link,
-                        type: 'POST',
-                        data: '_method=DELETE',
-                        success: function (response) {
-                            if (response) {
-                            swalnotify("Done!", "Your record has been deleted!","success").then((okay) => {
-                                if (success) {
-                                        return location.href = success;
-                                } else {
-                                        return location.reload();
-                                }
-
-                            });
+    function confimdelete(link,success = null) {
+        // console.log(success);
+        swalconfirm("Are you sure?","Once deleted, you will not be able to recover this record!","warning")
+        .then((willDelete) => {
+            if (willDelete.isConfirmed) {
+                $.ajax({
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    url: link,
+                    type: 'POST',
+                    data: '_method=DELETE',
+                    success: function (response) {
+                        if (response) {
+                        swalnotify("Done!", "Your record has been deleted!","success").then((okay) => {
+                            if (success) {
+                                    return location.href = success;
                             } else {
-                            swalnotify("Error!", "There was an error performing the delete! Please try again later","error");
+                                    return location.reload();
                             }
-                        }.bind(this)
-                    })
-                } else {
-                    swalnotify("Cancelled!", "Delete was cancelled!", "error");
-                }
-            });
-        }
 
-        function cancelReservation(link,success = null) {
-            // console.log(success);
-            swalconfirm("Cancel Reservation?","Are you sure you want to cancel this reservation?","warning")
-            .then((willCanel) => {
-                if (willCanel.isConfirmed) {
-                    $.ajax({
-                        headers: {
-                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                        },
-                        url: link,
-                        type: 'POST',
-                        data: '_method=POST',
-                        success: function (response) {
-                            if (response) {
-                            swalnotify("Done!", "Your record has been cancelled!","success").then((okay) => {
-                                if (success) {
-                                        return location.href = success;
-                                } else {
-                                        return location.reload();
-                                }
-
-                            });
-                            } else {
-                            swalnotify("Error!", "There was an error performing the cancel! Please try again later","error");
-                            }
-                        }.bind(this)
-                    })
-                } else {
-                    swalnotify("Cancelled!", "Delete was cancelled!", "error");
-                }
-            });
-        }
-
-        $(".table").addClass("compact nowrap w-100");
-
-        function closeOneOpenAnotherModal(modal1,modal2) {
-            $(modal1).modal('hide');
-            $(modal2).modal('show');
-        }
-
-        function calcSalePrice() {
-            var price = $("#expense_price").val();
-            var quantity = $("#expense_quantity").val();
-
-            var totalprice = quantity * price;
-            $('#expense_total_price').val(totalprice);
-        }
-
-        var searchRequest = null;
-
-        $(function () {
-            var minlength = 3;
-
-            $("#search_guest").keyup(function () {
-                var that = this,
-                value = $(this).val();
-                // console.log(value);
-
-                if (value.length >= minlength ) {
-                    if (searchRequest != null)
-                        searchRequest.abort();
-                        searchRequest = $.ajax({
-                        headers: {
-                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                        },
-                        url: '/admin/guests/findguest/'+value,
-                        type: 'POST',
-                        // data: {client_id: client_id, service_id: selected},
-                        success: function(response){
-                            console.log(response);
-                            //we need to check if the value is the same
-                            if (value==$(that).val()) {
-                                $("#table-div").show();
-                                $("#summary-div").html('<span class="text-primary font-w700" >'+response.length+'</span> results found for <mark class="text-danger">'+value+'</mark>');
-                                $('#search-div').html("");
-                                // JSON.parse($('<div>').html(response)[0].textContent).forEach(function (client) {
-                                var countnum = 1
-                                response.forEach(function (guest) {
-                                    // console.log(guest.created_at);
-                                    let option = '<tr>'+
-                                                    '<td class="d-none d-sm-table-cell text-center">'+
-                                                        '<span class="badge badge-pill badge-primary">'+countnum+'</span>'+
-                                                    '</td>'+
-                                                    '<td class="font-w600">'+
-                                                        '<a href="javascript:void(0)">'+guest.full_name+'</a>'+
-                                                    '</td>'+
-                                                    '<td class="d-none d-sm-table-cell" width="15px">'+
-                                                        guest.email+
-                                                    '</td>'+
-                                                    '<td class="d-none d-lg-table-cell" width="15px">'+
-                                                        guest.phone+
-                                                    '</td>'+
-                                                    '<td class="text-center">'+
-                                                        '<div class="btn-group">'+
-                                                            '<a href="/admin/reservations/create/guest/'+guest.id+'" class="btn btn-success" data-toggle="tooltip" title="Make Reservation">'+
-                                                                '<i class="fa fa-address-book"></i> Make Reservation'+
-                                                            '</a>'+
-                                                        '</div>'+
-                                                    '</td>'+
-                                                '</tr>';
-                                    $('#search-div').append(option);
-
-                                    countnum++;
-                                });
-                            }
+                        });
+                        } else {
+                        swalnotify("Error!", "There was an error performing the delete! Please try again later","error");
                         }
-                    });
-                }
-            });
+                    }.bind(this)
+                })
+            } else {
+                swalnotify("Cancelled!", "Delete was cancelled!", "error");
+            }
         });
+    }
+
+    function cancelReservation(link,success = null) {
+        // console.log(success);
+        swalconfirm("Cancel Reservation?","Are you sure you want to cancel this reservation?","warning")
+        .then((willCanel) => {
+            if (willCanel.isConfirmed) {
+                $.ajax({
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    url: link,
+                    type: 'POST',
+                    data: '_method=POST',
+                    success: function (response) {
+                        if (response) {
+                        swalnotify("Done!", "Your record has been cancelled!","success").then((okay) => {
+                            if (success) {
+                                    return location.href = success;
+                            } else {
+                                    return location.reload();
+                            }
+
+                        });
+                        } else {
+                        swalnotify("Error!", "There was an error performing the cancel! Please try again later","error");
+                        }
+                    }.bind(this)
+                })
+            } else {
+                swalnotify("Cancelled!", "Delete was cancelled!", "error");
+            }
+        });
+    }
+
+    $(".table").addClass("compact nowrap w-100");
+
+    function closeOneOpenAnotherModal(modal1,modal2) {
+        $(modal1).modal('hide');
+        $(modal2).modal('show');
+    }
+
+    function calcSalePrice() {
+        var price = $("#expense_price").val();
+        var quantity = $("#expense_quantity").val();
+
+        var totalprice = quantity * price;
+        $('#expense_total_price').val(totalprice);
+    }
+
+    var searchRequest = null;
+
+
+    $(function () {
+        $('form').on('submit', function (e) {
+            $('.loader').show();
+        });
+    });
+
+    $(function () {
+        var minlength = 3;
+
+        $("#search_guest").keyup(function () {
+            var that = this,
+            value = $(this).val();
+            // console.log(value);
+
+            if (value.length >= minlength ) {
+                if (searchRequest != null)
+                    searchRequest.abort();
+                    searchRequest = $.ajax({
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    url: '/admin/guests/findguest/'+value,
+                    type: 'POST',
+                    // data: {client_id: client_id, service_id: selected},
+                    success: function(response){
+                        console.log(response);
+                        //we need to check if the value is the same
+                        if (value==$(that).val()) {
+                            $("#table-div").show();
+                            $("#summary-div").html('<span class="text-primary font-w700" >'+response.length+'</span> results found for <mark class="text-danger">'+value+'</mark>');
+                            $('#search-div').html("");
+                            // JSON.parse($('<div>').html(response)[0].textContent).forEach(function (client) {
+                            var countnum = 1
+                            response.forEach(function (guest) {
+                                // console.log(guest.created_at);
+                                let option = '<tr>'+
+                                                '<td class="d-none d-sm-table-cell text-center">'+
+                                                    '<span class="badge badge-pill badge-primary">'+countnum+'</span>'+
+                                                '</td>'+
+                                                '<td class="font-w600">'+
+                                                    '<a href="javascript:void(0)">'+guest.full_name+'</a>'+
+                                                '</td>'+
+                                                '<td class="d-none d-sm-table-cell" width="15px">'+
+                                                    guest.email+
+                                                '</td>'+
+                                                '<td class="d-none d-lg-table-cell" width="15px">'+
+                                                    guest.phone+
+                                                '</td>'+
+                                                '<td class="text-center">'+
+                                                    '<div class="btn-group">'+
+                                                        '<a href="/admin/reservations/create/guest/'+guest.id+'" class="btn btn-success" data-toggle="tooltip" title="Make Reservation">'+
+                                                            '<i class="fa fa-address-book"></i> Make Reservation'+
+                                                        '</a>'+
+                                                    '</div>'+
+                                                '</td>'+
+                                            '</tr>';
+                                $('#search-div').append(option);
+
+                                countnum++;
+                            });
+                        }
+                    }
+                });
+            }
+        });
+    });
 
 </script>
 

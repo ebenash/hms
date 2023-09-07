@@ -58,7 +58,7 @@ class DailySummaryNotification extends Notification implements ShouldQueue
             ->line(new HtmlString('<br/>'))
 
             ->line(new HtmlString('<h3>SUMMARY OF PAYMENTS MADE YESTERDAY</h3>'))
-            ->line(new HtmlString('<table border="2px"><tbody><tr><td>#</td><td><strong>ItemID</strong></td><td><strong>Method</strong></td><td><strong>Type</strong></td><td><strong>Total</strong></td></tr>'.$this->summary->yesterdays_payments_body.'</tbody></table>'))
+            ->line(new HtmlString('<table border="2px"><tbody><tr><td>#</td><td><strong>TypeID</strong></td><td><strong>Method</strong></td><td><strong>Type</strong></td><td><strong>Total</strong></td></tr>'.$this->summary->yesterdays_payments_body.'</tbody></table>'))
             ->line(new HtmlString('Total:<strong>'.$this->summary->yesterdays_payments_count.'</strong>'))
             ->line(new HtmlString('<br/>'))
 

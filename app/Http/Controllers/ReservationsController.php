@@ -27,7 +27,7 @@ class ReservationsController extends CommonController
      */
     public function __construct()
     {
-        $this->middleware('auth', ['except'=>['homepage_reservation','homepage_reservation_store']]);
+        $this->middleware('auth', ['except'=>['homepage_reservation','homepage_reservation_store','homepage_availability_filter']]);
     }
 
     /**
@@ -93,10 +93,13 @@ class ReservationsController extends CommonController
             }
         }
 
+        $reservations = $reservations->orderBy('check_in','asc')->paginate(200);
+        $reservations->appends($response);
+
         $data = [
             'all_rooms' => Rooms::where('status',1)->where('company_id',auth()->user()->company->id)->orderBy('name','asc')->get(),
             'all_roomtypes' => RoomTypes::where('company_id',auth()->user()->company->id)->get(),
-            'all_reservations' => $reservations->orderBy('check_in','asc')->paginate(50),
+            'all_reservations' => $reservations,
             'filter' => $response
         ];
         // dd($data);
@@ -110,7 +113,7 @@ class ReservationsController extends CommonController
         $data = [
             'all_rooms' => Rooms::where('status',1)->where('company_id',auth()->user()->company->id)->orderBy('name','asc')->get(),
             'all_roomtypes' => RoomTypes::where('company_id',auth()->user()->company->id)->get(),
-            'all_reservations' => $reservations->paginate(50),
+            'all_reservations' => $reservations->paginate(200),
             'filter' => $response
         ];
         // dd($data);
@@ -126,7 +129,7 @@ class ReservationsController extends CommonController
         $data = [
             'all_rooms' => Rooms::where('status',1)->where('company_id',auth()->user()->company->id)->orderBy('name','asc')->get(),
             'all_roomtypes' => RoomTypes::where('company_id',auth()->user()->company->id)->get(),
-            'all_reservations' => $reservations->orderBy('check_in','asc')->paginate(50),
+            'all_reservations' => $reservations->orderBy('check_in','asc')->paginate(200),
             'filter' => $response
         ];
         return view('reservations.list',$data);
@@ -141,7 +144,7 @@ class ReservationsController extends CommonController
         $data = [
             'all_rooms' => Rooms::where('status',1)->where('company_id',auth()->user()->company->id)->orderBy('name','asc')->get(),
             'all_roomtypes' => RoomTypes::where('company_id',auth()->user()->company->id)->get(),
-            'all_reservations' => $reservations->orderBy('check_in','asc')->paginate(50),
+            'all_reservations' => $reservations->orderBy('check_in','asc')->paginate(200),
             'filter' => $response
         ];
         return view('reservations.list',$data);
@@ -156,7 +159,7 @@ class ReservationsController extends CommonController
         $data = [
             'all_rooms' => Rooms::where('status',1)->where('company_id',auth()->user()->company->id)->orderBy('name','asc')->get(),
             'all_roomtypes' => RoomTypes::where('company_id',auth()->user()->company->id)->get(),
-            'all_reservations' => $reservations->orderBy('check_in','asc')->paginate(50),
+            'all_reservations' => $reservations->orderBy('check_in','asc')->paginate(200),
             'filter' => $response
         ];
         return view('reservations.list',$data);
@@ -171,7 +174,7 @@ class ReservationsController extends CommonController
         $data = [
             'all_rooms' => Rooms::where('status',1)->where('company_id',auth()->user()->company->id)->orderBy('name','asc')->get(),
             'all_roomtypes' => RoomTypes::where('company_id',auth()->user()->company->id)->get(),
-            'all_reservations' => $reservations->orderBy('check_in','asc')->paginate(50),
+            'all_reservations' => $reservations->orderBy('check_in','asc')->paginate(200),
             'filter' => $response
         ];
         return view('reservations.list',$data);
@@ -185,7 +188,7 @@ class ReservationsController extends CommonController
         $data = [
             'all_rooms' => Rooms::where('status',1)->where('company_id',auth()->user()->company->id)->orderBy('name','asc')->get(),
             'all_roomtypes' => RoomTypes::where('company_id',auth()->user()->company->id)->get(),
-            'all_reservations' => $reservations->paginate(50)
+            'all_reservations' => $reservations->paginate(200)
         ];
         return view('reservations.list',$data)->with('tomorrow','tomorrow');
     }
@@ -792,6 +795,11 @@ class ReservationsController extends CommonController
             DB::table('reservations')->where('id',$id)->update([
                 'reservation_status' => 'cancelled'
             ]);
+
+            DB::table('payments')->where('payment_type','reservation')->where('payment_type_id',$id)->update([
+                'status' => 'cancelled'
+            ]);
+
             DB::commit();
             return true;
         }catch(\Exception $e){

@@ -642,14 +642,20 @@
             $deleteurl = route('reservations-destroy',$reservation->id);
         @endphp
         <div class="text-center pb-5">
-            {{-- @can('remove reservations') --}}
+            @can('edit reservations')
                 <strong><a class="link-fx text-danger" type="button" data-toggle="tooltip" title="Cancel Reservation" onclick="cancelReservation('{{$cancelurl}}')"><i class="fa fa-times"></i> Cancel This Reservation</a></strong>
-            {{-- @endcan --}}
+            @endcan
             <br></br>
             @can('remove reservations')
                 <strong><a class="link-fx text-danger" type="button" data-toggle="tooltip" title="Remove Reservation" onclick="confimdelete('{{$deleteurl}}','{{route('reservations-today')}}')"><i class="fa fa-trash-alt"></i> Delete Reservation</a></strong>
             @endcan
         </div>
+    @elseif ((isset($reservation) && isset($show)))
+        @can('edit reservations')
+            <div class="text-center pb-5">
+                <strong><a class="link-fx text-primary" type="button" data-toggle="tooltip" title="Edit Reservation" href="{{route(($reservation->reservation_status=='pending' && $reservation->created_by==0) ? 'reservations-view-request':'reservations-edit',$reservation->id)}}"><i class="fa fa-edit"></i> Edit Reservation</a></strong>
+            </div>
+        @endcan
     @endif
 
     @if(isset($reservation))
@@ -678,7 +684,7 @@
                                         <label for="payment_provider">Payment Method</label>
                                         <select name="payment_provider" id="payment_provider" class="form-control" autocomplete="off" onchange="paystackSelect()">
                                             <option value="">Select Payment Method</option>
-                                            <option value="paystack" {{$reservation->guest->email == 'info@royalelmounthotel.com' || $reservation->guest->email == 'reservations@royalelmounthotel.com' ? 'disabled' : ''}}>Paystack</option>
+                                            <option value="paystack">Paystack</option>
                                             <option value="cash">Cash Payment</option>
                                             <option value="momo">Mobile Money</option>
                                             <option value="pos">Card POS</option>
@@ -710,7 +716,7 @@
                                     <div class="form-row mb-2 col-lg-12 row">
                                         <div class="col-lg-12 pr-0' pl-0">
                                             <label for="vat_invoice_number">Receipt Number</label>
-                                            <input type="text" class="form-control" id="vat_invoice_number" name="vat_invoice_number" placeholder="Receipt/VAT Invoice Number" autocomplete="off">
+                                            <input type="text" class="form-control" id="vat_invoice_number" name="vat_invoice_number" placeholder="Receipt/VAT Invoice Number" autocomplete="off" required>
                                         </div>
                                     </div>
                                     <div class="form-row mb-2 col-lg-12">
@@ -863,8 +869,9 @@
         $(function () {
             setTimeout(function () {
                 var idcard = ('{{isset($guest->id_card) ? $guest->id_card : (isset($reservation->guest->id_card) ? $reservation->guest->id_card : NULL)}}');
+                var show = ('{{isset($reservation) && !isset($show)}}');
                 // console.log(idcard);
-                if(!idcard){
+                if(!idcard && show){
                     $('#noIDModal').modal('show');
                 }
             }, 3000);
@@ -878,7 +885,6 @@
                 swalnotify("Special Selected","This is only reserved for guests that have been approved by management. Please proceed only after indicating the reason for making this reservation special in the notes.",'warning')
                 console.log("Special");
             }
-
         }
 
         function paystackSelect() {
@@ -886,7 +892,11 @@
             console.log(paymenttype);
             if (paymenttype == 'paystack') {
                 // $("#status").val("pending").attr('readonly','readonly').attr("style", "pointer-events: none;").attr("tabindex","-1");
-                $("#checkdiv").show();
+                if("{{$reservation->guest->email == 'info@royalelmounthotel.com' || $reservation->guest->email == 'reservations@royalelmounthotel.com'}}"){
+                    $("#checkdiv").hide();
+                }else{
+                    $("#checkdiv").show();
+                }
                 $("#referencediv").show();
             }else if (paymenttype == 'cash') {
                 $("#checkdiv").hide();
@@ -1039,22 +1049,30 @@
 
         function getRooms(index) {
             var room_type = $("#room_type"+index).val();
+
+            var dates = ($("#reservation_daterange").val()).split(' to ');
+
+            var date1 = dates[0];
+            var date2 = dates[1];
+
             var excludedoptions = markSelectedRooms(room_type);
             $.ajax({
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
-                url: '/admin/rooms/getrooms/'+room_type,
+                // url: '/admin/rooms/getrooms/'+room_type,
+                url: '/admin/rooms/availablerooms/'+room_type,
                 type: 'POST',
-                // data: {client_id: client_id, service_id: selected},
+                data: {checkin: date1, checkout: date2},
                 success: function (results) {
-                    console.log(results);
+                    // console.log(results);
                     if (results) {
                         $("#room"+index).html("");
-                        // let roomoption = new Option("Select a Room","");
-                        // $(roomoption).html("Select a Room");
-                        // $("#room").append(roomoption);
-
+                        if(results.length <= 0){
+                            swaltoast("Notice", "No Available Rooms For Selected Dates", "warning");
+                        }else{
+                            swaltoast("Notice", results.length+" Room(s) Available", "info");
+                        }
                         results.forEach(function (room) {
                             // console.log('To Be Excluded: '+ excludedoptions);
                             if (!excludedoptions.includes(String(room.id))) {

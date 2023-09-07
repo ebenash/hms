@@ -22,8 +22,8 @@
 
 <!-- Search -->
 <div class="block block-rounded">
-    <form action="{{route('reservations-filter')}}" method="POST">
-        @csrf
+    <form action="{{route('reservations-filter')}}" method="GET">
+        {{-- @csrf --}}
         <div class="block-header">
             <h3 class="block-title">Search</h3>
             <div class="pull-right">
@@ -221,20 +221,26 @@
                 pageLength: 200,
                 responsive: true,
                 scrollX: true,
-                lengthMenu: [
-                    [50, 100, 200, 500],
-                    [50, 100, 200, 500]
-                ],
+                // lengthMenu: [
+                //     [50, 100, 200, 500],
+                //     [50, 100, 200, 500]
+                // ],
+                lengthChange: false,
                 order: [[3, 'asc']],
                 columnDefs: [
                     // { targets: [0, 1], visible: false },
-                    { responsivePriority: 2, targets: -1 }
+                    { responsivePriority: 1, targets: 0 },
+                    { responsivePriority: 2, targets: 1 },
+                    { responsivePriority: 4, targets: 2 },
+                    // { responsivePriority: 6, targets: 3 },
+                    { responsivePriority: 5, targets: 4 },
+                    { responsivePriority: 3, targets: -1 }
                 ],
                 searching: false,
                 autoWidth: !1,
                 buttons: [{ extend: "colvis", className: "btn btn-sm btn-alt-primary" }, { extend: "copy", className: "btn btn-sm btn-alt-primary" }, { extend: "csv", className: "btn btn-sm btn-alt-primary" }, { extend: "pdf", className: "btn btn-sm btn-alt-primary" }, { extend: "print", className: "btn btn-sm btn-alt-primary" }],
                 dom: "<'row'<'col-sm-12'<'text-left py-2 mb-2'B>>><'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>><'row'<'col-sm-12'tr>><'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>"
-            })
+            });
 
             $('#DataTables_Table_0_info').html("Page {{$all_reservations->currentPage()}} of {{$all_reservations->lastPage()}}");
             $('#DataTables_Table_0_paginate').html("");

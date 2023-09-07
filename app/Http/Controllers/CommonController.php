@@ -22,6 +22,7 @@ use Illuminate\Support\Facades\Notification;
 use App\Notifications\NewRequestNotification;
 use App\Notifications\DailySummaryNotification;
 use App\Notifications\GuestPaymentNotification;
+use App\Notifications\PaystackConflictedRoomNotification;
 
 // use Illuminate\Support\Facades\DB;
 
@@ -265,8 +266,9 @@ class CommonController extends Controller
             "A New Reservation Request has been submitted on the ".env('APP_NAME')." website! Please verify and respond.",
             'SMS'
         );
-        $users = User::all();
-        Notification::send($users, new NewRequestNotification($reservation));
+        // $users = User::all();
+        // Notification::send($users, new NewRequestNotification($reservation));
+        Notification::route('mail', 'reservations@royalelmounthotel.com')->notify(new NewRequestNotification($reservation));
     }
 
     public function hotel_notification( $message, $type, $url ) {
@@ -808,6 +810,15 @@ class CommonController extends Controller
                         ]);
                         $reservation = Reservations::where('id',$invoice->reservation_id)->with('guest')->first();
                         Notification::route('mail', $reservation->guest->email)->notify(new GuestPaymentNotification($reservation));
+
+                        foreach ($reservation->details as $key => $detail) {
+                            $roombooked = DB::table('reservation_details')->join('reservations','reservation_details.reservations_id','=','reservations.id')->join('guests','reservations.guest_id','=','guests.id')->select('reservations.id', 'reservation_details.id as detail_id','reservations.check_in','reservations.check_out','reservation_details.room_id','guests.full_name')->where('reservation_details.room_id', $detail->room_id)->where('reservations.check_in', '<', $reservation->check_out)->where('reservations.check_out', '>', $reservation->check_in)->where('reservations.reservation_status', 'confirmed')->where('reservation_details.reservations_id','!=',$reservation->id)->first();
+                            // dump($roombooked);
+                            if($roombooked){
+                                Notification::route('mail', 'reservations@royalelmounthotel.com')->notify(new PaystackConflictedRoomNotification($reservation,$roombooked));
+                                break;
+                            }
+                        }
                     }
                 }
 
@@ -904,7 +915,7 @@ class CommonController extends Controller
         $yesterdays_reservations = Reservations::join('guests','reservations.guest_id','=','guests.id')->select('reservations.id','reservations.check_in', 'reservations.check_out', 'reservations.days', 'reservations.paid', 'reservations.reservation_status', 'reservations.grand_total', 'reservations.reservation_type', 'reservations.created_by', 'guests.full_name')->where('reservations.reservation_status','confirmed')->where('reservations.check_in','=',date("Y-m-d",strtotime("-1 day")))->with('details')->orderBy('reservations.check_in','asc')->get();
         $yesterdays_reservation_details = DB::table('reservations')->join('guests','reservations.guest_id','=','guests.id')->join('reservation_details','reservations.id','=','reservation_details.reservations_id')->join('rooms','reservation_details.room_id','=','rooms.id')->join('room_types','room_types.id','=','rooms.room_type_id')->select('reservations.id','reservations.check_in', 'reservations.check_out', 'reservations.days', 'reservations.paid', 'reservations.reservation_status', 'reservations.grand_total', 'reservations.reservation_type', 'reservations.created_by', 'guests.full_name','rooms.name as room_name','reservation_details.price_per_day','room_types.name as room_type')->where('reservations.check_in','=',date("Y-m-d",strtotime("-1 day")))->where('reservations.reservation_status','confirmed')->orderBy('reservations.check_in','asc')->get();
 
-        $yesterdays_payments = Payments::where('payments.created_at', '<=', date('Y-m-d 23:59:59',strtotime("-1 day")))->where('payments.created_at', '>=', date('Y-m-d 00:00:00',strtotime("-1 day")))->orderBy('payments.created_at','desc')->get();
+        $yesterdays_payments = Payments::where('payments.created_at', '<=', date('Y-m-d 23:59:59',strtotime("-1 day")))->where('payments.created_at', '>=', date('Y-m-d 00:00:00',strtotime("-1 day")))->where('payments.status','success')->orderBy('payments.created_at','desc')->get();
 
         $stay_over_reservations = Reservations::join('guests','reservations.guest_id','=','guests.id')->select('reservations.id','reservations.check_in', 'reservations.check_out', 'reservations.days', 'reservations.paid', 'reservations.reservation_status', 'reservations.grand_total', 'reservations.reservation_type', 'reservations.created_by', 'guests.full_name')->where('reservations.reservation_status','confirmed')->where('reservations.check_in','<=',date("Y-m-d"))->where('reservations.check_out','>',date("Y-m-d"))->with('details')->orderBy('reservations.check_in','asc')->get();
         $stay_over_reservation_details = DB::table('reservations')->join('guests','reservations.guest_id','=','guests.id')->join('reservation_details','reservations.id','=','reservation_details.reservations_id')->join('rooms','reservation_details.room_id','=','rooms.id')->join('room_types','room_types.id','=','rooms.room_type_id')->select('reservations.id','reservations.check_in', 'reservations.check_out', 'reservations.days', 'reservations.paid', 'reservations.reservation_status', 'reservations.grand_total', 'reservations.reservation_type', 'reservations.created_by', 'guests.full_name','rooms.name as room_name','reservation_details.price_per_day','room_types.name as room_type')->where('reservations.reservation_status','confirmed')->where('reservations.check_in','<=',date("Y-m-d"))->where('reservations.check_out','>',date("Y-m-d"))->orderBy('reservations.check_in','asc')->get();
@@ -918,6 +929,7 @@ class CommonController extends Controller
         // dd($reservation_details);
 
         $yesterdays_payments_count=0;
+        $yesterdays_payments_total=0;
         $yesterdays_res_count=0;
         $yesterdays_detail_count=0;
         $stay_over_res_count=0;
@@ -949,7 +961,9 @@ class CommonController extends Controller
         foreach($yesterdays_payments as $payment){
             $yesterdays_payments_body.="<tr><td>".($yesterdays_payments_count+1)."</td><td>".ucfirst($payment->payment_type_id ?? 'Undefined')."</td><td>".($payment->provider ?? 'Undefined')."</td><td>".ucfirst($payment->payment_type ?? "Undefined")."</td><td>GHS ".(number_format(($payment->amount/100),2) ?? 0.00)."</td></tr>";
             $yesterdays_payments_count++;
+            $yesterdays_payments_total += $payment->amount;
         }
+        $yesterdays_payments_body.="<tr><td colspan='4'></td><td><strong>GHS ".(number_format(($yesterdays_payments_total/100),2) ?? 0.00)."</strong></td></tr>";
 
         foreach($stay_over_reservations as $reservation){
             $stay_over_res_body.="<tr><td>".($reservation->id)."</td><td>".($reservation->full_name ?? "")."</td><td>".($reservation->details->count() ?? 0)."</td><td>".($reservation->check_in ?? "Undefined")."</td><td>".($reservation->check_out ?? "Undefined")."</td></tr>";

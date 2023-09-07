@@ -2,6 +2,7 @@
 <html lang="{{ config('app.locale') }}" class="boxed">
     @include('includes.homepage.head')
     <body>
+        <div class="loader" style="display:none"></div>
 
 
         <!-- Side Overlay-->

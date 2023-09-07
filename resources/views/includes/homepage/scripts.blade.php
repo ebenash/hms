@@ -52,6 +52,13 @@
 
         ga('create', 'UA-136937398-1', 'auto');
         ga('send', 'pageview');
+
+        $(function () {
+            $('form').on('submit', function (e) {
+                $('.loader').show();
+            });
+        });
+
     </script>
     {{-- <script src="{{asset('homepage/assets/js/demos/demo-photography.js')}}"></script> --}}
     @stack('script_after')

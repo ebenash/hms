@@ -51,7 +51,7 @@ class AccountingController extends CommonController
         //
         $response = $request->all();
 
-        $sales = ReservationExpenses::leftJoin('reservations','reservations.id','=','reservation_expenses.reservations_id')->select(DB::raw('reservation_expenses.id, reservation_expenses.reservations_id as reservations_id, IFNULL(reservations.grand_total, 0) as grand_total, IFNULL(reservation_expenses.status,reservations.paid) as paid, IFNULL(reservation_expenses.status,reservations.reservation_status) as status, IFNULL(reservation_expenses.method,"View Payments in Reservation") as method, reservation_expenses.created_at,reservation_expenses.expense_type,reservation_expenses.description,reservation_expenses.quantity,reservation_expenses.price,reservation_expenses.total_price, IFNULL(reservations.reservation_type,"sale") as reservation_type'));
+        $sales = ReservationExpenses::leftJoin('reservations','reservations.id','=','reservation_expenses.reservations_id')->select(DB::raw('reservation_expenses.id, reservation_expenses.reservations_id as reservations_id, IFNULL(reservations.grand_total, 0) as grand_total, IFNULL(reservation_expenses.status,reservations.paid) as paid, IFNULL(reservation_expenses.status,reservations.reservation_status) as status, IFNULL(reservation_expenses.method,"View Reservation") as method, reservation_expenses.created_at,reservation_expenses.expense_type,reservation_expenses.description,reservation_expenses.quantity,reservation_expenses.price,reservation_expenses.total_price, IFNULL(reservations.reservation_type,"sale") as reservation_type'));
             // ->where('reservations.reservation_status','confirmed')->orWhere('reservation_expenses.status','paid')
             // ->get()
         if($request->all()){
@@ -90,14 +90,13 @@ class AccountingController extends CommonController
             $today = true;
         }
 
-        $paginate = 100;
+        $sales = $sales->with('sale_payment')->orderBy('reservation_expenses.created_at','desc')->paginate(200);
+        $sales->appends($response);
+
         $data = [
             'filter' => $response,
             'today' => $today,
             'all_sales' => $sales
-            ->orderBy('reservation_expenses.created_at','desc')
-            // ->get()
-            ->paginate($paginate)
         ];
         // dd($data);
         return view('accounting.sales',$data);
@@ -113,17 +112,16 @@ class AccountingController extends CommonController
         //
         $response = $request->all();
 
-        $sales = ReservationExpenses::leftJoin('reservations','reservations.id','=','reservation_expenses.reservations_id')->select(DB::raw('reservation_expenses.id, reservation_expenses.reservations_id as reservations_id, IFNULL(reservations.grand_total, 0) as grand_total, IFNULL(reservation_expenses.status,reservations.paid) as paid, IFNULL(reservation_expenses.status,reservations.reservation_status) as status, IFNULL(reservation_expenses.method,"View Payments in Reservation") as method, reservation_expenses.created_at,reservation_expenses.expense_type,reservation_expenses.description,reservation_expenses.quantity,reservation_expenses.price,reservation_expenses.total_price, IFNULL(reservations.reservation_type,"sale") as reservation_type'))->where('reservation_expenses.created_at', '<=', date('Y-m-d 23:59:59'))->where('reservation_expenses.created_at', '>=', date('Y-m-d 00:00:00'));
+        $sales = ReservationExpenses::leftJoin('reservations','reservations.id','=','reservation_expenses.reservations_id')->select(DB::raw('reservation_expenses.id, reservation_expenses.reservations_id as reservations_id, IFNULL(reservations.grand_total, 0) as grand_total, IFNULL(reservation_expenses.status,reservations.paid) as paid, IFNULL(reservation_expenses.status,reservations.reservation_status) as status, IFNULL(reservation_expenses.method,"View Reservation") as method, reservation_expenses.created_at,reservation_expenses.expense_type,reservation_expenses.description,reservation_expenses.quantity,reservation_expenses.price,reservation_expenses.total_price, IFNULL(reservations.reservation_type,"sale") as reservation_type'))->where('reservation_expenses.created_at', '<=', date('Y-m-d 23:59:59'))->where('reservation_expenses.created_at', '>=', date('Y-m-d 00:00:00'));
         $today = true;
 
-        $paginate = 100;
         $data = [
             'filter' => $response,
             'today' => $today,
-            'all_sales' => $sales
+            'all_sales' => $sales->with('sale_payment')
             ->orderBy('reservation_expenses.created_at','desc')
             // ->get()
-            ->paginate($paginate)
+            ->paginate(200)
         ];
         // dd($data);
         return view('accounting.sales',$data);
@@ -171,6 +169,14 @@ class AccountingController extends CommonController
             'expense_received_by' => 'required',
         ]);
 
+        if(strtotime(date('Y-m-d 06:00:00')) >= strtotime($this->todaydatetime()) && strtotime(date('Y-m-d 00:00:00')) < strtotime($this->todaydatetime()) ){
+            $setdate = date('Y-m-d 23:59:00', strtotime('-1 days'));
+        }else{
+            $setdate = $this->todaydatetime();
+        }
+
+        // dd($setdate);
+
         try{
             DB::beginTransaction();
             $sale_id = DB::table('reservation_expenses')->insertGetId([
@@ -181,7 +187,7 @@ class AccountingController extends CommonController
                 'total_price' => $request->input('expense_total_price'),
                 'method' => $request->input('expense_payment_type'),
                 'status' => $request->input('expense_status'),
-                'created_at' => $this->todaydatetime(),
+                'created_at' => $setdate,
             ]);
 
             if($request->input('expense_status') == 'paid'){
@@ -195,7 +201,7 @@ class AccountingController extends CommonController
                     'vat_invoice_number' => $request->input('expense_vat_invoice_number'),
                     'received_by' => $request->input('expense_received_by'),
                     'status' => 'success',
-                    'created_at' => $this->todaydatetime(),
+                    'created_at' => $setdate,
                 ]);
             }
             DB::commit();

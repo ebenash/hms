@@ -2,6 +2,7 @@
 <html lang="{{ config('app.locale') }}">
     @include('includes.head')
     <body onload=display_ct();>
+        <div class="loader" style="display:none"></div>
         <!-- Page Container -->
         <!--
             Available classes for #page-container:

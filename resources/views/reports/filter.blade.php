@@ -8,8 +8,8 @@
 
 <!-- Search -->
 <div class="block block-rounded">
-    <form action="{{route('reports-filter')}}" method="POST">
-        @csrf
+    <form action="{{route('reports-filter')}}" method="GET">
+        {{-- @csrf --}}
         <div class="block-header">
             <h3 class="block-title">Filter</h3>
             <div class="pull-right">
@@ -35,6 +35,7 @@
                         <option value="typepaystack" {{isset($filter) ? ($filter->filter_type == 'typepaystack' ? 'selected' : '') : ''}}>Paystack Invoices</option>
                         <option value="typepayments" {{isset($filter) ? ($filter->filter_type == 'typepayments' ? 'selected' : '') : ''}}>Payments</option>
                         <option value="typeroomsavailable" {{isset($filter) ? ($filter->filter_type == 'typeroomsavailable' ? 'selected' : '') : ''}}>Room Availability</option>
+                        <option value="typeunpaid" {{isset($filter) ? ($filter->filter_type == 'typeunpaid' ? 'selected' : '') : ''}}>Balance Receivable Reservations</option>
                         {{-- <option value="typeguests" {{isset($filter) ? ($filter->filter_type == 'typeguests' ? 'selected' : '') : ''}}>Guests</option> --}}
                     </select>
                 </div>
@@ -70,7 +71,7 @@
             </div>
         </div>
         <div class="block-content block-content-full">
-            <table class="table table-bordered table-striped table-vcenter js-dataTable-report">
+            <table class="table table-bordered table-striped table-vcenter js-dataTable-reports">
                 <thead>
                     <tr>
                         <td class="font-w600">No.</td>
@@ -148,6 +149,14 @@
                         $count=($reports->perPage()*($reports->currentPage() -1))+1;
                     @endphp
                     @foreach($reports as $report)
+                        @if(isset($filter) && $filter->filter_type == 'typeunpaid')
+                            @php
+                                $amtpaid = $report->success_payments->sum('amount')/100;
+                                if ($amtpaid >= $report->grand_total) {
+                                    continue;
+                                }
+                            @endphp
+                        @endif
                         <tr>
                             {{-- @if(isset($filter) && $filter->filter_type == 'typesales')
                                 @foreach ($report->details as $item)
@@ -212,10 +221,14 @@
                                         <td class="hidden-xs">{{$report->room_type ?? 'Unassigned'}}</td>
                                     @endif
                                     @if(isset($filter) && $filter->filter_type != 'typesales' && $filter->filter_type != 'typeroomsavailable')
+                                        @php
+                                            $amtpaid = ($report->success_payments->sum('amount') ?? 0)/100;
+                                        @endphp
+
                                         <td class="hidden-xs">{{$report->check_in}}</td>
                                         <td class="hidden-xs">{{$report->check_out}}</td>
                                         <td class="hidden-xs">{{ucfirst($report->reservation_type)}}</td>
-                                        <td class="hidden-xs">@if($report->reservation_type == 'complementary') <span class="badge badge-primary">Complementary</span> @endif @if($report->reservation_status == 'confirmed') <span class="badge badge-success">Confirmed</span>  @if($report->reservation_type != 'complementary') @if($report->paid == 'full') <span class="badge badge-success">Fully Paid</span> @elseif($report->paid == 'part') <span class="badge badge-warning">Part Paid</span> @else<span class="badge badge-danger">Not Paid</span> @endif @endif  @elseif($report->reservation_status == 'pending') {!! strtotime($report->check_in) < strtotime(date('Y-m-d')) ? '<span class="badge badge-danger">Overdue</span>':'<span class="badge badge-warning">Pending</span>' !!} @elseif($report->reservation_status == 'rejected') <span class="badge badge-danger">Rejected</span> @else <span class="badge badge-danger">Cancelled</span> @endif</td>
+                                        <td class="hidden-xs">@if($report->reservation_type == 'complementary') <span class="badge badge-primary">Complementary</span> @endif @if($report->reservation_status == 'confirmed') <span class="badge badge-success">Confirmed</span>  @if($report->reservation_type != 'complementary') @if($amtpaid >= $report->grand_total) <span class="badge badge-success">Fully Paid</span> @elseif(($amtpaid > 0) && ($amtpaid < $report->grand_total)) <span class="badge badge-warning">Part Paid</span> @else<span class="badge badge-danger">Not Paid</span> @endif @endif  @elseif($report->reservation_status == 'pending') {!! strtotime($report->check_in) < strtotime(date('Y-m-d')) ? '<span class="badge badge-danger">Overdue</span>':'<span class="badge badge-warning">Pending</span>' !!} @elseif($report->reservation_status == 'rejected') <span class="badge badge-danger">Rejected</span> @else <span class="badge badge-danger">Cancelled</span> @endif</td>
                                     @else
                                         @if(isset($filter) && $filter->filter_type == 'typeroomsavailable')
                                             <td class="hidden-xs">@if($report->status == 1) <span class="badge badge-success">Available</span>  @else <span class="badge badge-danger">Inactive</span> @endif</td>
@@ -307,6 +320,27 @@
 
     <script type="text/javascript">
         $(function () {
+            jQuery(".js-dataTable-reports").dataTable({
+                pageLength: 200,
+                responsive: true,
+                scrollX: true,
+                // lengthMenu: [
+                //     [50, 100, 200, 500],
+                //     [50, 100, 200, 500]
+                // ],
+                lengthChange: false,
+                columnDefs: [
+                    // { targets: [0, 1], visible: false },
+                    { responsivePriority: 1, targets: 0 },
+                    { responsivePriority: 2, targets: 1 },
+                    { responsivePriority: 3, targets: 7 },
+                    { responsivePriority: 4, targets: -1 }
+                ],
+                searching: false,
+                autoWidth: !1,
+                buttons: [{ extend: "colvis", className: "btn btn-sm btn-alt-primary" }, { extend: "copy", className: "btn btn-sm btn-alt-primary" }, { extend: "csv", className: "btn btn-sm btn-alt-primary" }, { extend: "pdf", className: "btn btn-sm btn-alt-primary" }, { extend: "print", className: "btn btn-sm btn-alt-primary" }],
+                dom: "<'row'<'col-sm-12'<'text-left py-2 mb-2'B>>><'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>><'row'<'col-sm-12'tr>><'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>"
+            })
             $('#DataTables_Table_0_info').html("Page {{$reports->currentPage()}} of {{$reports->lastPage()}}");
             $('#DataTables_Table_0_paginate').html("");
             var div = document.createElement('div');
@@ -331,7 +365,7 @@
                 $("#searchdiv").attr('class', 'col-lg-4');
                 $("#filter_typediv").attr('class', 'col-lg-4');
                 $("#daterangediv").attr('class', 'col-lg-4');
-            }else if (type == 'typeroomsavailable') {
+            }else if (type == 'typeroomsavailable' || type == 'typeunpaid') {
                 $("#searchdiv").hide();
                 $("#reservation_statusdiv").hide();
 

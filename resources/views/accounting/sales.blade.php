@@ -9,8 +9,8 @@
 @section('content')
 <!-- Search -->
 <div class="block block-rounded">
-    <form action="{{route('sale-filter')}}" method="POST">
-        @csrf
+    <form action="{{route('sale-filter')}}" method="GET">
+        {{-- @csrf --}}
         <div class="block-header">
             <h3 class="block-title">Search</h3>
             <div class="pull-right">
@@ -50,18 +50,18 @@
     <div class="block-content block-content-full">
         <!-- DataTables init on table by adding .js-dataTable-full class, functionality is initialized in js/pages/tables_datatables.js -->
 
-        <table class="table table-bordered table-striped table-vcenter js-dataTable-report">
+        <table class="table table-bordered table-striped table-vcenter js-dataTable-reports">
 			<thead>
 				<tr>
 					<th class="text-center"></th>
 					<th>Description</th>
 					<th class="font-w600">Type</th>
 					<th class="font-w600">Reservation</th>
-					<th class="font-w600">Quantity</th>
-					<th class="font-w600">Price (GHS)</th>
-					<th class="font-w600">Total Amount (GHS)</th>
 					<th class="font-w600">Method</th>
 					<th class="font-w600">Status</th>
+					<th class="font-w600">Qty</th>
+					<th class="font-w600">Price (GHS)</th>
+					<th class="font-w600">Total (GHS)</th>
 					<th class="font-w600">Recorded</th>
 					<th class="text-center" style="width: 10%;">Actions</th>
 				</tr>
@@ -77,9 +77,6 @@
                         <td class="hidden-xs"><span title="{{$sale->description}}">{{$sale->description}}</span></td>
                         <td class="hidden-xs">{{ucfirst($sale->expense_type)}}</td>
                         <td class="font-w600">@if($sale->reservations_id)<a href="{{route('reservations-show',$sale->reservations_id)}}">#{{$sale->reservations_id}}</a>@endif</td>
-                        <td class="hidden-xs">{{$sale->quantity}}</td>
-                        <td class="font-w600">{{number_format($sale->price,2)}}</td>
-                        <td class="font-w600">{{number_format($sale->total_price,2)}}</td>
                         <td class="hidden-xs">{{ucfirst($sale->method)}}</td>
                         <td class="hidden-sm">
                             @if($sale->reservation_type == 'complementary')
@@ -107,6 +104,9 @@
                                 <span class="badge badge-danger">{{ucfirst($sale->status)}}</span>
                             @endif
                         </td>
+                        <td class="hidden-xs">{{$sale->quantity}}</td>
+                        <td class="font-w600">{{number_format($sale->price,2)}}</td>
+                        <td class="font-w600">{{number_format($sale->total_price,2)}}</td>
                         <td class="hidden-xs">{{$sale->created_at}}</td>
                         <td class="text-center">
                             @php
@@ -133,74 +133,89 @@
                                         </div>
                                         <div class="block-content block-content-narrow">
 
-                                            <form method="post" action="{{route('sale-update',$sale->id)}}" class="form-horizontal push-10-t" enctype="multipart/form-data">
+                                            <form method="post" action="{{route('sale-update',$sale->id)}}" class="form-horizontal push-10-t">
                                                 @csrf
-                                                <div class="form-group">
-                                                    <label for="material-text2">Description <span class="text-danger" style="display: inline-block;">*</span></label>
-                                                    <input type="text" name="expense_description" class="form-control" value="{{$sale->description}}">
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="material-text2">Sale Type <span class="text-danger" style="display: inline-block;">*</span></label>
-                                                    <select class="form-control" id="expense_type" data-placeholder="Select Sale Type.." name="expense_type" autocomplete="off">
-                                                        <option>Select Sale Type</option>
-                                                        <option value="food" {{$sale->expense_type == 'food' ? 'selected' : ''}}>Food</option>
-                                                        <option value="drinks" {{$sale->expense_type == 'drinks' ? 'selected' : ''}}>Drinks</option>
-                                                        <option value="pool" {{$sale->expense_type == 'pool' ? 'selected' : ''}}>Pool</option>
-                                                        <option value="other" {{$sale->expense_type == 'other' ? 'selected' : ''}}>Other</option>
-                                                    </select>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="material-text2">Quantity <span class="text-danger" style="display: inline-block;">*</span></label>
-                                                    <input type="number" name="expense_quantity" id="expense_quantity{{$sale->id}}" class="form-control" value="{{$sale->quantity}}">
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="material-text2">Price <span class="text-danger" style="display: inline-block;">*</span></label>
-                                                    <div class="input-group">
-                                                        <div class="input-group-prepend">
-                                                            <span class="input-group-text input-group-text-alt">
-                                                                {{$current_user->company->currency}}
-                                                            </span>
-                                                        </div>
-                                                        <input type="number" step="0.01" id="expense_price{{$sale->id}}" name="expense_price" class="form-control text-center" onkeyup="calcIndexSalePrice({{$sale->id}})" placeholder="Item Price" autocomplete="off" value="{{$sale->price}}">
+                                                <div class="row">
+                                                    <div class="form-row mb-2 col-lg-12">
+                                                        <label for="material-text2">Description <small>(Max 50 characters)</small><span class="text-danger" style="display: inline-block;">*</span></label>
+                                                        <input type="text" name="expense_description" class="form-control" required autocomplete="off" maxlength="50" value="{{$sale->description}}">
                                                     </div>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="material-text2">Total Amount <span class="text-danger" style="display: inline-block;">*</span></label>
-                                                    <div class="input-group">
-                                                        <div class="input-group-prepend">
-                                                            <span class="input-group-text input-group-text-alt">
-                                                                {{$current_user->company->currency}}
-                                                            </span>
-                                                        </div>
-                                                        <input type="number" step="0.01" id="expense_total_price{{$sale->id}}" name="expense_total_price" class="form-control text-center" readonly placeholder="Total Amount" autocomplete="off" value="{{$sale->total_price}}">
-                                                        <div class="input-group-append">
-                                                            <span class="input-group-text input-group-text-alt">
-                                                                <i class="fa fa-calculator"></i>
-                                                            </span>
+                                                    <div class="form-row mb-2 col-lg-6">
+                                                        <label for="material-text2">Sale Type <span class="text-danger" style="display: inline-block;">*</span></label>
+                                                        <select class="form-control" id="expense_type" data-placeholder="Select Sale Type.." name="expense_type" autocomplete="off">
+                                                            <option>Select Sale Type</option>
+                                                            <option value="food" {{$sale->expense_type == 'food' ? 'selected' : ''}}>Food</option>
+                                                            <option value="drinks" {{$sale->expense_type == 'drinks' ? 'selected' : ''}}>Drinks</option>
+                                                            <option value="pool" {{$sale->expense_type == 'pool' ? 'selected' : ''}}>Pool</option>
+                                                            <option value="other" {{$sale->expense_type == 'other' ? 'selected' : ''}}>Other</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="form-row mb-2 col-lg-6">
+                                                        <label for="material-text2">Quantity <span class="text-danger" style="display: inline-block;">*</span></label>
+                                                        <input type="number" name="expense_quantity" id="expense_quantity{{$sale->id}}" class="form-control" value="{{$sale->quantity}}" required autocomplete="off">
+                                                    </div>
+                                                    <div class="form-row mb-2 col-lg-6">
+                                                        <label for="material-text2">Price <span class="text-danger" style="display: inline-block;">*</span></label>
+                                                        <div class="input-group">
+                                                            <div class="input-group-prepend">
+                                                                <span class="input-group-text input-group-text-alt">
+                                                                    {{$current_user->company->currency}}
+                                                                </span>
+                                                            </div>
+                                                            <input type="number" step="0.01" id="expense_price{{$sale->id}}" name="expense_price" class="form-control text-center" onkeyup="calcIndexSalePrice({{$sale->id}})" placeholder="Item Price" autocomplete="off" value="{{$sale->price}}">
                                                         </div>
                                                     </div>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="material-text2">Status <span class="text-danger" style="display: inline-block;">*</span></label>
-                                                    <select class="form-control" id="expense_status" data-placeholder="Select Status.." name="expense_status" autocomplete="off" required>
-                                                        <option>Select Status</option>
-                                                        <option value="pending" {{$sale->status == 'pending' ? 'selected' : ''}}>Pending</option>
-                                                        <option value="paid" {{$sale->status == 'paid' ? 'selected' : ''}} {{$sale->status == 'confirmed' && $sale->paid == 'full' ? 'selected' : ''}}>Paid</option>
-                                                    </select>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="material-text2">Method <span class="text-danger" style="display: inline-block;">*</span></label>
-                                                    <select name="expense_payment_type" id="expense_payment_type" class="form-control" required autocomplete="off">
-                                                        <option value="">Select Payment Method</option>
-                                                        <option value="paystack" {{$sale->method == 'paystack' ? 'selected' : ''}}>Paystack</option>
-                                                        <option value="cash" {{$sale->method == 'cash' ? 'selected' : ''}}>Cash Payment</option>
-                                                        <option value="momo" {{$sale->method == 'momo' ? 'selected' : ''}}>Mobile Money</option>
-                                                        <option value="pos" {{$sale->method == 'pos' ? 'selected' : ''}}>Card POS</option>
-                                                        <option value="complementary" {{$sale->method == 'complementary' ? 'selected' : ''}}>Complementary</option>
-                                                    </select>
-                                                </div>
-                                                <div class="form-group text-right">
-                                                    <button class="btn btn-lg btn-alt-primary" type="submit">Submit</button>
+                                                    <div class="form-row mb-2 col-lg-6">
+                                                        <label for="material-text2">Total Amount <span class="text-danger" style="display: inline-block;">*</span></label>
+                                                        <div class="input-group">
+                                                            <div class="input-group-prepend">
+                                                                <span class="input-group-text input-group-text-alt">
+                                                                    {{$current_user->company->currency}}
+                                                                </span>
+                                                            </div>
+                                                            <input type="number" step="0.01" id="expense_total_price{{$sale->id}}" name="expense_total_price" class="form-control text-center" readonly placeholder="Total Amount" autocomplete="off" value="{{$sale->total_price}}">
+                                                            <div class="input-group-append">
+                                                                <span class="input-group-text input-group-text-alt">
+                                                                    <i class="fa fa-calculator"></i>
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-row mb-2 col-lg-6">
+                                                        <label for="material-text2">Status <span class="text-danger" style="display: inline-block;">*</span></label>
+                                                        <select class="form-control" id="expense_status" readonly style="pointer-events: none;" tabindex="-1" data-placeholder="Select Status.." name="expense_status" autocomplete="off" required>
+                                                            <option>Select Status</option>
+                                                            <option value="pending" {{$sale->status == 'pending' ? 'selected' : ''}}>Pending</option>
+                                                            <option value="paid" {{$sale->status == 'paid' ? 'selected' : ''}} {{$sale->status == 'confirmed' && $sale->paid == 'full' ? 'selected' : ''}}>Paid</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="form-row mb-2 col-lg-6">
+                                                        <label for="material-text2">Method <span class="text-danger" style="display: inline-block;">*</span></label>
+                                                        <select name="expense_payment_type" id="expense_payment_type" class="form-control" required autocomplete="off">
+                                                            <option value="">Select Payment Method</option>
+                                                            <option value="paystack" {{$sale->method == 'paystack' ? 'selected' : ''}}>Paystack</option>
+                                                            <option value="cash" {{$sale->method == 'cash' ? 'selected' : ''}}>Cash Payment</option>
+                                                            <option value="momo" {{$sale->method == 'momo' ? 'selected' : ''}}>Mobile Money</option>
+                                                            <option value="pos" {{$sale->method == 'pos' ? 'selected' : ''}}>Card POS</option>
+                                                            <option value="complementary" {{$sale->method == 'complementary' ? 'selected' : ''}}>Complementary</option>
+                                                        </select>
+                                                    </div>
+
+                                                    <div class="form-row mb-2 col-lg-6">
+                                                        <label for="expense_reference">Reference Number</label>
+                                                        <input type="text" class="form-control" id="expense_reference" name="expense_reference" placeholder="Reference Number" autocomplete="off" value="{{$sale->sale_payment->reference ?? ''}}">
+                                                    </div>
+                                                    <div class="form-row mb-2 col-lg-6">
+                                                        <label for="expense_vat_invoice_number">Receipt Number</label>
+                                                        <input type="text" class="form-control" id="expense_vat_invoice_number" name="expense_vat_invoice_number" placeholder="Receipt/VAT Invoice Number" autocomplete="off" value="{{$sale->sale_payment->vat_invoice_number ?? ''}}">
+                                                    </div>
+                                                    <div class="form-row mb-2 col-lg-12">
+                                                        <label for="expense_received_by">Received By</label>
+                                                        <input type="text" class="form-control" id="expense_received_by" name="expense_received_by" placeholder="Payment Received By" autocomplete="off" value="{{$sale->sale_payment->received_by ?? ''}}">
+                                                    </div>
+                                                    <div class="form-row mb-2 col-lg-12 text-right">
+                                                        <button class="btn btn-lg btn-alt-primary" type="submit">Submit</button>
+                                                    </div>
                                                 </div>
                                             </form>
                                         </div>
@@ -253,6 +268,32 @@
     <script type="text/javascript">
 
         $(function () {
+            jQuery(".js-dataTable-reports").dataTable({
+                pageLength: 200,
+                responsive: true,
+                scrollX: true,
+                // lengthMenu: [
+                //     [50, 100, 200, 500],
+                //     [50, 100, 200, 500]
+                // ],
+                lengthChange: false,
+                // order: [[-2, 'desc']],
+                columnDefs: [
+                    { responsivePriority: 1, targets: 0 },
+                    { responsivePriority: 2, targets: 2 },
+                    { responsivePriority: 4, targets: 4 },
+                    { responsivePriority: 5, targets: 5 },
+                    { responsivePriority: 6, targets: 6 },
+                    { responsivePriority: 7, targets: 7 },
+                    { responsivePriority: 8, targets: 8 },
+                    { responsivePriority: 3, targets: -1 }
+                ],
+                searching: false,
+                autoWidth: !1,
+                buttons: [{ extend: "colvis", className: "btn btn-sm btn-alt-primary" }, { extend: "copy", className: "btn btn-sm btn-alt-primary" }, { extend: "csv", className: "btn btn-sm btn-alt-primary" }, { extend: "pdf", className: "btn btn-sm btn-alt-primary" }, { extend: "print", className: "btn btn-sm btn-alt-primary" }],
+                dom: "<'row'<'col-sm-12'<'text-left py-2 mb-2'B>>><'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>><'row'<'col-sm-12'tr>><'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>"
+            });
+
             $('#DataTables_Table_0_info').html("Page {{$all_sales->currentPage()}} of {{$all_sales->lastPage()}}");
             $('#DataTables_Table_0_paginate').html("");
             var div = document.createElement('div');

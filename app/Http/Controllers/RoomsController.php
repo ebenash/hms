@@ -152,7 +152,35 @@ class RoomsController extends Controller
         //
         // dd($id);
         $rooms = Rooms::where('status',1)->where('room_type_id',$id)->get();
-
+        // dd($rooms);
         return response()->json($rooms);
+    }
+
+    public function get_available_rooms(Request $request,$id)
+    {
+        // dd($request->all());
+        $notavailable = null;
+
+        $check_in = isset($request->checkin) ? $request->checkin : null;
+        $check_out = isset($request->checkout) ? $request->checkout : null;
+        // $rooms = Rooms::where('status',1)->where('room_type_id',$id)->get();
+        $notavailable = Rooms::join('reservation_details','rooms.id','=','reservation_details.room_id')->join('reservations','reservation_details.reservations_id','=','reservations.id')->where('rooms.status', 1)->where('reservations.reservation_status', 'confirmed')->where('rooms.room_type_id',$id)->select('rooms.*');
+        if($notavailable){
+            if ($check_out) {
+                $notavailable->where('check_in', '<', $check_out)->where('check_out', '>=', $check_in);
+            }else{
+                $notavailable->where('check_in', '<=', $check_in)->where('check_out', '>=', $check_in);
+            }
+
+            $notavailids = array_column($notavailable->get()->toArray(), 'id');
+            $available = Rooms::where('rooms.status', 1)->whereNotIn('rooms.id',$notavailids)->where('room_type_id',$id)->get();
+            // dd($available);
+            return response()->json($available);
+        }else{
+            $rooms = Rooms::where('status',1)->where('room_type_id',$id)->get();
+            // dd($rooms);
+            return response()->json($rooms);
+        }
+        // dd($notavailable->get());
     }
 }

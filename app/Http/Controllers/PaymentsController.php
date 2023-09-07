@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Payments;
 use App\Models\Reservations;
 use App\Http\Controllers\ReservationsController;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 
 class PaymentsController extends CommonController
@@ -61,9 +62,19 @@ class PaymentsController extends CommonController
 
         $checkbox = $request->input('send_invoice');
 
+        $reservation = Reservations::find($request->input('reservation_id'));
+        foreach ($reservation->details as $key => $detail) {
+            $roombooked = DB::table('reservation_details')->join('reservations','reservation_details.reservations_id','=','reservations.id')->join('guests','reservations.guest_id','=','guests.id')->select('reservations.id', 'reservation_details.id as detail_id','reservations.check_in','reservations.check_out','reservation_details.room_id','guests.full_name')->where('reservation_details.room_id', $detail->room_id)->where('reservations.check_in', '<', $reservation->check_out)->where('reservations.check_out', '>', $reservation->check_in)->where('reservations.reservation_status', 'confirmed')->where('reservation_details.reservations_id','!=',$reservation->id)->first();
+            // dump($roombooked);
+            if($roombooked){
+                return back()->with('error','Selected Room(s) Already Booked By '.$roombooked->full_name.' (Reservation: #'.$roombooked->id.') On Specified Dates');
+            }
+        }
+        // dd("DONE");
+
         if(isset($checkbox) && $checkbox = 'on'){
-            $reservations = new ReservationsController;
-            $result = $reservations->send_feedback_to_guest($request->input('reservation_id'),'invoice');
+            $controller = new ReservationsController;
+            $result = $controller->send_feedback_to_guest($request->input('reservation_id'),'invoice');
 
             if($result){
                 return back()->with('success','Payment Successfully Created!');
@@ -94,7 +105,6 @@ class PaymentsController extends CommonController
             $payment->created_at = $this->todaydatetime();
 
             // dd($payment);
-            $reservation = Reservations::find($payment->payment_type_id);
             $reservation->reservation_status = 'confirmed';
             if($reservation->update()){
                 $payment->save();

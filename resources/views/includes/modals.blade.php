@@ -109,7 +109,7 @@
                             </div>
                             <div class="form-group">
                                 <label for="material-text2">ID Card <span class="text-danger" style="display: inline-block;">*</span></label>
-                                <input type="file" name="id_card" class="form-control" required>
+                                <input type="file" name="id_card" class="form-control">
                             </div>
                             <div class="form-group">
                                 <label for="material-text2">City</label>

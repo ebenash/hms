@@ -15,4 +15,8 @@ class ReservationExpenses extends Model
     public function reservation(){
     	return $this->belongsTo('App\Models\Reservations','reservations_id');
     }
+
+    public function sale_payment(){
+    	return $this->hasOne('App\Models\Payments','payment_type_id')->where('payments.payment_type', '=', 'sale');
+    }
 }

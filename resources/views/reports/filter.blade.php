@@ -303,6 +303,20 @@
     <script src="{{ asset('js/pages/tables_datatables.js') }}"></script>
 
     <script>jQuery(function(){One.helpers(['flatpickr']);});</script>
+
+    @if(isset($filter) && $filter->filter_type == 'typepaystack')
+        <script type="text/javascript">
+            let priority = 8;
+        </script>
+    @elseif(isset($filter) && $filter->filter_type == 'typeroomsavailable')
+        <script type="text/javascript">
+            let priority = 3;
+        </script>
+    @else
+        <script type="text/javascript">
+            let priority = 7;
+        </script>
+    @endif
     {{-- <script>
         function hideFilterFields(select) {
             if (select.value == 'today') {
@@ -333,7 +347,7 @@
                     // { targets: [0, 1], visible: false },
                     { responsivePriority: 1, targets: 0 },
                     { responsivePriority: 2, targets: 1 },
-                    { responsivePriority: 3, targets: 7 },
+                    { responsivePriority: 3, targets: priority },
                     { responsivePriority: 4, targets: -1 }
                 ],
                 searching: false,

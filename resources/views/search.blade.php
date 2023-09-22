@@ -13,9 +13,9 @@
         <div class="input-group mb-5">
             <input type="text" class="form-control" placeholder="Search.." value="{{$keyword}}" name="keyword" id="keyword">
             <div class="input-group-append">
-                <span class="input-group-text">
+                <button class="input-group-text">
                     <i class="fa fa-fw fa-search"></i>
-                </span>
+                </button>
             </div>
         </div>
     </form>

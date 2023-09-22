@@ -63,7 +63,7 @@ class Helper
     public function get_calendar($list) {
         $calendar = new Calendar();
         $calendar->addEvents($list)->setCallbacks([
-            'eventMouseEnter' => 'function(info) {
+            'eventDidMount' => 'function(info) {
                 // console.log(info);
                 var tooltip = $(info.el).tooltip({
                     title: info.el,
@@ -78,18 +78,26 @@ class Helper
                 'locales' => 'FullCalendar.globalLocales',
                 'locale' => 'en-gb',
                 'timeZone' => 'UTC',
+                // 'height' => '1000px',
+                'navLinks' => true,
                 'firstDay' => 1,
                 'displayEventTime' => false,
+                'dayMaxEventRows' => true,
                 'selectable' => true,
                 'initialView' => 'dayGridMonth',
                 'headerToolbar' => [
-                    'left' => 'prev,next today myCustomButton',
+                    'left' => 'prevYear,prev,next,nextYear myCustomButton',
                     'center' => 'title',
-                    'right' => 'dayGridMonth,dayGridWeek,dayGridDay,listMonth'
+                    'right' => 'today dayGridMonth,dayGridWeek,dayGridDay,listMonth'
+                ],
+                'footerToolbar' => [
+                    'left' => '',
+                    'center' => '',
+                    'right' => 'prevYear,nextYear'
                 ],
                 'customButtons' => [
                     'myCustomButton' => [
-                        'text'=> ' Add New Reservation',
+                        'text'=> ' Add Reservation',
                         'click' => 'function() {
                             $("#modal-view-add-reservation").modal("show");
                         }'

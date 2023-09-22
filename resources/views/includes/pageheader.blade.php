@@ -1,6 +1,6 @@
 <!-- Hero -->
 <div class="bg-body-light">
-    <div class="content content-full">
+    <div class="content content-full pt-1 pb-1">
         <div class="d-flex flex-column flex-sm-row justify-content-sm-between align-items-sm-center py-2 text-center text-sm-left">
             <div class="flex-sm-fill">
                 @yield('page-header')

@@ -709,8 +709,8 @@
                                     </div>
                                     <div class="form-row mb-2 col-lg-12" id="referencediv">
                                         <div class="col-lg-12 pr-0' pl-0">
-                                            <label for="reference">Reference Number</label>
-                                            <input type="text" class="form-control" id="reference" name="reference" placeholder="Reference Number" autocomplete="off">
+                                            <label for="reference">Transaction ID</label>
+                                            <input type="text" class="form-control" id="reference" name="reference" placeholder="Transaction ID" autocomplete="off">
                                         </div>
                                     </div>
                                     <div class="form-row mb-2 col-lg-12 row">
@@ -892,7 +892,7 @@
             console.log(paymenttype);
             if (paymenttype == 'paystack') {
                 // $("#status").val("pending").attr('readonly','readonly').attr("style", "pointer-events: none;").attr("tabindex","-1");
-                if("{{$reservation->guest->email == 'info@royalelmounthotel.com' || $reservation->guest->email == 'reservations@royalelmounthotel.com'}}"){
+                if("{{isset($reservation) && ($reservation->guest->email == 'info@royalelmounthotel.com' || $reservation->guest->email == 'reservations@royalelmounthotel.com')}}"){
                     $("#checkdiv").hide();
                 }else{
                     $("#checkdiv").show();

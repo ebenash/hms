@@ -234,15 +234,27 @@ class AccountingController extends CommonController
             'expense_payment_type' => 'required',
         ]);
 
-        $sale = ReservationExpenses::find($id);
-        $sale->expense_type = $request->input('expense_type');
-        $sale->description = $request->input('expense_description');
-        $sale->quantity = $request->input('expense_quantity');
-        $sale->price = $request->input('expense_price');
-        $sale->total_price = $request->input('expense_total_price');
-        $sale->status = $request->input('expense_status');
-        $sale->method = $request->input('expense_payment_type');
-        $sale->update();
+        DB::beginTransaction();
+            DB::table('reservation_expenses')->where('id',$id)->update([
+                'expense_type' => $request->input('expense_type'),
+                'description' => $request->input('expense_description'),
+                'quantity' => $request->input('expense_quantity'),
+                'price' => $request->input('expense_price'),
+                'total_price' => $request->input('expense_total_price'),
+                'method' => $request->input('expense_payment_type'),
+                'status' => $request->input('expense_status'),
+            ]);
+
+            if($request->input('expense_status') == 'paid'){
+                DB::table('payments')->where('payment_type_id',$id)->update([
+                    'amount' => $request->input('expense_total_price')*100,
+                    'provider' => $request->input('expense_payment_type'),
+                    'reference' => $request->input('expense_reference'),
+                    'vat_invoice_number' => $request->input('expense_vat_invoice_number'),
+                    'received_by' => $request->input('expense_received_by'),
+                ]);
+            }
+            DB::commit();
 
         return redirect()->route('other.sales')->with('success','Sale Record Updated Successfully');
     }

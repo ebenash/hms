@@ -67,13 +67,19 @@ class GuestsController extends CommonController
             'phone' => 'required',
             'id_card' => 'max:1000|image'
         ]);
-
+        $fullname = ucwords(strtolower($request->input('full_name')));
+        $exists = Guests::where('full_name',$fullname)->first();
+        // dd($exists);
+        if($exists){
+            $request->session()->put('guestdetail',$exists->id);
+            return redirect()->route('guests')->with('warning','Guest Already Exists In System! Please Edit Guest To Add Extra Details');
+        }
         try{
             $guest = new Guests;
 
             $filename = null;
 
-            $guest->full_name = ucwords(strtolower($request->input('full_name')));
+            $guest->full_name = $fullname;
             $guest->email = strtolower($request->input('email'));
             $guest->phone = $this->formatphonenumber($request->input('phone'));
             $guest->city = $request->input('city');

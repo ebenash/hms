@@ -51,7 +51,7 @@ class GuestPaymentNotification extends Notification
         ->greeting('Hello '.($this->reservation->guest->full_name ?? $this->reservation->guest->email).',')
         ->line('Thank you for confirming your reservation with Royal Elmount Hotel.')
         ->line('We have received your payment of GHS '.number_format($this->reservation->grand_total,2).', and have reserved your requested room(s) for the '.$this->reservation->days.' days you specified (i.e. '.date_format(new DateTime($this->reservation->check_in), 'l jS F Y').' - '.date_format(new DateTime($this->reservation->check_out), 'l jS F Y').').')
-        ->line('Please do not hesitate to reach out to us if you have any inquiries or would like to give us information regarding your upcoming stay. The Royal Elmount Hotel Team looks forward to hosting you soon.');
+        ->line('Please present this email to the frontdesk at check-in, and do not hesitate to reach out to us if you have any inquiries or would like to give us information regarding your upcoming stay. The Royal Elmount Hotel Team looks forward to hosting you soon.');
     }
 
     /**

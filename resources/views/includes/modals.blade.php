@@ -217,8 +217,8 @@
                             </div>
 
                             <div class="form-row mb-2 col-lg-6">
-                                <label for="expense_reference">Reference Number</label>
-                                <input type="text" class="form-control" id="expense_reference" name="expense_reference" placeholder="Reference Number" autocomplete="off">
+                                <label for="expense_reference">Transaction ID</label>
+                                <input type="text" class="form-control" id="expense_reference" name="expense_reference" placeholder="Transaction ID" autocomplete="off">
                             </div>
                             <div class="form-row mb-2 col-lg-6">
                                 <label for="expense_vat_invoice_number">Receipt Number</label>

@@ -103,9 +103,9 @@
                 <div class="input-group input-group-sm">
                     <input type="text" class="form-control form-control-alt" placeholder="Search.." id="keyword" name="keyword">
                     <div class="input-group-append">
-                        <span class="input-group-text bg-body border-0">
+                        <button class="input-group-text bg-body border-0">
                             <i class="fa fa-fw fa-search"></i>
-                        </span>
+                        </button>
                     </div>
                 </div>
             </form>

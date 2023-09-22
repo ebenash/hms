@@ -310,7 +310,7 @@ class CommonController extends Controller
             $rooms = Rooms::where("name","like","%".$keyword."%")->where('company_id',auth()->user()->company->id)->limit($limit)->get();
             $roomtypes = RoomTypes::where("name","like","%".$keyword."%")->where('company_id',auth()->user()->company->id)->limit($limit)->get();
             // $ressearch = Reservations::find($keyword);
-            // dd($ressearch);
+            // dd($keyword);
             $first = true;
 
             if (count($guests) > 0) {
@@ -348,6 +348,8 @@ class CommonController extends Controller
             }
 
             $reservations->orWhere('id',$keyword);
+        }else{
+            $limit = 0;
         }
 
         $data = [

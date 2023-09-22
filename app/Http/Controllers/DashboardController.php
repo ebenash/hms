@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Reservations;
 use App\Models\Payments;
+use App\Models\Rooms;
 use Illuminate\Support\Facades\Auth;
 use App\Helpers\Helper;
 use Illuminate\Support\Facades\DB;
@@ -56,15 +57,16 @@ class DashboardController extends CommonController
         // dd($sales_yesterday);
 
         $count_today = $today->count;
+        $count_yesterday = $yesterday->count;
         $sum_today = $today->sum_grand_total;
 
         $count_sales = $sales->count;
         $sum_sales = $sales->sum_total;
-        $pending_sales = $sales->pending_sales;
+        // $pending_sales = $sales->pending_sales;
 
         $count_sales_yesterday = $sales_yesterday->count;
         $sum_sales_yesterday = $sales_yesterday->sum_total;
-        $pending_sales_yesterday = $sales_yesterday->pending_sales;
+        // $pending_sales_yesterday = $sales_yesterday->pending_sales;
 
         $sum_yesterday = $yesterday->sum_grand_total;
         // dd($sum_sales);
@@ -146,6 +148,10 @@ class DashboardController extends CommonController
         $sumpaid = Payments::whereIn('payment_type_id',$grandids)->where('payment_type', '=', 'reservation')->sum('amount');
         // dd($sumgrand);
 
+        $notavailable = Rooms::join('reservation_details','rooms.id','=','reservation_details.room_id')->join('reservations','reservation_details.reservations_id','=','reservations.id')->where('rooms.status', 1)->where('reservations.reservation_status', 'confirmed')->select('rooms.id','reservations.check_in','reservations.check_out')->where('check_in', '<', date('Y-m-d'))->where('check_out', '>=', date('Y-m-d'));
+        $notavailids = array_column($notavailable->get()->toArray(), 'id');
+        $available = Rooms::join('room_types','rooms.room_type_id','=','room_types.id')->where('rooms.status', 1)->select('rooms.id','rooms.name as room_name','rooms.status','rooms.bed_type','room_types.name as room_type','room_types.category','room_types.max_persons')->whereNotIn('rooms.id',$notavailids)->count();
+
         $reservations_data = [
             'count_today' => $count_today,
             'count_requests' => $requestscount,
@@ -154,7 +160,7 @@ class DashboardController extends CommonController
             'sum_today' => $sum_today,
             'count_sales' => $count_sales,
             'sum_sales' => $sum_sales,
-            'pending_sales' => $pending_sales,
+            'available' => $available,
             'requests' => $requests->limit(50)->get(),
             'arrivals' => $arrivals->limit(50)->get(),
             'departures' => $departures->limit(50)->get(),
@@ -167,7 +173,7 @@ class DashboardController extends CommonController
             'sum_yesterday' => $sum_yesterday,
             'count_sales_yesterday' => $count_sales_yesterday,
             'sum_sales_yesterday' => $sum_sales_yesterday,
-            'pending_sales_yesterday' => $pending_sales_yesterday,
+            'count_yesterday' => $count_yesterday,
             'helper' => new Helper(),
             'callendar_reservation_list' => $callendar_reservation_list
         ];

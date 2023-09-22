@@ -38,8 +38,15 @@ Route::get('/offers', function () {
     return view('homepage.offers');
 })->name('home.offers');
 
+Route::get('/webmail', function () {
+    return redirect('https://app.titan.email/login/');
+});
+
 // Route::get('/', 'DashboardController@index')->name('dashboard');
 Route::prefix('admin')->group(function(){
+    Route::get('/', function () {
+        return redirect()->route('dashboard');
+    });
     Route::get('/dashboard', 'DashboardController@index')->name('dashboard');
     Auth::routes(['register'=>false]);
     Route::post('/guests/store', 'GuestsController@store')->name('guests-store');

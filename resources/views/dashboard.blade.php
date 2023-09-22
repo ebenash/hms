@@ -20,29 +20,29 @@
             <!-- Reservations Overview -->
             <div class="row row-deck">
                 <div class="col-sm-6 col-xl-3">
-                    <!-- Today Checkins -->
-                    <div class="block block-rounded d-flex flex-column">
+                    <!-- Rooms Available -->
+                    <div class="block block-rounded d-flex flex-column mb-2">
                         <div class="block-content block-content-full flex-grow-1 d-flex justify-content-between align-items-center">
                             <dl class="mb-0">
-                                <dt class="font-size-h3 font-w700">{{$count_today}}</dt>
-                                <dd class="text-muted mb-0">Today</dd>
+                                <dt class="font-size-h3 font-w700">{{$available}}</dt>
+                                <dd class="text-muted mb-0">Available</dd>
                             </dl>
                             <div class="item item-rounded bg-body">
-                                <i class="fa fa-calendar-alt font-size-h3 text-primary"></i>
+                                <i class="fa fa-bed font-size-h3 text-primary"></i>
                             </div>
                         </div>
                         <div class="block-content block-content-full block-content-sm bg-body-light font-size-sm">
-                            <a class="font-w500 d-flex align-items-center" href="{{route('reservations-today')}}">
-                                Check-ins today
+                            <a class="font-w500 d-flex align-items-center" href="{{route('reports-filter')}}?search=&filter_type=typeroomsavailable&daterange={{date('Y-m-d')}}">
+                                Rooms Available
                                 <i class="fa fa-arrow-alt-circle-right ml-1 opacity-25 font-size-base"></i>
                             </a>
                         </div>
                     </div>
-                    <!-- END Today Checkins -->
+                    <!-- END Rooms Available -->
                 </div>
                 <div class="col-sm-6 col-xl-3">
                     <!-- Pending Requests -->
-                    <div class="block block-rounded d-flex flex-column">
+                    <div class="block block-rounded d-flex flex-column mb-2">
                         <div class="block-content block-content-full flex-grow-1 d-flex justify-content-between align-items-center">
                             <dl class="mb-0">
                                 <dt class="font-size-h3 font-w700">{{$count_requests}}</dt>
@@ -63,7 +63,7 @@
                 </div>
                 <div class="col-sm-6 col-xl-3">
                     <!-- Confirmed Reservations -->
-                    <div class="block block-rounded d-flex flex-column">
+                    <div class="block block-rounded d-flex flex-column mb-2">
                         <div class="block-content block-content-full flex-grow-1 d-flex justify-content-between align-items-center">
                             <dl class="mb-0">
                                 <dt class="font-size-h3 font-w700">{{$count_confirmed}}</dt>
@@ -84,7 +84,7 @@
                 </div>
                 <div class="col-sm-6 col-xl-3">
                     <!-- Cancelled -->
-                    <div class="block block-rounded d-flex flex-column">
+                    <div class="block block-rounded d-flex flex-column mb-2">
                         <div class="block-content block-content-full flex-grow-1 d-flex justify-content-between align-items-center">
                             <dl class="mb-0">
                                 <dt class="font-size-h3 font-w700">{{$count_cancelled}}</dt>
@@ -107,7 +107,7 @@
             <!-- END Reservations Overview -->
         @endcan
 
-        <h2 class="content-heading">What’s happening today?</h2>
+        <h2 class="content-heading pt-1">What’s happening today?</h2>
 
         <!-- Statistics -->
         <div class="row">
@@ -387,9 +387,9 @@
                             <div class="col-sm-4">
                                 <dl class="mb-0">
                                     <dt class="font-size-h3 font-w700">
-                                        @if($pending_sales > $pending_sales_yesterday)<i class="fa fa-arrow-up font-size-lg text-success"></i> @elseif($pending_sales == $pending_sales_yesterday)<i class="fa fa-arrow-right font-size-lg text-warning"></i> @else <i class="fa fa-arrow-down font-size-lg text-danger"></i> @endif {{$pending_sales}}
+                                        @if($count_today > $count_yesterday)<i class="fa fa-arrow-up font-size-lg text-success"></i> @elseif($count_today == $count_yesterday)<i class="fa fa-arrow-right font-size-lg text-warning"></i> @else <i class="fa fa-arrow-down font-size-lg text-danger"></i> @endif {{$count_today}}
                                     </dt>
-                                    <dd class="text-muted mb-0">Pending Sales</dd>
+                                    <dd class="text-muted mb-0">Check-ins Today</dd>
                                 </dl>
                             </div>
                         </div>
